@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "287609316918",
+    "project_id": "moviehouse-6bbd8",
+    "storage_bucket": "moviehouse-6bbd8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287609316918:android:dc97e31f05e80494b3da97",
+        "android_client_info": {
+          "package_name": "com.example.movie_house4"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "287609316918-u8qb0pnnqencbb0fq9cd53r68j861pcc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.movie_house4",
+            "certificate_hash": "e6c6acb37f9f459fa6520c60ae792ca5e101ba55"
+          }
+        },
+        {
+          "client_id": "287609316918-noru4138a9mab13d6ro9gsth97205bhp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVPnwFhWS3zlpzes8DB3SjW62T9VUQpdg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "287609316918-noru4138a9mab13d6ro9gsth97205bhp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
