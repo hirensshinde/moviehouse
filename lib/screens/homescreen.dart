@@ -81,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             Container(
+              padding: EdgeInsets.only(top: 20.0),
               width: double.infinity,
               height: MediaQuery.of(context).size.height,
               child: MoviesWidget(movies: _movies),

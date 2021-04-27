@@ -1,8 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
+import 'package:movie_house4/models/navigation_item.dart';
 import 'package:movie_house4/provider/google_sign_in.dart';
+import 'package:movie_house4/provider/navigationProvider.dart';
+import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:movie_house4/screens/homescreen.dart';
+import 'package:movie_house4/screens/savedContentScreen.dart';
+import 'package:movie_house4/screens/subscriptionScreen.dart';
+import 'package:movie_house4/screens/updateScreen.dart';
+import 'package:movie_house4/widgets/signUpWidget.dart';
 
 import 'package:provider/provider.dart';
 
@@ -19,7 +26,7 @@ class LoginScreen extends StatelessWidget {
           if (provider.isSigningIn) {
             return buildLoading();
           } else if (snapshot.hasData) {
-            return HomeScreen();
+            return buildPages(context);
           } else {
             return SignUpWidget();
           }
@@ -29,46 +36,22 @@ class LoginScreen extends StatelessWidget {
   }
 
   Widget buildLoading() => Center(child: CircularProgressIndicator());
-}
 
-class SignUpWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Spacer(),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 20.0),
-            width: 175.0,
-            child: Text('Welcome to Movie House',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                )),
-          ),
-        ),
-        Spacer(),
-        GoogleSignInButton(
-          borderRadius: 20.0,
-          // centered: true,
-          darkMode: true,
-          // splashColor: Colors.orange,
-          onPressed: () {
-            final provider =
-                Provider.of<GoogleSignInProvider>(context, listen: false);
-            provider.login();
-          },
-        ),
-        SizedBox(height: 10.0),
-        Text(
-          'Login to continue',
-          style: TextStyle(fontSize: 16.0),
-        ),
-        Spacer(),
-      ],
-    );
+  Widget buildPages(context) {
+    final provider = Provider.of<NavigationProvider>(context);
+    final navigationItem = provider.navigationItem;
+
+    switch (navigationItem) {
+      case NavigationItem.home:
+        return HomeScreen();
+      case NavigationItem.subscription:
+        return SubscriptionScreen();
+      case NavigationItem.downloads:
+        return DownloadsScreen();
+      case NavigationItem.savedContent:
+        return SavedContentScreen();
+      case NavigationItem.updates:
+        return UpdateScreen();
+    }
   }
 }
