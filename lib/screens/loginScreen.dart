@@ -4,9 +4,11 @@ import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:movie_house4/models/navigation_item.dart';
 import 'package:movie_house4/provider/google_sign_in.dart';
 import 'package:movie_house4/provider/navigationProvider.dart';
+import 'package:movie_house4/screens/categoryScreen.dart';
 import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:movie_house4/screens/homescreen.dart';
 import 'package:movie_house4/screens/savedContentScreen.dart';
+import 'package:movie_house4/screens/searchScreen.dart';
 import 'package:movie_house4/screens/subscriptionScreen.dart';
 import 'package:movie_house4/screens/updateScreen.dart';
 import 'package:movie_house4/widgets/signUpWidget.dart';
@@ -17,22 +19,23 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.black,
         body: ChangeNotifierProvider(
-      create: (context) => GoogleSignInProvider(),
-      child: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          final provider = Provider.of<GoogleSignInProvider>(context);
-          if (provider.isSigningIn) {
-            return buildLoading();
-          } else if (snapshot.hasData) {
-            return buildPages(context);
-          } else {
-            return SignUpWidget();
-          }
-        },
-      ),
-    ));
+          create: (context) => GoogleSignInProvider(),
+          child: StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              final provider = Provider.of<GoogleSignInProvider>(context);
+              if (provider.isSigningIn) {
+                return buildLoading();
+              } else if (snapshot.hasData) {
+                return buildPages(context);
+              } else {
+                return SignUpWidget();
+              }
+            },
+          ),
+        ));
   }
 
   Widget buildLoading() => Center(child: CircularProgressIndicator());
@@ -43,7 +46,7 @@ class LoginScreen extends StatelessWidget {
 
     switch (navigationItem) {
       case NavigationItem.home:
-        return HomeScreen();
+        return CategoryScreen();
       case NavigationItem.subscription:
         return SubscriptionScreen();
       case NavigationItem.downloads:
@@ -52,6 +55,8 @@ class LoginScreen extends StatelessWidget {
         return SavedContentScreen();
       case NavigationItem.updates:
         return UpdateScreen();
+      default:
+        return SearchScreen();
     }
   }
 }

@@ -25,11 +25,35 @@ dependencies:
     sdk: flutter
   flutter_svg: ^0.21.0+1
   http:
-  
-  # Google Sign In
-  firebase_auth: 
-  google_sign_in: 
+  dio:
+  filesize:
+  path_provider:
+  flutter_downloader:
+  permission_handler:
+
+  # Test packages
+  # flutter_downloader:
+  # percent_indicator:
+  # fluttertoast:
+  # progress_dialog:
+
+  #
+  # flutter_downloader: ^1.1.7
+  progress_dialog: ^1.1.0+1
+  percent_indicator: "^2.1.1"
+  fluttertoast: ^3.1.0
+  change_app_package_name: ^1.0.0
+
+    
+
+  # Google Signin
+  firebase_auth: ^0.20.0+1
+  google_sign_in:
   flutter_auth_buttons: ^0.10.0
+
+  # Facebook Signin
+  flutter_facebook_login:
+
 
 
   # State Management
@@ -47,6 +71,22 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons:
+  flutter_native_splash:
+
+
+flutter_icons:
+  image_path: "assets/launcher/AppIcon.png"
+  android: true
+  ios: true
+
+flutter_native_splash:
+  color: "#000000"
+  image: assets/images/SplashLogo.png
+  android: true
+  ios: true
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

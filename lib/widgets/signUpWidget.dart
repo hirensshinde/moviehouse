@@ -10,34 +10,40 @@ class SignUpWidget extends StatelessWidget {
       children: [
         Spacer(),
         Align(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.center,
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 20.0),
-            width: 175.0,
-            child: Text('Welcome to Movie House',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                )),
+            // width: 175.0,
+            height: 250.0,
+            width: 250.0,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  'assets/images/SplashLogo.png',
+                ),
+                // fit: BoxFit.fill,
+              ),
+            ),
           ),
         ),
         Spacer(),
-        GoogleSignInButton(
-          borderRadius: 20.0,
-          // centered: true,
-          darkMode: true,
-          // splashColor: Colors.orange,
-          onPressed: () {
+        GestureDetector(
+          onTap: () {
             final provider =
                 Provider.of<GoogleSignInProvider>(context, listen: false);
             provider.login();
           },
-        ),
-        SizedBox(height: 10.0),
-        Text(
-          'Login to continue',
-          style: TextStyle(fontSize: 16.0),
+          child: Container(
+            height: 100,
+            // width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  'assets/icons/GoogleLogin.png',
+                ),
+              ),
+            ),
+          ),
         ),
         Spacer(),
       ],

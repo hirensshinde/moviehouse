@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:movie_house4/models/movies.dart';
+import 'package:movie_house4/models/moviex.dart';
+import 'package:movie_house4/screens/movieDetail.dart';
+// import 'package:movie_house4/models/movies.dart';
 
 class MoviesWidget extends StatelessWidget {
-  final List<Result> movies;
+  final List<Movie> movies;
 
   MoviesWidget({this.movies});
 
@@ -16,8 +18,10 @@ class MoviesWidget extends StatelessWidget {
           shrinkWrap: true,
           itemCount: movies.length,
           gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            childAspectRatio: width / (height),
+            crossAxisCount: 3,
+            mainAxisSpacing: 10.0,
+            crossAxisSpacing: 15.0,
+            childAspectRatio: width / (height / 1.2),
           ),
           itemBuilder: (context, index) {
             // print(movies[index].posterPath);
@@ -26,17 +30,30 @@ class MoviesWidget extends StatelessWidget {
 
             return Column(
               children: [
-                Container(
-                  height: 100.0,
-                  width: 80.0,
-                  // margin: EdgeInsets.symmetric(vertical: 10.0),
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage('https://image.tmdb.org/t/p/w300/' +
-                          movie.posterPath),
-                      fit: BoxFit.fitHeight,
+                Flexible(
+                  child: GestureDetector(
+                    onTap: () {
+                      return Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MovieDetail(movie: movie),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 120.0,
+                      width: 90.0,
+                      // margin: EdgeInsets.symmetric(vertical: 10.0),
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(
+                              'https://api.moviehouse.download/admin/movie/image/' +
+                                  movie.poster),
+                          fit: BoxFit.fill,
+                        ),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
                 SizedBox(
@@ -46,7 +63,7 @@ class MoviesWidget extends StatelessWidget {
                   movie.title,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 10.0,
+                    fontSize: 12.0,
                   ),
                 )
               ],

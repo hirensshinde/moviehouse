@@ -4,9 +4,9 @@ class Movie {
   final String description;
   final String poster;
   final String downloadLink;
-  final String downloadCount;
-  final bool featured;
-  final String categoryId;
+  final int downloadCount;
+  final int featured;
+  final int categoryId;
   final String genreId;
 
   Movie(

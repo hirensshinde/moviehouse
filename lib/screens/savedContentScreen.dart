@@ -13,7 +13,11 @@ class SavedContentScreen extends StatelessWidget {
         // centerTitle: true,
       ),
       body: Container(
-        color: Colors.black45,
+        color: Colors.black,
+        child: Center(
+          child: Text("Coming Soon",
+              style: TextStyle(fontSize: 22.0, color: Colors.white)),
+        ),
       ),
     );
   }
