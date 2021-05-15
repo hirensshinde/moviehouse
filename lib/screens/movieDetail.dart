@@ -20,8 +20,9 @@ class _MovieDetailState extends State<MovieDetail> {
   Widget build(BuildContext context) {
     if (widget.movie != null) {
       return Scaffold(
+        extendBodyBehindAppBar: true,
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.blue[800],
           onPressed: () async {
             final status = await Permission.storage.request();
 
@@ -52,14 +53,14 @@ class _MovieDetailState extends State<MovieDetail> {
           ),
         ),
         appBar: AppBar(
-          backgroundColor: Colors.black,
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
           leading: IconButton(
             icon: SvgPicture.asset('assets/icons/Back.svg'),
             onPressed: () {
               return Navigator.pop(context);
             },
           ),
-          title: Text(widget.movie.title),
         ),
         body: SingleChildScrollView(
           child: Stack(
@@ -92,22 +93,20 @@ class _MovieDetailState extends State<MovieDetail> {
                     decoration: BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.0),
-                        topRight: Radius.circular(20.0),
+                        topLeft: Radius.circular(40.0),
+                        topRight: Radius.circular(40.0),
                       ),
                     ),
                     child: Column(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 15.0),
-                          child: Text(
-                            widget.movie.title,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 30.0,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        SizedBox(height: 30.0),
+                        Text(
+                          widget.movie.title,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 26.0,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(height: 10.0),
@@ -121,7 +120,7 @@ class _MovieDetailState extends State<MovieDetail> {
                           child: Text(
                             widget.movie.description,
                             style: TextStyle(color: Colors.white),
-                            textAlign: TextAlign.start,
+                            textAlign: TextAlign.center,
                             maxLines: 7,
                           ),
                         ),

@@ -8,6 +8,7 @@ import 'package:movie_house4/models/moviex.dart';
 import 'package:movie_house4/models/webseries.dart';
 import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:movie_house4/screens/movieDetail.dart';
+import 'package:movie_house4/screens/searchScreen.dart';
 import 'package:movie_house4/widgets/moviesWidget.dart';
 import 'package:movie_house4/widgets/seriesWidget.dart';
 import 'package:movie_house4/widgets/sidebarWidget.dart';
@@ -37,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final movies = await _fetchAllMovies();
       final series = await _fetchAllSeries();
+
       if (this.mounted) {
         setState(() {
           _movies = movies;
@@ -66,7 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<Movie>> _fetchAllMovies() async {
     // final String apiUrl =
     //     "https://api.themoviedb.org/3/movie/now_playing?api_key=a8d93a34b26202fd9917272a3535e340";
-    List newList;
 
     if (widget.id != null) {
       final String apiUrl =
@@ -151,7 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SvgPicture.asset(
           'assets/icons/Search.svg',
         ),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => SearchScreen()));
+        },
         backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(

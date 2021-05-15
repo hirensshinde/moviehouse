@@ -12,52 +12,54 @@ class SeriesDetail extends StatefulWidget {
 }
 
 class _SeriesDetailState extends State<SeriesDetail> {
-  // _SeriesDetailState()
+  List<Season> _seasons;
+
+  void initState() {
+    super.initState();
+    _populateAllSeason();
+  }
+
+  _populateAllSeason() async {
+    try {
+      final seasons = await _fetchAllSeasons();
+
+      if (this.mounted) {
+        setState(() {
+          _seasons = seasons;
+        });
+      }
+    } on Exception catch (_) {
+      print('Data Not arrived yet');
+      throw Exception('Data not arrived yet');
+    }
+  }
+
+  Future<List<Season>> _fetchAllSeasons() async {
+    List seasonsList = widget.series.season;
+    print(seasonsList);
+    return seasonsList
+        .map((season) => Season.fromJson(season))
+        .cast<Season>()
+        .toList();
+  }
+
+  int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     if (widget.series != null) {
       return Scaffold(
-        // floatingActionButton: FloatingActionButton(
-        //   backgroundColor: Colors.blue,
-        //   onPressed: () async {
-        //     // final status = await Permission.storage.request();
-
-        //     if (status.isGranted) {
-        //       final externalDir = await getExternalStorageDirectory();
-        //       final id = await FlutterDownloader.enqueue(
-        //         url: widget.movie.downloadLink,
-        //         savedDir: externalDir.path,
-        //         fileName: widget.movie.title,
-        //         showNotification: true,
-        //         openFileFromNotification: true,
-        //       );
-        //     } else {
-        //       print("Permission denied");
-        //     }
-        //     // Navigator.push(
-        //     //   context,
-        //     //   MaterialPageRoute(
-        //     //     builder: (context) {
-        //     //       return DownloadsScreen(movie: widget.movie);
-        //     //     },
-        //     //   ),
-        //     // );
-        //   },
-        //   child: SvgPicture.asset(
-        //     'assets/icons/Download.svg',
-        //     height: 20.0,
-        //   ),
-        // ),
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
           leading: IconButton(
             icon: SvgPicture.asset('assets/icons/Back.svg'),
             onPressed: () {
               return Navigator.pop(context);
             },
           ),
-          title: Text(widget.series.title),
         ),
         body: SingleChildScrollView(
           child: Stack(
@@ -86,18 +88,72 @@ class _SeriesDetailState extends State<SeriesDetail> {
                   child: Container(
                     height: MediaQuery.of(context).size.height / 2,
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 4, 6, 22),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(20.0),
                         topRight: Radius.circular(20.0),
                       ),
                     ),
                     child: Column(
+                      // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(height: 25.0),
+                        Text(
+                          widget.series.title,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8.0),
+                        Text(
+                          "2016 Drama Action",
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 151, 169, 170),
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 20.0),
                         Container(
+                          width: double.infinity,
+                          height: 55.0,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: widget.series.season.length,
+                            itemCount: _seasons.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      selectedIndex = index;
+                                    });
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      color: selectedIndex == index
+                                          ? Colors.blue[800]
+                                          : Color.fromARGB(255, 25, 27, 45),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 10.0),
+                                    height: 55.0,
+                                    width: 90.0,
+                                    child: Center(
+                                      child: Text(
+                                        "Season " + _seasons[index].seasonName,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         )
                       ],

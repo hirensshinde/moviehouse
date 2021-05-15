@@ -15,6 +15,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   List<Genre> _genres;
   List<Movie> _searchResult;
+
   TextEditingController textController = TextEditingController();
 
   @override
@@ -37,16 +38,16 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _populateSearchResult() async {
-    try {
-      final searchResult = await _fetchSearchResult();
+    // try {
+    //   final searchResult = await _fetchSearchResult();
 
-      setState(() {
-        _searchResult = searchResult;
-      });
-    } on Exception catch (_) {
-      print('Data Not arrived yet');
-      throw Exception('Data not arrived yet');
-    }
+    //   setState(() {
+    //     _searchResult = searchResult;
+    //   });
+    // } on Exception catch (_) {
+    //   print('Data Not arrived yet');
+    //   throw Exception('Data not arrived yet');
+    // }
   }
 
   //
@@ -68,8 +69,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  Future<List<Movie>> _fetchSearchResult() async {
-    String query = textController.text;
+  Future<void> _fetchSearchResult(query) async {
     final String apiUrl =
         "http://api.moviehouse.download/api/search?query=$query";
     var url = Uri.parse(apiUrl);
@@ -80,7 +80,17 @@ class _SearchScreenState extends State<SearchScreen> {
       List list = result["data"];
 
       print(list);
-      return list.map((movie) => Movie.fromJson(movie)).toList();
+      List newList = list.map((movie) => Movie.fromJson(movie)).toList();
+      try {
+        setState(() {
+          _searchResult = newList;
+        });
+
+        print(_searchResult);
+      } on Exception catch (_) {
+        print('Data Not arrived yet');
+        throw Exception('Data not arrived yet');
+      }
     } else {
       throw Exception("Failed to load movie");
     }
@@ -119,14 +129,14 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           child: TextField(
             controller: textController,
-            onChanged: (String value) async {
-              if (value != null) {
-                return;
+            onSubmitted: (String value) async {
+              if (value.isNotEmpty) {
+                _fetchSearchResult(value);
+                textController.clear();
               } else {
                 setState(() {
                   _isSearching = !_isSearching;
                 });
-                return _populateSearchResult();
               }
             },
             style: TextStyle(color: Colors.white24, fontSize: 18.0),
