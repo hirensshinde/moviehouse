@@ -1,6 +1,6 @@
-# movie_house4
+# movie_house
 
-A new Flutter project.
+Movie Downloader Application developing in Flutter.
 
 ## Getting Started
 
