@@ -43,6 +43,15 @@ class _SeriesDetailState extends State<SeriesDetail> {
         .toList();
   }
 
+  Future<List<Season>> _fetchAllParts() async {
+    List seasonsList = widget.series.season;
+    print(seasonsList);
+    return seasonsList
+        .map((season) => Season.fromJson(season))
+        .cast<Season>()
+        .toList();
+  }
+
   int selectedIndex = 0;
 
   @override
@@ -155,7 +164,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
                               );
                             },
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
