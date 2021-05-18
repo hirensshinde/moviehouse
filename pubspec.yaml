@@ -44,6 +44,11 @@ dependencies:
   fluttertoast: ^3.1.0
   change_app_package_name: ^1.0.0
 
+  # latest depedencies
+  progress_indicators: ^1.0.0
+  url_launcher: ^5.4.2
+
+
     
 
   # Google Signin

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:movie_house4/models/webseries.dart';
+import 'package:movie_house4/screens/downloadsScreen.dart';
+import 'package:progress_indicators/progress_indicators.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SeriesDetail extends StatefulWidget {
   final WebSeries series;
@@ -13,13 +16,15 @@ class SeriesDetail extends StatefulWidget {
 
 class _SeriesDetailState extends State<SeriesDetail> {
   List<Season> _seasons;
+  List<Part> _allEpisodes;
+  List<Part> listEpisodes;
 
   void initState() {
     super.initState();
-    _populateAllSeason();
+    _populateAllResults();
   }
 
-  _populateAllSeason() async {
+  _populateAllResults() async {
     try {
       final seasons = await _fetchAllSeasons();
 
@@ -34,22 +39,32 @@ class _SeriesDetailState extends State<SeriesDetail> {
     }
   }
 
-  Future<List<Season>> _fetchAllSeasons() async {
-    List seasonsList = widget.series.season;
-    print(seasonsList);
-    return seasonsList
-        .map((season) => Season.fromJson(season))
-        .cast<Season>()
-        .toList();
+  Future _fetchAllSeasons() async {
+    try {
+      List seasonsList = widget.series.season;
+      // print(seasonsList);
+      return seasonsList
+          .map((season) => Season.fromJson(season))
+          .cast<Season>()
+          .toList();
+    } on Exception catch (_) {
+      print('No Seasons');
+    }
   }
 
-  Future<List<Season>> _fetchAllParts() async {
-    List seasonsList = widget.series.season;
-    print(seasonsList);
-    return seasonsList
-        .map((season) => Season.fromJson(season))
-        .cast<Season>()
-        .toList();
+  Future _fetchAllParts(episodes) async {
+    final partList = episodes;
+    print(partList);
+    if (partList != null) {
+      listEpisodes =
+          partList.map((part) => Part.fromJson(part)).cast<Part>().toList();
+
+      setState(() {
+        _allEpisodes = listEpisodes;
+      });
+    } else {
+      print('No Episodes');
+    }
   }
 
   int selectedIndex = 0;
@@ -125,46 +140,96 @@ class _SeriesDetailState extends State<SeriesDetail> {
                           ),
                         ),
                         SizedBox(height: 20.0),
-                        Container(
-                          width: double.infinity,
-                          height: 55.0,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _seasons.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedIndex = index;
-                                    });
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                      color: selectedIndex == index
-                                          ? Colors.blue[800]
-                                          : Color.fromARGB(255, 25, 27, 45),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 10.0, vertical: 10.0),
-                                    height: 55.0,
-                                    width: 90.0,
-                                    child: Center(
-                                      child: Text(
-                                        "Season " + _seasons[index].seasonName,
-                                        style: TextStyle(
-                                          color: Colors.white,
+                        (_seasons != null)
+                            ? Container(
+                                width: double.infinity,
+                                height: 55.0,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _seasons.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          final parts = _seasons[index].parts;
+                                          _fetchAllParts(parts);
+
+                                          setState(() {
+                                            selectedIndex = index;
+                                          });
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                            color: selectedIndex == index
+                                                ? Colors.blue[800]
+                                                : Color.fromARGB(
+                                                    255, 25, 27, 45),
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10.0, vertical: 10.0),
+                                          height: 55.0,
+                                          width: 90.0,
+                                          child: Center(
+                                            child: Text(
+                                              "Season " +
+                                                  _seasons[index].seasonName,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
-                        ),
+                              )
+                            : Center(
+                                child: Text('No Seasons',
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                        (_allEpisodes != null)
+                            ? Expanded(
+                                child: ListView.builder(
+                                    itemCount: _allEpisodes.length,
+                                    itemBuilder: (context, index) {
+                                      return ListTile(
+                                        tileColor:
+                                            Color.fromARGB(255, 25, 27, 45),
+                                        title: Text(
+                                          _allEpisodes[index].partName,
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18.0),
+                                        ),
+                                        trailing: IconButton(
+                                            icon: SvgPicture.asset(
+                                              'assets/icons/Download.svg',
+                                              height: 25.0,
+                                              width: 25.0,
+                                            ),
+                                            onPressed: () async {
+                                              final url = _allEpisodes[index]
+                                                  .downloadLink;
+                                              if (await canLaunch(url)) {
+                                                await launch(url);
+                                              } else {
+                                                throw 'Could not launch $url';
+                                              }
+                                            }),
+                                      );
+                                    }),
+                              )
+                            : Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Text('No Episodes',
+                                      style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
                       ],
                     ),
                   ),

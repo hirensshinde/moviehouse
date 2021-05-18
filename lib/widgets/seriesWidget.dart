@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie_house4/models/webseries.dart';
+import 'package:movie_house4/screens/seriesDetail.dart';
 
 class SeriesWidget extends StatelessWidget {
   final List<WebSeries> webSeries;
@@ -24,6 +25,7 @@ class SeriesWidget extends StatelessWidget {
           itemBuilder: (context, index) {
             // print(movies[index].posterPath);
             // print(movies);
+
             var series = webSeries[index];
 
             return Column(
@@ -34,8 +36,8 @@ class SeriesWidget extends StatelessWidget {
                       return Navigator.push(
                         context,
                         MaterialPageRoute(
-                            // builder: (context) => Series(movie: movie),
-                            ),
+                          builder: (context) => SeriesDetail(series: series),
+                        ),
                       );
                     },
                     child: Container(

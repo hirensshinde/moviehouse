@@ -5,7 +5,7 @@ class WebSeries {
   String genreId;
   int featured;
   String description;
-  List<Season> season;
+  List season;
 
   WebSeries(
       {this.id,
@@ -38,14 +38,16 @@ class Season {
   int id;
   int webSeriesId;
   String seasonName;
+  List parts;
 
-  Season({this.id, this.webSeriesId, this.seasonName});
+  Season({this.id, this.webSeriesId, this.seasonName, this.parts});
 
   factory Season.fromJson(Map<String, dynamic> json) {
     return Season(
       id: json['id'],
       webSeriesId: json['web_series_id'],
       seasonName: json['name'],
+      parts: json['part'],
     );
   }
 }

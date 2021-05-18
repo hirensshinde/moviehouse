@@ -5,6 +5,7 @@ import 'package:movie_house4/models/moviex.dart';
 import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MovieDetail extends StatefulWidget {
   final Movie movie;
@@ -24,19 +25,11 @@ class _MovieDetailState extends State<MovieDetail> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blue[800],
           onPressed: () async {
-            final status = await Permission.storage.request();
-
-            if (status.isGranted) {
-              final externalDir = await getExternalStorageDirectory();
-              final id = await FlutterDownloader.enqueue(
-                url: widget.movie.downloadLink,
-                savedDir: externalDir.path,
-                fileName: widget.movie.title,
-                showNotification: true,
-                openFileFromNotification: true,
-              );
+            final url = widget.movie.downloadLink;
+            if (await canLaunch(url)) {
+              await launch(url);
             } else {
-              print("Permission denied");
+              throw 'Could not launch $url';
             }
             // Navigator.push(
             //   context,

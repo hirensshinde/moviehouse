@@ -126,27 +126,6 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
         title: Text(widget.title),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0),
-            child: IconButton(
-              icon: SvgPicture.asset(
-                'assets/icons/Download.svg',
-                height: 25.0,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DownloadsScreen(
-                      movie: _movies[0],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: SvgPicture.asset(

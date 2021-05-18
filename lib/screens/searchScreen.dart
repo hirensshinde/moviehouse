@@ -53,7 +53,6 @@ class _SearchScreenState extends State<SearchScreen> {
   //
   Future<List<Genre>> _fetchAllGenres() async {
     // final String apiUrl =
-    //     "https://api.themoviedb.org/3/movie/now_playing?api_key=a8d93a34b26202fd9917272a3535e340";
     final String apiUrl = "https://api.moviehouse.download/api/genre";
 
     var url = Uri.parse(apiUrl);
