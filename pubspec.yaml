@@ -47,6 +47,9 @@ dependencies:
   # latest depedencies
   progress_indicators: ^1.0.0
   url_launcher: ^5.4.2
+  device_apps:
+  android_intent:
+
 
 
     
@@ -58,6 +61,7 @@ dependencies:
 
   # Facebook Signin
   flutter_facebook_login:
+  flutter_inappwebview:
 
 
 

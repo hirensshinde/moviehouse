@@ -1,3 +1,4 @@
+import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
@@ -26,19 +27,24 @@ class _MovieDetailState extends State<MovieDetail> {
           backgroundColor: Colors.blue[800],
           onPressed: () async {
             final url = widget.movie.downloadLink;
-            if (await canLaunch(url)) {
-              await launch(url);
+            bool isInstalled =
+                await DeviceApps.isAppInstalled('com.google.android.apps.docs');
+
+            if (isInstalled) {
+              DeviceApps.openApp(
+                'com.google.android.apps.docs',
+              );
             } else {
-              throw 'Could not launch $url';
+              if (await canLaunch(url)) {
+                await launch(
+                  url,
+                  forceWebView: true,
+                  enableJavaScript: true,
+                );
+              } else {
+                throw 'Could not launch $url';
+              }
             }
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) {
-            //       return DownloadsScreen(movie: widget.movie);
-            //     },
-            //   ),
-            // );
           },
           child: SvgPicture.asset(
             'assets/icons/Download.svg',

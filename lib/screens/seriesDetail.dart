@@ -1,8 +1,13 @@
+import 'dart:io';
+
+import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:movie_house4/models/webseries.dart';
-import 'package:movie_house4/screens/downloadsScreen.dart';
-import 'package:progress_indicators/progress_indicators.dart';
+import 'package:movie_house4/screens/NewDownloadScreen.dart';
+// import 'package:movie_house4/screens/downloadsScreen.dart';
+// import 'package:progress_indicators/progress_indicators.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SeriesDetail extends StatefulWidget {
@@ -19,7 +24,8 @@ class _SeriesDetailState extends State<SeriesDetail> {
   List<Part> _allEpisodes;
   List<Part> listEpisodes;
 
-  void initState() {
+  @override
+  initState() {
     super.initState();
     _populateAllResults();
   }
@@ -212,13 +218,14 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                               width: 25.0,
                                             ),
                                             onPressed: () async {
-                                              final url = _allEpisodes[index]
-                                                  .downloadLink;
-                                              if (await canLaunch(url)) {
-                                                await launch(url);
-                                              } else {
-                                                throw 'Could not launch $url';
-                                              }
+                                              return Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          PlayScreen(
+                                                              link: _allEpisodes[
+                                                                      index]
+                                                                  .downloadLink)));
                                             }),
                                       );
                                     }),

@@ -155,52 +155,50 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   // padding: EdgeInsets.all(8.0),
                   // color: Colors.blue,
                   child: _categories != null && _categories.length > 0
-                      ? Expanded(
-                          child: GridView.builder(
-                            // scrollDirection: Axis.
-                            shrinkWrap: true,
-                            itemCount: _categories.length,
-                            gridDelegate:
-                                new SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              // mainAxisExtent: ,
-                              mainAxisSpacing: 12.0,
-                              crossAxisSpacing: 12.0,
-                              childAspectRatio: size.width / (size.height / 5),
-                            ),
-                            itemBuilder: (context, index) {
-                              return GestureDetector(
-                                onTap: () {
-                                  return Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomeScreen(
-                                            title:
-                                                _categories[index].category)),
-                                  );
-                                },
-                                child: Container(
-                                  // height: 25.0,
-                                  // width: 60.0,
-                                  // margin: EdgeInsets.symmetric(horizontal:),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15.0),
-                                    color: Color.fromARGB(255, 25, 27, 45),
+                      ? GridView.builder(
+                          // scrollDirection: Axis.
+                          shrinkWrap: true,
+                          itemCount: _categories.length,
+                          gridDelegate:
+                              new SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            // mainAxisExtent: ,
+                            mainAxisSpacing: 12.0,
+                            crossAxisSpacing: 12.0,
+                            childAspectRatio: size.width / (size.height / 5),
+                          ),
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                return Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HomeScreen(
+                                        title: _categories[index].category),
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      _categories[index].category,
-                                      style: TextStyle(
-                                        fontSize: 16.0,
-                                        color: Colors.white70,
-                                      ),
-                                      // textAlign: TextAlign.center,
+                                );
+                              },
+                              child: Container(
+                                // height: 25.0,
+                                // width: 60.0,
+                                // margin: EdgeInsets.symmetric(horizontal:),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  color: Color.fromARGB(255, 25, 27, 45),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _categories[index].category,
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      color: Colors.white70,
                                     ),
+                                    // textAlign: TextAlign.center,
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
                         )
                       : Center(
                           child: CircularProgressIndicator(),
