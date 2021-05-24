@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:movie_house4/models/moviex.dart';
+import 'package:movie_house4/screens/NewDownloadScreen.dart';
 import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -26,25 +27,11 @@ class _MovieDetailState extends State<MovieDetail> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blue[800],
           onPressed: () async {
-            final url = widget.movie.downloadLink;
-            bool isInstalled =
-                await DeviceApps.isAppInstalled('com.google.android.apps.docs');
-
-            if (isInstalled) {
-              DeviceApps.openApp(
-                'com.google.android.apps.docs',
-              );
-            } else {
-              if (await canLaunch(url)) {
-                await launch(
-                  url,
-                  forceWebView: true,
-                  enableJavaScript: true,
-                );
-              } else {
-                throw 'Could not launch $url';
-              }
-            }
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        PlayScreen(link: widget.movie.downloadLink)));
           },
           child: SvgPicture.asset(
             'assets/icons/Download.svg',

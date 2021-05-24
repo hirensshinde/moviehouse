@@ -62,7 +62,10 @@ dependencies:
   # Facebook Signin
   flutter_facebook_login:
   flutter_inappwebview:
-
+  
+  expandable_card:
+  carousel_slider:
+  expandable_bottom_sheet: ^1.0.0+2
 
 
   # State Management

@@ -15,8 +15,8 @@ import 'package:movie_house4/widgets/sidebarWidget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeScreen extends StatefulWidget {
-  String title;
-  int id;
+  final String title;
+  final int id;
 
   HomeScreen({this.title, this.id});
 
@@ -69,35 +69,34 @@ class _HomeScreenState extends State<HomeScreen> {
     // final String apiUrl =
     //     "https://api.themoviedb.org/3/movie/now_playing?api_key=a8d93a34b26202fd9917272a3535e340";
 
-    if (widget.id != null) {
-      final String apiUrl =
-          "https://api.moviehouse.download/api/all/category/${widget.id}";
-      var url = Uri.parse(apiUrl);
-      final response = await http.get(url);
+    final String apiUrl =
+        "https://api.moviehouse.download/api/all/category/${widget.id}";
+    var url = Uri.parse(apiUrl);
+    final response = await http.get(url);
 
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        // List list = result["movie"];
-        return result;
-        // print(list);
-        // return list.map((movie) => Movie.fromJson(movie)).toList();
-      } else {
-        throw Exception("Failed to load movies!");
-      }
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      List movielist = result["movie"];
+      List seriesList = result["series"];
+
+      return movielist.map((movie) => Movie.fromJson(movie)).toList();
     } else {
-      final String apiUrl = "https://api.moviehouse.download/api/movies";
-      var url = Uri.parse(apiUrl);
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        final List list = result["data"];
-        // print(list);
-        return list.map((movie) => Movie.fromJson(movie)).toList();
-      } else {
-        throw Exception("Failed to load movies!");
-      }
+      throw Exception("Failed to load movies!");
     }
+    // } else {
+    //   final String apiUrl = "https://api.moviehouse.download/api/movies";
+    //   var url = Uri.parse(apiUrl);
+    //   final response = await http.get(url);
+
+    //   if (response.statusCode == 200) {
+    //     final result = jsonDecode(response.body);
+    //     final List list = result["data"];
+    //     // print(list);
+    //     return list.map((movie) => Movie.fromJson(movie)).toList();
+    //   } else {
+    //     throw Exception("Failed to load movies!");
+    //   }
+    // }
   }
 
   Future<Null> refreshList() async {
@@ -143,39 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 15.0),
-                child: Text(
-                  'Movies',
-                  style: TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-              ),
               Container(
                 padding: EdgeInsets.only(top: 20.0),
                 width: double.infinity,
                 // height: MediaQuery.of(context).size.height,
                 child: MoviesWidget(movies: _movies),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 15.0),
-                child: Text(
-                  'Series',
-                  style: TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.only(top: 20.0),
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height,
-                child: SeriesWidget(webSeries: _series),
               ),
             ],
           ),

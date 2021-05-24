@@ -17,6 +17,7 @@ class NavigationDrawerWidget extends StatelessWidget {
     final userId = user.uid;
 
     return Drawer(
+      elevation: 5.0,
       child: Container(
         color: Colors.black,
         child: ListView(

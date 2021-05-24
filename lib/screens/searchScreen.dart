@@ -21,7 +21,6 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    _populateAllGenres();
   }
 
   void _populateAllGenres() async {
@@ -165,111 +164,111 @@ class _SearchScreenState extends State<SearchScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          !_isSearching
-              ? Container(
-                  margin: EdgeInsets.only(
-                    top: size.height * 0.40,
-                  ),
-                  child: _genres != null
-                      ? GridView.builder(
-                          // scrollDirection: Axis.
-                          shrinkWrap: true,
-                          itemCount: _genres.length,
-                          gridDelegate:
-                              new SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 8.0,
-                            crossAxisSpacing: 8.0,
-                            childAspectRatio: size.width / (size.height / 3.5),
-                          ),
-                          itemBuilder: (context, index) {
-                            return Container(
-                              // height: 25.0,
-                              // width: 60.0,
-                              // margin: EdgeInsets.symmetric(horizontal:),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                color: Color.fromARGB(255, 25, 27, 45),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  _genres[index].genre,
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                  ),
-                                  // textAlign: TextAlign.center,
-                                ),
-                              ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                )
-              : Container(
-                  child: (_searchResult != null && _searchResult.length > 0)
-                      ? GridView.builder(
-                          // scrollDirection: Axis.
-                          shrinkWrap: true,
-                          itemCount: _searchResult.length,
-                          gridDelegate:
-                              new SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            mainAxisSpacing: 10.0,
-                            crossAxisSpacing: 15.0,
-                            childAspectRatio: size.width / (size.height / 1.2),
-                          ),
-                          itemBuilder: (context, index) {
-                            // print(movies[index].posterPath);
-                            // print(movies);
-                            var movie = _searchResult[index];
+          // !_isSearching
+          //     ? Container(
+          //         margin: EdgeInsets.only(
+          //           top: size.height * 0.40,
+          //         ),
+          //         child: _genres != null
+          //             ? GridView.builder(
+          //                 // scrollDirection: Axis.
+          //                 shrinkWrap: true,
+          //                 itemCount: _genres.length,
+          //                 gridDelegate:
+          //                     new SliverGridDelegateWithFixedCrossAxisCount(
+          //                   crossAxisCount: 3,
+          //                   mainAxisSpacing: 8.0,
+          //                   crossAxisSpacing: 8.0,
+          //                   childAspectRatio: size.width / (size.height / 3.5),
+          //                 ),
+          //                 itemBuilder: (context, index) {
+          //                   return Container(
+          //                     // height: 25.0,
+          //                     // width: 60.0,
+          //                     // margin: EdgeInsets.symmetric(horizontal:),
+          //                     decoration: BoxDecoration(
+          //                       borderRadius: BorderRadius.circular(15.0),
+          //                       color: Color.fromARGB(255, 25, 27, 45),
+          //                     ),
+          //                     child: Center(
+          //                       child: Text(
+          //                         _genres[index].genre,
+          //                         style: TextStyle(
+          //                           color: Colors.white70,
+          //                         ),
+          //                         // textAlign: TextAlign.center,
+          //                       ),
+          //                     ),
+          //                   );
+          //                 },
+          //               )
+          //             : Center(
+          //                 child: CircularProgressIndicator(),
+          //               ),
+          //       )
 
-                            return Column(
-                              children: [
-                                Flexible(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      return Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              MovieDetail(movie: movie),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      height: 120.0,
-                                      width: 90.0,
-                                      // margin: EdgeInsets.symmetric(vertical: 10.0),
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: NetworkImage(
-                                              'https://api.moviehouse.download/admin/movie/image/' +
-                                                  movie.poster),
-                                          fit: BoxFit.fill,
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                      ),
+          (_searchResult != null && _searchResult.length > 0)
+              ? Container(
+                  child: GridView.builder(
+                      // scrollDirection: Axis.
+                      shrinkWrap: true,
+                      itemCount: _searchResult.length,
+                      gridDelegate:
+                          new SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 10.0,
+                        crossAxisSpacing: 15.0,
+                        childAspectRatio: size.width / (size.height / 1.2),
+                      ),
+                      itemBuilder: (context, index) {
+                        // print(movies[index].posterPath);
+                        // print(movies);
+                        var movie = _searchResult[index];
+
+                        return Column(
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  return Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          MovieDetail(movie: movie),
                                     ),
+                                  );
+                                },
+                                child: Container(
+                                  height: 120.0,
+                                  width: 90.0,
+                                  // margin: EdgeInsets.symmetric(vertical: 10.0),
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: NetworkImage(
+                                          'https://api.moviehouse.download/admin/movie/image/' +
+                                              movie.poster),
+                                      fit: BoxFit.fill,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10.0),
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 5.0,
-                                ),
-                                Text(
-                                  movie.title,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12.0,
-                                  ),
-                                )
-                              ],
-                            );
-                          })
-                      : Center(child: CircularProgressIndicator()),
-                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 5.0,
+                            ),
+                            Text(
+                              movie.title,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12.0,
+                              ),
+                            )
+                          ],
+                        );
+                      }),
+                )
+              : Container(),
         ],
       ),
     );
