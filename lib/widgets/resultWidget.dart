@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:movie_house4/models/webseries.dart';
+import 'package:movie_house4/models/moviex.dart';
+import 'package:movie_house4/screens/movieDetail.dart';
 import 'package:movie_house4/screens/seriesDetail.dart';
+// import 'package:movie_house4/models/movies.dart';
 
-class SeriesWidget extends StatelessWidget {
-  final List<WebSeries> webSeries;
+class ResultWidget extends StatelessWidget {
+  final List results;
 
-  SeriesWidget({this.webSeries});
+  ResultWidget({this.results});
 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    if (webSeries != null && webSeries.length > 0) {
+    if (results != null && results.length > 0) {
       return Container(
         padding: EdgeInsets.all(10.0),
         child: GridView.builder(
             // scrollDirection: Axis.
             shrinkWrap: true,
-            itemCount: webSeries.length,
+            itemCount: results.length,
             gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               mainAxisSpacing: 10.0,
@@ -27,8 +29,7 @@ class SeriesWidget extends StatelessWidget {
             itemBuilder: (context, index) {
               // print(movies[index].posterPath);
               // print(movies);
-
-              var series = webSeries[index];
+              var result = results[index];
 
               return Column(
                 children: [
@@ -38,18 +39,24 @@ class SeriesWidget extends StatelessWidget {
                         return Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => SeriesDetail(series: series),
+                            builder: (context) => (result.poster != null)
+                                ? MovieDetail(movie: result)
+                                : SeriesDetail(series: result),
                           ),
                         );
                       },
                       child: Container(
                         height: 120.0,
-                        width: 90.0,
+                        width: 100.0,
                         // margin: EdgeInsets.symmetric(vertical: 10.0),
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: NetworkImage(
-                                'https://imgc.allpostersimages.com/img/print/u-g-F4S5Z90.jpg?w=900&h=900&p=0'),
+                            image: (result.poster != null)
+                                ? NetworkImage(
+                                    'https://api.moviehouse.download/admin/movie/image/' +
+                                        result.poster)
+                                : NetworkImage(
+                                    "https://imgc.allpostersimages.com/img/print/u-g-F4S5Z90.jpg?w=900&h=900&p=0"),
                             fit: BoxFit.fill,
                           ),
                           borderRadius: BorderRadius.circular(10.0),
@@ -61,7 +68,7 @@ class SeriesWidget extends StatelessWidget {
                     height: 5.0,
                   ),
                   Text(
-                    series.title,
+                    result.title,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12.0,
@@ -73,7 +80,9 @@ class SeriesWidget extends StatelessWidget {
             }),
       );
     } else {
-      return Center(child: CircularProgressIndicator());
+      return Center(
+          child:
+              Text("No Result Found", style: TextStyle(color: Colors.white)));
     }
   }
 }

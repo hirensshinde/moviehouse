@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^0.21.0+1
-  http:
+  http: ^0.13.1
   dio:
   filesize:
   path_provider:
@@ -46,16 +46,20 @@ dependencies:
 
   # latest depedencies
   progress_indicators: ^1.0.0
-  url_launcher: ^5.4.2
+  # url_launcher: ^5.4.2
   device_apps:
   android_intent:
+  url_launcher: ^6.0.0
 
+
+  # Mobile Ads
+  google_mobile_ads: ^0.13.0
 
 
     
 
   # Google Signin
-  firebase_auth: ^0.20.0+1
+  firebase_auth: ^1.0.0 
   google_sign_in:
   flutter_auth_buttons: ^0.10.0
 
@@ -66,7 +70,9 @@ dependencies:
   expandable_card:
   carousel_slider:
   expandable_bottom_sheet: ^1.0.0+2
-
+  direct_link: ^0.1.7
+  # firebase_auth_web: ^1.0.0
+  # http_parser: ^4.0.0 
 
   # State Management
   provider:

@@ -4,11 +4,15 @@ import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:movie_house4/models/webseries.dart';
 import 'package:movie_house4/screens/NewDownloadScreen.dart';
+import 'package:url_launcher/url_launcher.dart';
 // import 'package:movie_house4/screens/downloadsScreen.dart';
 // import 'package:progress_indicators/progress_indicators.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher.dart';
+
+const int maxFailedLoadAttempts = 3;
 
 class SeriesDetail extends StatefulWidget {
   final WebSeries series;
@@ -20,6 +24,65 @@ class SeriesDetail extends StatefulWidget {
 }
 
 class _SeriesDetailState extends State<SeriesDetail> {
+  static final AdRequest request = AdRequest(
+    keywords: <String>['foo', 'bar'],
+    contentUrl: 'http://foo.com/bar.html',
+    nonPersonalizedAds: true,
+  );
+
+  RewardedAd rewardedAd;
+  InterstitialAd _interstitialAd;
+  int _numInterstitialLoadAttempts = 0;
+
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+        adUnitId: InterstitialAd.testAdUnitId,
+        request: request,
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('$ad loaded');
+            _interstitialAd = ad;
+            _numInterstitialLoadAttempts = 0;
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error.');
+            _numInterstitialLoadAttempts += 1;
+            _interstitialAd = null;
+            if (_numInterstitialLoadAttempts <= maxFailedLoadAttempts) {
+              _createInterstitialAd();
+            }
+          },
+        ));
+  }
+
+  void _showInterstitialAd(index) {
+    if (_interstitialAd == null) {
+      print('Warning: attempt to show interstitial before loaded.');
+      return;
+    }
+    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (InterstitialAd ad) =>
+          print('ad onAdShowedFullScreenContent.'),
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('$ad onAdDismissedFullScreenContent.');
+        ad.dispose();
+        _createInterstitialAd();
+        return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    PlayScreen(link: _allEpisodes[index].downloadLink)));
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+        print('$ad onAdFailedToShowFullScreenContent: $error');
+        ad.dispose();
+        _createInterstitialAd();
+      },
+    );
+    _interstitialAd.show();
+    _interstitialAd = null;
+  }
+
   List<Season> _seasons;
   List<Part> _allEpisodes;
   List<Part> listEpisodes;
@@ -28,6 +91,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
   initState() {
     super.initState();
     _populateAllResults();
+    _createInterstitialAd();
   }
 
   _populateAllResults() async {
@@ -200,6 +264,8 @@ class _SeriesDetailState extends State<SeriesDetail> {
                         (_allEpisodes != null)
                             ? Expanded(
                                 child: ListView.builder(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 10.0),
                                     itemCount: _allEpisodes.length,
                                     itemBuilder: (context, index) {
                                       return ListTile(
@@ -211,22 +277,55 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                               color: Colors.white,
                                               fontSize: 18.0),
                                         ),
-                                        trailing: IconButton(
-                                            icon: SvgPicture.asset(
-                                              'assets/icons/Download.svg',
-                                              height: 25.0,
-                                              width: 25.0,
+                                        trailing: Wrap(
+                                          children: [
+                                            IconButton(
+                                                icon: SvgPicture.asset(
+                                                  'assets/icons/Play.svg',
+                                                  height: 35.0,
+                                                ),
+                                                onPressed: () {
+                                                  return _showInterstitialAd(
+                                                      index);
+                                                }),
+                                            IconButton(
+                                              icon: SvgPicture.asset(
+                                                'assets/icons/Download.svg',
+                                                height: 25.0,
+                                              ),
+                                              onPressed: () async {
+                                                var url = _allEpisodes[index]
+                                                    .downloadLink;
+                                                if (await canLaunch(url)) {
+                                                  await launch(
+                                                    url,
+                                                    forceSafariVC: false,
+                                                    forceWebView: false,
+                                                    // headers: <String, String>{'my_header_key': 'my_header_value'},
+                                                  );
+                                                } else {
+                                                  throw 'Could not launch $url';
+                                                }
+                                              },
                                             ),
-                                            onPressed: () async {
-                                              return Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          PlayScreen(
-                                                              link: _allEpisodes[
-                                                                      index]
-                                                                  .downloadLink)));
-                                            }),
+                                          ],
+                                        ),
+                                        // IconButton(
+                                        //     icon: SvgPicture.asset(
+                                        //       'assets/icons/Download.svg',
+                                        //       height: 25.0,
+                                        //       width: 25.0,
+                                        //     ),
+                                        //     onPressed: () async {
+                                        //       return Navigator.push(
+                                        //           context,
+                                        //           MaterialPageRoute(
+                                        //               builder: (context) =>
+                                        //                   PlayScreen(
+                                        //                       link: _allEpisodes[
+                                        //                               index]
+                                        //                           .downloadLink)));
+                                        //     }),
                                       );
                                     }),
                               )

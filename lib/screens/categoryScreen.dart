@@ -116,7 +116,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
           backgroundColor: Colors.black,
           padding: EdgeInsets.only(top: 5, left: 20, right: 20),
           // maxHeight: MediaQuery.of(context).size.height - 100,
-          minHeight: MediaQuery.of(context).size.height * 0.4,
+          minHeight: MediaQuery.of(context).size.height * 0.55,
+          maxHeight: MediaQuery.of(context).size.height * 0.55,
           hasRoundedCorners: true,
           hasShadow: true,
           children: <Widget>[
@@ -172,11 +173,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
             SizedBox(height: 15.0),
             Container(
               // padding: EdgeInsets.all(8.0),
-              // color: Colors.white,
+              // color: Colors.grey,
               child: (_categories != null && _categories.length > 0)
                   ? GridView.builder(
                       // scrollDirection: Axis.
                       shrinkWrap: true,
+                      padding: EdgeInsets.all(0.0),
                       itemCount: _categories.length,
                       gridDelegate:
                           new SliverGridDelegateWithFixedCrossAxisCount(
@@ -186,7 +188,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         // mainAxisExtent: ,
                         mainAxisSpacing: 12.0,
                         crossAxisSpacing: 12.0,
-                        childAspectRatio: size.width / (size.height / 2),
+                        childAspectRatio: size.width / (size.height / 5),
                       ),
                       itemBuilder: (context, index) {
                         return GestureDetector(

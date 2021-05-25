@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart';
+// import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class PlayScreen extends StatefulWidget {
@@ -91,30 +93,6 @@ class _PlayScreenState extends State<PlayScreen> {
               resources: resources,
               action: PermissionRequestResponseAction.GRANT);
         },
-        shouldOverrideUrlLoading: (controller, navigationAction) async {
-          var uri = navigationAction.request.url;
-
-          if (![
-            "http",
-            "https",
-            "file",
-            "chrome",
-            "data",
-            "javascript",
-            "about"
-          ].contains(uri.scheme)) {
-            if (await canLaunch(url)) {
-              // Launch the App
-              await launch(
-                url,
-              );
-              // and cancel the request
-              return NavigationActionPolicy.CANCEL;
-            }
-          }
-
-          return NavigationActionPolicy.ALLOW;
-        },
         onLoadStop: (controller, url) async {
           pullToRefreshController.endRefreshing();
           setState(() {
@@ -133,6 +111,18 @@ class _PlayScreenState extends State<PlayScreen> {
             this.progress = progress / 100;
             urlController.text = this.url;
           });
+        },
+        onDownloadStart: (controller, url) async {
+          print("onDownloadStart $url");
+
+          final taskId = await FlutterDownloader.enqueue(
+            url: url.toString(),
+            savedDir: (await getExternalStorageDirectory()).path,
+            showNotification:
+                true, // show download progress in status bar (for Android)
+            openFileFromNotification:
+                true, // click on notification to open downloaded file (for Android)
+          );
         },
       ))
     ]));

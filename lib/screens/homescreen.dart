@@ -9,7 +9,7 @@ import 'package:movie_house4/models/webseries.dart';
 import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:movie_house4/screens/movieDetail.dart';
 import 'package:movie_house4/screens/searchScreen.dart';
-import 'package:movie_house4/widgets/moviesWidget.dart';
+import 'package:movie_house4/widgets/resultWidget.dart';
 import 'package:movie_house4/widgets/seriesWidget.dart';
 import 'package:movie_house4/widgets/sidebarWidget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -25,8 +25,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Movie> _movies;
-  List<WebSeries> _series;
+  List _results;
 
   @override
   void initState() {
@@ -36,13 +35,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _populateAllResults() async {
     try {
-      final movies = await _fetchAllMovies();
-      final series = await _fetchAllSeries();
+      final results = await _fetchAllResults();
 
       if (this.mounted) {
         setState(() {
-          _movies = movies;
-          _series = series;
+          _results = results;
         });
       }
     } on Exception catch (_) {
@@ -51,21 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<List<WebSeries>> _fetchAllSeries() async {
-    String api = "https://api.moviehouse.download/api/web-series";
-
-    final response = await http.get(api);
-    if (response.statusCode == 200) {
-      final result = jsonDecode(response.body);
-      List list = result;
-      return list.map((json) => WebSeries.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed load Web-Series');
-    }
-  }
-
   //
-  Future<List<Movie>> _fetchAllMovies() async {
+  Future<List> _fetchAllResults() async {
     // final String apiUrl =
     //     "https://api.themoviedb.org/3/movie/now_playing?api_key=a8d93a34b26202fd9917272a3535e340";
 
@@ -76,27 +60,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
-      List movielist = result["movie"];
-      List seriesList = result["series"];
 
-      return movielist.map((movie) => Movie.fromJson(movie)).toList();
+      if (result["movie"].length > 0) {
+        List movies = result["movie"];
+        return movies.map((movie) => Movie.fromJson(movie)).toList();
+      } else if (result["web_series"].length > 0) {
+        List webSeries = result["web_series"];
+        return webSeries.map((series) => WebSeries.fromJson(series)).toList();
+      } else {
+        return [];
+      }
     } else {
       throw Exception("Failed to load movies!");
     }
-    // } else {
-    //   final String apiUrl = "https://api.moviehouse.download/api/movies";
-    //   var url = Uri.parse(apiUrl);
-    //   final response = await http.get(url);
-
-    //   if (response.statusCode == 200) {
-    //     final result = jsonDecode(response.body);
-    //     final List list = result["data"];
-    //     // print(list);
-    //     return list.map((movie) => Movie.fromJson(movie)).toList();
-    //   } else {
-    //     throw Exception("Failed to load movies!");
-    //   }
-    // }
+    
   }
 
   Future<Null> refreshList() async {
@@ -146,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: EdgeInsets.only(top: 20.0),
                 width: double.infinity,
                 // height: MediaQuery.of(context).size.height,
-                child: MoviesWidget(movies: _movies),
+                child: ResultWidget(results: _results),
               ),
             ],
           ),

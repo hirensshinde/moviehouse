@@ -21,6 +21,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
+    _populateAllGenres();
   }
 
   void _populateAllGenres() async {
@@ -34,19 +35,6 @@ class _SearchScreenState extends State<SearchScreen> {
       print('Data Not arrived yet');
       throw Exception('Data not arrived yet');
     }
-  }
-
-  void _populateSearchResult() async {
-    // try {
-    //   final searchResult = await _fetchSearchResult();
-
-    //   setState(() {
-    //     _searchResult = searchResult;
-    //   });
-    // } on Exception catch (_) {
-    //   print('Data Not arrived yet');
-    //   throw Exception('Data not arrived yet');
-    // }
   }
 
   //
@@ -108,6 +96,7 @@ class _SearchScreenState extends State<SearchScreen> {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         // toolbarHeight: 40.0,
         backgroundColor: Colors.transparent,
@@ -164,51 +153,9 @@ class _SearchScreenState extends State<SearchScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // !_isSearching
-          //     ? Container(
-          //         margin: EdgeInsets.only(
-          //           top: size.height * 0.40,
-          //         ),
-          //         child: _genres != null
-          //             ? GridView.builder(
-          //                 // scrollDirection: Axis.
-          //                 shrinkWrap: true,
-          //                 itemCount: _genres.length,
-          //                 gridDelegate:
-          //                     new SliverGridDelegateWithFixedCrossAxisCount(
-          //                   crossAxisCount: 3,
-          //                   mainAxisSpacing: 8.0,
-          //                   crossAxisSpacing: 8.0,
-          //                   childAspectRatio: size.width / (size.height / 3.5),
-          //                 ),
-          //                 itemBuilder: (context, index) {
-          //                   return Container(
-          //                     // height: 25.0,
-          //                     // width: 60.0,
-          //                     // margin: EdgeInsets.symmetric(horizontal:),
-          //                     decoration: BoxDecoration(
-          //                       borderRadius: BorderRadius.circular(15.0),
-          //                       color: Color.fromARGB(255, 25, 27, 45),
-          //                     ),
-          //                     child: Center(
-          //                       child: Text(
-          //                         _genres[index].genre,
-          //                         style: TextStyle(
-          //                           color: Colors.white70,
-          //                         ),
-          //                         // textAlign: TextAlign.center,
-          //                       ),
-          //                     ),
-          //                   );
-          //                 },
-          //               )
-          //             : Center(
-          //                 child: CircularProgressIndicator(),
-          //               ),
-          //       )
-
           (_searchResult != null && _searchResult.length > 0)
               ? Container(
+                  padding: EdgeInsets.all(10.0),
                   child: GridView.builder(
                       // scrollDirection: Axis.
                       shrinkWrap: true,
@@ -263,12 +210,55 @@ class _SearchScreenState extends State<SearchScreen> {
                                 color: Colors.white,
                                 fontSize: 12.0,
                               ),
+                              textAlign: TextAlign.center,
                             )
                           ],
                         );
                       }),
                 )
-              : Container(),
+              : (_genres != null && _genres.length > 0)
+                  ? Container(
+                      margin: EdgeInsets.only(
+                        top: size.height * 0.40,
+                      ),
+                      child: GridView.builder(
+                        // scrollDirection: Axis.
+                        shrinkWrap: true,
+                        itemCount: _genres.length,
+                        gridDelegate:
+                            new SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 8.0,
+                          crossAxisSpacing: 8.0,
+                          childAspectRatio: size.width / (size.height / 3.5),
+                        ),
+                        itemBuilder: (context, index) {
+                          return Container(
+                            // height: 25.0,
+                            // width: 60.0,
+                            // margin: EdgeInsets.symmetric(horizontal:),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15.0),
+                              color: Color.fromARGB(255, 25, 27, 45),
+                            ),
+                            child: Center(
+                              child: Text(
+                                _genres[index].genre,
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                ),
+                                // textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        },
+                      ))
+                  : Container(
+                      height: size.height,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
         ],
       ),
     );

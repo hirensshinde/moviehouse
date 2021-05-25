@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:movie_house4/provider/navigationProvider.dart';
 import 'package:movie_house4/screens/homescreen.dart';
 import 'package:movie_house4/screens/loginScreen.dart';
@@ -11,6 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await FlutterDownloader.initialize(debug: true);
+  await MobileAds.instance.initialize();
 
   runApp(MyApp());
 }

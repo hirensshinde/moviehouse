@@ -1,13 +1,19 @@
 import 'package:device_apps/device_apps.dart';
+import 'package:direct_link/direct_link.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:movie_house4/models/moviex.dart';
 import 'package:movie_house4/screens/NewDownloadScreen.dart';
 import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher.dart';
+
+const int maxFailedLoadAttempts = 3;
 
 class MovieDetail extends StatefulWidget {
   final Movie movie;
@@ -19,6 +25,71 @@ class MovieDetail extends StatefulWidget {
 }
 
 class _MovieDetailState extends State<MovieDetail> {
+  static final AdRequest request = AdRequest(
+    keywords: <String>['foo', 'bar'],
+    contentUrl: 'http://foo.com/bar.html',
+    nonPersonalizedAds: true,
+  );
+
+  RewardedAd rewardedAd;
+  InterstitialAd _interstitialAd;
+  int _numInterstitialLoadAttempts = 0;
+
+  @override
+  initState() {
+    super.initState();
+    _createInterstitialAd();
+  }
+
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+        adUnitId: InterstitialAd.testAdUnitId,
+        request: request,
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('$ad loaded');
+            _interstitialAd = ad;
+            _numInterstitialLoadAttempts = 0;
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('InterstitialAd failed to load: $error.');
+            _numInterstitialLoadAttempts += 1;
+            _interstitialAd = null;
+            if (_numInterstitialLoadAttempts <= maxFailedLoadAttempts) {
+              _createInterstitialAd();
+            }
+          },
+        ));
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd == null) {
+      print('Warning: attempt to show interstitial before loaded.');
+      return;
+    }
+    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (InterstitialAd ad) =>
+          print('ad onAdShowedFullScreenContent.'),
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('$ad onAdDismissedFullScreenContent.');
+        ad.dispose();
+        _createInterstitialAd();
+        return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    PlayScreen(link: widget.movie.downloadLink)));
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+        print('$ad onAdFailedToShowFullScreenContent: $error');
+        ad.dispose();
+        _createInterstitialAd();
+      },
+    );
+    _interstitialAd.show();
+    _interstitialAd = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.movie != null) {
@@ -27,11 +98,15 @@ class _MovieDetailState extends State<MovieDetail> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blue[800],
           onPressed: () async {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        PlayScreen(link: widget.movie.downloadLink)));
+            var url = widget.movie.downloadLink;
+            if (await canLaunch(url)) {
+              await launch(
+                url,
+                // headers: <String, String>{'my_header_key': 'my_header_value'},
+              );
+            } else {
+              throw 'Could not launch $url';
+            }
           },
           child: SvgPicture.asset(
             'assets/icons/Download.svg',
@@ -115,6 +190,24 @@ class _MovieDetailState extends State<MovieDetail> {
                   ),
                 ),
               ),
+              Positioned(
+                bottom: MediaQuery.of(context).size.height / 2.2,
+                right: 30.0,
+                child: Container(
+                  height: 50.0,
+                  width: 50.0,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30.0),
+                    color: Colors.blue,
+                  ),
+                  child: IconButton(
+                    icon: SvgPicture.asset("assets/icons/Play.svg"),
+                    onPressed: () {
+                      _showInterstitialAd();
+                    },
+                  ),
+                ),
+              )
             ],
           ),
         ),
