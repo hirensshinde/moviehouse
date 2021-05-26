@@ -83,6 +83,44 @@ class _SeriesDetailState extends State<SeriesDetail> {
     _interstitialAd = null;
   }
 
+  void _showInterstitialAdfromDownload(index) {
+    if (_interstitialAd == null) {
+      print('Warning: attempt to show interstitial before loaded.');
+      return;
+    }
+    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (InterstitialAd ad) =>
+          print('ad onAdShowedFullScreenContent.'),
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('$ad onAdDismissedFullScreenContent.');
+        ad.dispose();
+        _createInterstitialAd();
+        return _downloadLink(index);
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+        print('$ad onAdFailedToShowFullScreenContent: $error');
+        ad.dispose();
+        _createInterstitialAd();
+      },
+    );
+    _interstitialAd.show();
+    _interstitialAd = null;
+  }
+
+  void _downloadLink(index) async {
+    var url = _allEpisodes[index].downloadLink;
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: false,
+        // headers: <String, String>{'my_header_key': 'my_header_value'},
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   List<Season> _seasons;
   List<Part> _allEpisodes;
   List<Part> listEpisodes;
@@ -294,38 +332,12 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                                 height: 25.0,
                                               ),
                                               onPressed: () async {
-                                                var url = _allEpisodes[index]
-                                                    .downloadLink;
-                                                if (await canLaunch(url)) {
-                                                  await launch(
-                                                    url,
-                                                    forceSafariVC: false,
-                                                    forceWebView: false,
-                                                    // headers: <String, String>{'my_header_key': 'my_header_value'},
-                                                  );
-                                                } else {
-                                                  throw 'Could not launch $url';
-                                                }
+                                                return _showInterstitialAdfromDownload(
+                                                    index);
                                               },
                                             ),
                                           ],
                                         ),
-                                        // IconButton(
-                                        //     icon: SvgPicture.asset(
-                                        //       'assets/icons/Download.svg',
-                                        //       height: 25.0,
-                                        //       width: 25.0,
-                                        //     ),
-                                        //     onPressed: () async {
-                                        //       return Navigator.push(
-                                        //           context,
-                                        //           MaterialPageRoute(
-                                        //               builder: (context) =>
-                                        //                   PlayScreen(
-                                        //                       link: _allEpisodes[
-                                        //                               index]
-                                        //                           .downloadLink)));
-                                        //     }),
                                       );
                                     }),
                               )

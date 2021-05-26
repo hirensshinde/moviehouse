@@ -55,6 +55,9 @@ dependencies:
   # Mobile Ads
   google_mobile_ads: ^0.13.0
 
+  # Share functionality
+  share: ^2.0.2
+
 
     
 

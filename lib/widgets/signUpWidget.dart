@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:movie_house4/provider/google_sign_in.dart';
@@ -14,8 +16,8 @@ class SignUpWidget extends StatelessWidget {
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 20.0),
             // width: 175.0,
-            height: 200.0,
-            width: 200.0,
+            height: MediaQuery.of(context).size.height * .5,
+            width: MediaQuery.of(context).size.width * .5,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(

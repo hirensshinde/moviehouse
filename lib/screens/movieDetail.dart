@@ -10,6 +10,7 @@ import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 // import 'package:url_launcher/url_launcher.dart';
 
@@ -90,28 +91,76 @@ class _MovieDetailState extends State<MovieDetail> {
     _interstitialAd = null;
   }
 
+  void _showInterstitialAdfromDownload() {
+    if (_interstitialAd == null) {
+      print('Warning: attempt to show interstitial before loaded.');
+      return;
+    }
+    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (InterstitialAd ad) =>
+          print('ad onAdShowedFullScreenContent.'),
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print('$ad onAdDismissedFullScreenContent.');
+        ad.dispose();
+        _createInterstitialAd();
+        return _downloadLink();
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+        print('$ad onAdFailedToShowFullScreenContent: $error');
+        ad.dispose();
+        _createInterstitialAd();
+      },
+    );
+    _interstitialAd.show();
+    _interstitialAd = null;
+  }
+
+  void _downloadLink() async {
+    var url = widget.movie.downloadLink;
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: false,
+        // headers: <String, String>{'my_header_key': 'my_header_value'},
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.movie != null) {
       return Scaffold(
         extendBodyBehindAppBar: true,
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.blue[800],
-          onPressed: () async {
-            var url = widget.movie.downloadLink;
-            if (await canLaunch(url)) {
-              await launch(
-                url,
-                // headers: <String, String>{'my_header_key': 'my_header_value'},
-              );
-            } else {
-              throw 'Could not launch $url';
-            }
-          },
-          child: SvgPicture.asset(
-            'assets/icons/Download.svg',
-            height: 20.0,
-          ),
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              backgroundColor: Colors.black,
+              onPressed: () async {
+                Share.share(
+                    "Watch or Download ${widget.movie.title} on MovieHouse App for Completely FREE. \n" +
+                        "http://demo.gopiui.com/movie");
+              },
+              child: SvgPicture.asset(
+                'assets/icons/Share.svg',
+                height: 20.0,
+              ),
+            ),
+            SizedBox(width: 10.0),
+            FloatingActionButton(
+              backgroundColor: Colors.blue[800],
+              onPressed: () async {
+                return _showInterstitialAdfromDownload();
+              },
+              child: SvgPicture.asset(
+                'assets/icons/Download.svg',
+                height: 20.0,
+              ),
+            ),
+          ],
         ),
         appBar: AppBar(
           elevation: 0.0,

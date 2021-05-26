@@ -5,6 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:movie_house4/models/genres.dart';
 import 'package:http/http.dart' as http;
 import 'package:movie_house4/models/moviex.dart';
+import 'package:movie_house4/screens/genreScreen.dart';
+import 'package:movie_house4/screens/homescreen.dart';
 import 'package:movie_house4/screens/movieDetail.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -233,21 +235,31 @@ class _SearchScreenState extends State<SearchScreen> {
                           childAspectRatio: size.width / (size.height / 3.5),
                         ),
                         itemBuilder: (context, index) {
-                          return Container(
-                            // height: 25.0,
-                            // width: 60.0,
-                            // margin: EdgeInsets.symmetric(horizontal:),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15.0),
-                              color: Color.fromARGB(255, 25, 27, 45),
-                            ),
-                            child: Center(
-                              child: Text(
-                                _genres[index].genre,
-                                style: TextStyle(
-                                  color: Colors.white70,
+                          return GestureDetector(
+                            onTap: () {
+                              // print(_categories[index].id);
+                              return Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GenreScreen(
+                                      title: _genres[index].genre,
+                                      id: _genres[index].id),
                                 ),
-                                // textAlign: TextAlign.center,
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15.0),
+                                color: Color.fromARGB(255, 25, 27, 45),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  _genres[index].genre,
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                  ),
+                                  // textAlign: TextAlign.center,
+                                ),
                               ),
                             ),
                           );
