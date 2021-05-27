@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "434722100018-8n8uqqh1gdktf0ntefn8it1obcqkk4ma.apps.googleusercontent.com",
+          "client_id": "434722100018-5i8khg850jaa0k5thi0pp67vm0nif85j.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.moviehouse.download",
-            "certificate_hash": "e6c6acb37f9f459fa6520c60ae792ca5e101ba55"
+            "certificate_hash": "b6aa7d302dec545d2c4def80504016a3fc2f8778"
           }
         },
         {

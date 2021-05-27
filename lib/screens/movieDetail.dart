@@ -220,9 +220,19 @@ class _MovieDetailState extends State<MovieDetail> {
                           ),
                         ),
                         SizedBox(height: 10.0),
-                        Text(
-                          'Action, Drama',
-                          style: TextStyle(color: Colors.white),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.movie.year.toString(),
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            SizedBox(width: 5.0),
+                            Text(
+                              'Action, Drama',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
                         ),
                         SizedBox(height: 10.0),
                         Padding(

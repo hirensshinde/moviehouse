@@ -73,7 +73,6 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       throw Exception("Failed to load movies!");
     }
-    
   }
 
   Future<Null> refreshList() async {

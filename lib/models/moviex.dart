@@ -3,6 +3,7 @@ class Movie {
   final String title;
   final String description;
   final String poster;
+  final int year;
   final String downloadLink;
   final int downloadCount;
   final int featured;
@@ -16,6 +17,7 @@ class Movie {
       this.poster,
       this.downloadLink,
       this.downloadCount,
+      this.year,
       this.featured,
       this.categoryId,
       this.genreId});
@@ -28,6 +30,7 @@ class Movie {
         poster: json['image'],
         downloadLink: json['url'],
         downloadCount: json['download'],
+        year: json['year'],
         featured: json['featured'],
         categoryId: json['category_id'],
         genreId: json['generes_id']);
