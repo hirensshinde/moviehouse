@@ -141,12 +141,12 @@ class _MovieDetailState extends State<MovieDetail> {
               backgroundColor: Colors.black,
               onPressed: () async {
                 Share.share(
-                    "Watch or Download ${widget.movie.title} on MovieHouse App for Completely FREE. \n" +
+                    "Watch or download ${widget.movie.title} on MovieHouse app for completely FREE. Get this app from this link \n" +
                         "http://demo.gopiui.com/movie");
               },
               child: SvgPicture.asset(
                 'assets/icons/Share.svg',
-                height: 20.0,
+                height: 30.0,
               ),
             ),
             SizedBox(width: 10.0),
@@ -209,7 +209,7 @@ class _MovieDetailState extends State<MovieDetail> {
                     ),
                     child: Column(
                       children: [
-                        SizedBox(height: 30.0),
+                        SizedBox(height: 40.0),
                         Text(
                           widget.movie.title,
                           textAlign: TextAlign.center,
@@ -251,7 +251,7 @@ class _MovieDetailState extends State<MovieDetail> {
               ),
               Positioned(
                 bottom: MediaQuery.of(context).size.height / 2.2,
-                right: 30.0,
+                left: MediaQuery.of(context).size.width / 2.2,
                 child: Container(
                   height: 50.0,
                   width: 50.0,
