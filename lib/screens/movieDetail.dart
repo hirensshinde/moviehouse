@@ -146,10 +146,6 @@ class _MovieDetailState extends State<MovieDetail> {
     return results.map((genre) => Genre.fromJson(genre)).toList();
   }
 
-  void xfunction() {
-    _genreList.map();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (widget.movie != null) {
