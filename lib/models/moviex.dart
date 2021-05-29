@@ -8,7 +8,8 @@ class Movie {
   final int downloadCount;
   final int featured;
   final int categoryId;
-  final String genreId;
+  final List genreId;
+  final List genreList;
 
   Movie(
       {this.id,
@@ -20,19 +21,22 @@ class Movie {
       this.year,
       this.featured,
       this.categoryId,
-      this.genreId});
+      this.genreId,
+      this.genreList});
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
-        id: json['id'],
-        title: json['name'],
-        description: json['description'],
-        poster: json['image'],
-        downloadLink: json['url'],
-        downloadCount: json['download'],
-        year: json['year'],
-        featured: json['featured'],
-        categoryId: json['category_id'],
-        genreId: json['generes_id']);
+      id: json['id'],
+      title: json['name'],
+      description: json['description'],
+      poster: json['image'],
+      downloadLink: json['url'],
+      downloadCount: json['download'],
+      year: json['year'],
+      featured: json['featured'],
+      categoryId: json['category_id'],
+      genreId: json['generes_id'],
+      genreList: json['genere_name'],
+    );
   }
 }

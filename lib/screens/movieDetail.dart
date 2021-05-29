@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:device_apps/device_apps.dart';
 import 'package:direct_link/direct_link.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:movie_house4/models/genres.dart';
 import 'package:movie_house4/models/moviex.dart';
 import 'package:movie_house4/screens/NewDownloadScreen.dart';
 import 'package:movie_house4/screens/downloadsScreen.dart';
@@ -12,6 +15,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 // import 'package:url_launcher/url_launcher.dart';
 
 const int maxFailedLoadAttempts = 3;
@@ -35,11 +39,16 @@ class _MovieDetailState extends State<MovieDetail> {
   RewardedAd rewardedAd;
   InterstitialAd _interstitialAd;
   int _numInterstitialLoadAttempts = 0;
+  List<Genre> _genreList;
 
   @override
   initState() {
     super.initState();
     _createInterstitialAd();
+
+    setState(() async {
+      this._genreList = await fetchMovieGenres();
+    });
   }
 
   void _createInterstitialAd() {
@@ -127,6 +136,18 @@ class _MovieDetailState extends State<MovieDetail> {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  Future<List<Genre>> fetchMovieGenres() async {
+    String apiUrl = "https://api.moviehouse.download/api/genre";
+    Uri url = Uri.parse(apiUrl);
+    final response = await http.get(url);
+    final results = jsonDecode(response.body);
+    return results.map((genre) => Genre.fromJson(genre)).toList();
+  }
+
+  void xfunction() {
+    _genreList.map();
   }
 
   @override
@@ -228,10 +249,13 @@ class _MovieDetailState extends State<MovieDetail> {
                               style: TextStyle(color: Colors.white),
                             ),
                             SizedBox(width: 5.0),
-                            Text(
-                              'Action, Drama',
-                              style: TextStyle(color: Colors.white),
-                            ),
+                            Row(
+                              children: widget.movie.genreList
+                                  .map((genre) => Padding(
+                                      padding: EdgeInsets.only(right: 10.0),
+                                      child: Text(genre)))
+                                  .toList(),
+                            )
                           ],
                         ),
                         SizedBox(height: 10.0),
