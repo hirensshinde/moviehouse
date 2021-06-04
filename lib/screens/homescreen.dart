@@ -45,10 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _populateAllResults(page) async {
     try {
       final results = await _fetchAllResults(page);
-
-      if (this.mounted) {
+      Future.delayed();
+      if (results != null) {
         setState(() {
-          _results = results;
+          _results.addAll(results);
         });
       }
     } on Exception catch (_) {
@@ -76,17 +76,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (result["movie"].length > 0) {
         List movies = result["movie"];
-        print('called before page++');
-        setState(() {
-          page++;
-        });
-
+        page++;
         return movies.map((movie) => Movie.fromJson(movie)).toList();
       } else if (result["web_series"].length > 0) {
         List webSeries = result["web_series"];
-        setState(() {
-          page++;
-        });
+        page++;
+
         return webSeries.map((series) => WebSeries.fromJson(series)).toList();
       } else {
         return [];
