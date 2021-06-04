@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:movie_house4/models/moviex.dart';
 import 'package:movie_house4/screens/movieDetail.dart';
 import 'package:movie_house4/screens/seriesDetail.dart';
 // import 'package:movie_house4/models/movies.dart';
 
 class ResultWidget extends StatelessWidget {
   final List results;
+  ScrollController controller;
 
-  ResultWidget({this.results});
+  ResultWidget({this.results, this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,9 @@ class ResultWidget extends StatelessWidget {
         child: GridView.builder(
             // scrollDirection: Axis.
             shrinkWrap: true,
-            itemCount: results.length,
+            itemCount: results.length - 5,
+            physics: ScrollPhysics(),
+            controller: controller,
             gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               mainAxisSpacing: 10.0,
@@ -30,7 +32,6 @@ class ResultWidget extends StatelessWidget {
               // print(movies[index].posterPath);
               // print(movies);
               var result = results[index];
-
               return Column(
                 children: [
                   Flexible(
@@ -39,15 +40,15 @@ class ResultWidget extends StatelessWidget {
                         return Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => (result.poster != null)
+                            builder: (context) => (result.type == 'movie')
                                 ? MovieDetail(movie: result)
                                 : SeriesDetail(series: result),
                           ),
                         );
                       },
                       child: Container(
-                        height: 120.0,
-                        width: 100.0,
+                        width: MediaQuery.of(context).size.width * 0.30,
+                        height: 120,
                         // margin: EdgeInsets.symmetric(vertical: 10.0),
                         decoration: BoxDecoration(
                           image: DecorationImage(
@@ -55,8 +56,8 @@ class ResultWidget extends StatelessWidget {
                                 ? NetworkImage(
                                     'https://api.moviehouse.download/admin/movie/image/' +
                                         result.poster)
-                                : NetworkImage(
-                                    "https://imgc.allpostersimages.com/img/print/u-g-F4S5Z90.jpg?w=900&h=900&p=0"),
+                                : AssetImage(
+                                    'assets/images/poster_placeholder.png'),
                             fit: BoxFit.fill,
                           ),
                           borderRadius: BorderRadius.circular(10.0),

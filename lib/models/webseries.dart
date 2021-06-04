@@ -4,9 +4,12 @@ class WebSeries {
   int categoryId;
   String genreId;
   String poster;
+  String type;
   int featured;
+  int year;
   String description;
   List season;
+  List genres;
 
   WebSeries(
       {this.id,
@@ -14,8 +17,11 @@ class WebSeries {
       this.categoryId,
       this.genreId,
       this.poster,
+      this.type,
+      this.year,
       this.featured,
       this.description,
+      this.genres,
       this.season});
 
   // factory WebSeries.fromJson(Map<String, dynamic> json) {
@@ -23,16 +29,20 @@ class WebSeries {
   // }
   factory WebSeries.fromJson(Map<String, dynamic> json) {
     return WebSeries(
-        id: json['id'],
-        title: json['name'],
-        description: json['description'],
-        poster: json['image'],
-        // downloadLink: json['url'],
-        // downloadCount: json['download'],
-        featured: json['featured'],
-        categoryId: json['category_id'],
-        genreId: json['genere_id'],
-        season: json['season']);
+      id: json['id'],
+      title: json['name'],
+      description: json['description'],
+      poster: json['image'],
+      // downloadLink: json['url'],
+      // downloadCount: json['download'],
+      featured: json['featured'],
+      year: json['year'],
+      type: json['type'],
+      categoryId: json['category_id'],
+      genreId: json['genere_id'],
+      season: json['season'],
+      genres: json['genere_name'],
+    );
   }
 }
 

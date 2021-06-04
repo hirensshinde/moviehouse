@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:movie_house4/models/genres.dart';
 import 'package:http/http.dart' as http;
-import 'package:movie_house4/models/moviex.dart';
+import 'package:movie_house4/models/movies.dart';
+import 'package:movie_house4/models/webseries.dart';
 import 'package:movie_house4/screens/genreScreen.dart';
 import 'package:movie_house4/screens/homescreen.dart';
 import 'package:movie_house4/screens/movieDetail.dart';
+import 'package:movie_house4/widgets/resultWidget.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -16,7 +18,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   List<Genre> _genres;
-  List<Movie> _searchResult;
+  List<dynamic> _searchResult;
 
   TextEditingController textController = TextEditingController();
 
@@ -67,17 +69,32 @@ class _SearchScreenState extends State<SearchScreen> {
       final result = jsonDecode(response.body);
       List list = result["data"];
 
-      print(list);
-      List newList = list.map((movie) => Movie.fromJson(movie)).toList();
-      try {
-        setState(() {
-          _searchResult = newList;
-        });
+      if (list.length > 0 && list[0]['type'] == 'movie') {
+        List newList = list.map((movie) => Movie.fromJson(movie)).toList();
+        try {
+          setState(() {
+            _searchResult = newList;
+          });
 
-        print(_searchResult);
-      } on Exception catch (_) {
-        print('Data Not arrived yet');
-        throw Exception('Data not arrived yet');
+          print(_searchResult);
+        } on Exception catch (_) {
+          print('Data Not arrived yet');
+          throw Exception('Data not arrived yet');
+        }
+      } else {
+        List newList =
+            list.map((series) => WebSeries.fromJson(series)).toList();
+        try {
+          setState(() {
+            _searchResult = newList;
+          });
+
+          print(_searchResult);
+        } on Exception catch (_) {
+          print('Data Not arrived yet');
+          throw Exception('Data not arrived yet');
+        }
+        return _searchResult;
       }
     } else {
       throw Exception("Failed to load movie");
@@ -121,7 +138,7 @@ class _SearchScreenState extends State<SearchScreen> {
             onSubmitted: (String value) async {
               if (value.isNotEmpty) {
                 _fetchSearchResult(value);
-                textController.clear();
+                // textController.clear();
               } else {
                 setState(() {
                   _isSearching = !_isSearching;
@@ -152,126 +169,69 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
       backgroundColor: Colors.black,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          (_searchResult != null && _searchResult.length > 0)
-              ? Container(
-                  padding: EdgeInsets.all(10.0),
-                  child: GridView.builder(
-                      // scrollDirection: Axis.
-                      shrinkWrap: true,
-                      itemCount: _searchResult.length,
-                      gridDelegate:
-                          new SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 10.0,
-                        crossAxisSpacing: 15.0,
-                        childAspectRatio: size.width / (size.height / 1.2),
-                      ),
-                      itemBuilder: (context, index) {
-                        // print(movies[index].posterPath);
-                        // print(movies);
-                        var movie = _searchResult[index];
-
-                        return Column(
-                          children: [
-                            Flexible(
-                              child: GestureDetector(
-                                onTap: () {
-                                  return Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          MovieDetail(movie: movie),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            (_searchResult != null && _searchResult.length > 0)
+                ? Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: ResultWidget(results: _searchResult),
+                  )
+                : (_genres != null && _genres.length > 0)
+                    ? Container(
+                        padding: EdgeInsets.symmetric(vertical: 20.0),
+                        child: GridView.builder(
+                          // scrollDirection: Axis.
+                          shrinkWrap: true,
+                          itemCount: _genres.length,
+                          physics: ScrollPhysics(),
+                          gridDelegate:
+                              new SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 8.0,
+                            crossAxisSpacing: 8.0,
+                            childAspectRatio: size.width / (size.height / 4),
+                          ),
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                // print(_categories[index].id);
+                                return Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => GenreScreen(
+                                        title: _genres[index].genre,
+                                        id: _genres[index].id),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  color: Color.fromARGB(255, 25, 27, 45),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _genres[index].genre,
+                                    style: TextStyle(
+                                      color: Colors.white70,
                                     ),
-                                  );
-                                },
-                                child: Container(
-                                  height: 120.0,
-                                  width: 90.0,
-                                  // margin: EdgeInsets.symmetric(vertical: 10.0),
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                          'https://api.moviehouse.download/admin/movie/image/' +
-                                              movie.poster),
-                                      fit: BoxFit.fill,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10.0),
+                                    // textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 5.0,
-                            ),
-                            Text(
-                              movie.title,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12.0,
-                              ),
-                              textAlign: TextAlign.center,
-                            )
-                          ],
-                        );
-                      }),
-                )
-              : (_genres != null && _genres.length > 0)
-                  ? Container(
-                      margin: EdgeInsets.only(
-                        top: size.height * 0.40,
-                      ),
-                      child: GridView.builder(
-                        // scrollDirection: Axis.
-                        shrinkWrap: true,
-                        itemCount: _genres.length,
-                        gridDelegate:
-                            new SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 8.0,
-                          crossAxisSpacing: 8.0,
-                          childAspectRatio: size.width / (size.height / 3.5),
+                            );
+                          },
+                        ))
+                    : Container(
+                        height: size.height,
+                        child: Center(
+                          child: CircularProgressIndicator(),
                         ),
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              // print(_categories[index].id);
-                              return Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => GenreScreen(
-                                      title: _genres[index].genre,
-                                      id: _genres[index].id),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                color: Color.fromARGB(255, 25, 27, 45),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  _genres[index].genre,
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                  ),
-                                  // textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ))
-                  : Container(
-                      height: size.height,
-                      child: Center(
-                        child: CircularProgressIndicator(),
                       ),
-                    ),
-        ],
+          ],
+        ),
       ),
     );
   }

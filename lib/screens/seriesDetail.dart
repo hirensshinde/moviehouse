@@ -205,9 +205,10 @@ class _SeriesDetailState extends State<SeriesDetail> {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(
-                      'https://imgc.allpostersimages.com/img/print/u-g-F4S5Z90.jpg?w=900&h=900&p=0',
+                      'https://api.moviehouse.download/admin/movie/image/' +
+                          widget.series.poster,
                     ),
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fitHeight,
                   ),
                 ),
               ),
@@ -237,15 +238,36 @@ class _SeriesDetailState extends State<SeriesDetail> {
                             fontSize: 28.0,
                             fontWeight: FontWeight.bold,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 8.0),
-                        Text(
-                          "2016 Drama Action",
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 151, 169, 170),
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.series.year.toString(),
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 151, 169, 170),
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              width: 5.0,
+                            ),
+                            Row(
+                              children: widget.series.genres
+                                  .map((genre) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5.0),
+                                        child: Text(genre,
+                                            style:
+                                                TextStyle(color: Colors.white)),
+                                      ))
+                                  .toList(),
+                            ),
+                          ],
                         ),
                         SizedBox(height: 20.0),
                         (_seasons != null)
@@ -261,10 +283,10 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                       child: GestureDetector(
                                         onTap: () {
                                           final parts = _seasons[index].parts;
-                                          _fetchAllParts(parts);
 
                                           setState(() {
                                             selectedIndex = index;
+                                            _fetchAllParts(parts);
                                           });
                                         },
                                         child: Container(
@@ -317,15 +339,6 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                         ),
                                         trailing: Wrap(
                                           children: [
-                                            IconButton(
-                                                icon: SvgPicture.asset(
-                                                  'assets/icons/Play.svg',
-                                                  height: 35.0,
-                                                ),
-                                                onPressed: () {
-                                                  return _showInterstitialAd(
-                                                      index);
-                                                }),
                                             IconButton(
                                               icon: SvgPicture.asset(
                                                 'assets/icons/Download.svg',

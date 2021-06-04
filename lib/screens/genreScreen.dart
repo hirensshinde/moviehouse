@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:movie_house4/models/movies.dart';
-import 'package:movie_house4/models/moviex.dart';
 import 'package:movie_house4/models/webseries.dart';
 import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:movie_house4/screens/movieDetail.dart';

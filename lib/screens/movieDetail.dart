@@ -7,7 +7,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:movie_house4/models/genres.dart';
-import 'package:movie_house4/models/moviex.dart';
+import 'package:movie_house4/models/movies.dart';
 import 'package:movie_house4/screens/NewDownloadScreen.dart';
 import 'package:movie_house4/screens/downloadsScreen.dart';
 import 'package:path_provider/path_provider.dart';
@@ -39,16 +39,11 @@ class _MovieDetailState extends State<MovieDetail> {
   RewardedAd rewardedAd;
   InterstitialAd _interstitialAd;
   int _numInterstitialLoadAttempts = 0;
-  List<Genre> _genreList;
 
   @override
   initState() {
     super.initState();
     _createInterstitialAd();
-
-    setState(() async {
-      this._genreList = await fetchMovieGenres();
-    });
   }
 
   void _createInterstitialAd() {
@@ -138,159 +133,168 @@ class _MovieDetailState extends State<MovieDetail> {
     }
   }
 
-  Future<List<Genre>> fetchMovieGenres() async {
-    String apiUrl = "https://api.moviehouse.download/api/genre";
-    Uri url = Uri.parse(apiUrl);
-    final response = await http.get(url);
-    final results = jsonDecode(response.body);
-    return results.map((genre) => Genre.fromJson(genre)).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (widget.movie != null) {
-      return Scaffold(
-        extendBodyBehindAppBar: true,
-        floatingActionButton: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FloatingActionButton(
-              backgroundColor: Colors.black,
-              onPressed: () async {
-                Share.share(
-                    "Watch or download ${widget.movie.title} on MovieHouse app for completely FREE. Get this app from this link \n" +
-                        "http://demo.gopiui.com/movie");
-              },
-              child: SvgPicture.asset(
-                'assets/icons/Share.svg',
-                height: 30.0,
-              ),
-            ),
-            SizedBox(width: 10.0),
-            FloatingActionButton(
-              backgroundColor: Colors.blue[800],
-              onPressed: () async {
-                return _showInterstitialAdfromDownload();
-              },
-              child: SvgPicture.asset(
-                'assets/icons/Download.svg',
-                height: 20.0,
-              ),
-            ),
-          ],
-        ),
-        appBar: AppBar(
-          elevation: 0.0,
-          backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: SvgPicture.asset('assets/icons/Back.svg'),
-            onPressed: () {
-              return Navigator.pop(context);
-            },
-          ),
-        ),
-        body: SingleChildScrollView(
-          child: Stack(
-            // alignment: Alignment.bottomCenter,
-            // fit: StackFit.expand,
-            children: [
-              Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                // color: Colors.transparent,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      'https://api.moviehouse.download/admin/movie/image/' +
-                          widget.movie.poster,
-                    ),
-                    fit: BoxFit.cover,
+    return (widget.movie != null)
+        ? Scaffold(
+            extendBodyBehindAppBar: true,
+            floatingActionButton: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  backgroundColor: Colors.black,
+                  onPressed: () async {
+                    Share.share(
+                        "Watch or download ${widget.movie.title} on MovieHouse app for completely FREE. Get this app from this link \n" +
+                            "http://demo.gopiui.com/movie");
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/Share.svg',
+                    height: 30.0,
                   ),
-                  // backgroundBlendMode: BlendMode.
                 ),
+                SizedBox(width: 10.0),
+                FloatingActionButton(
+                  backgroundColor: Colors.blue[800],
+                  onPressed: () async {
+                    return _showInterstitialAdfromDownload();
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/Download.svg',
+                    height: 20.0,
+                  ),
+                ),
+              ],
+            ),
+            appBar: AppBar(
+              elevation: 0.0,
+              backgroundColor: Colors.transparent,
+              leading: IconButton(
+                icon: SvgPicture.asset('assets/icons/Back.svg'),
+                onPressed: () {
+                  return Navigator.pop(context);
+                },
               ),
-              Positioned(
-                bottom: 0.0,
-                left: 0.0,
-                right: 0.0,
-                child: Container(
-                  color: Colors.transparent,
-                  child: Container(
-                    height: MediaQuery.of(context).size.height / 2,
+            ),
+            body: SingleChildScrollView(
+              child: Stack(
+                // alignment: Alignment.bottomCenter,
+                // fit: StackFit.expand,
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    // color: Colors.transparent,
                     decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(40.0),
-                        topRight: Radius.circular(40.0),
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          'https://api.moviehouse.download/admin/movie/image/' +
+                              widget.movie.poster,
+                        ),
+                        fit: BoxFit.cover,
                       ),
+                      // backgroundBlendMode: BlendMode.
                     ),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 40.0),
-                        Text(
-                          widget.movie.title,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 26.0,
-                            fontWeight: FontWeight.bold,
+                  ),
+                  Positioned(
+                    bottom: 0.0,
+                    left: 0.0,
+                    right: 0.0,
+                    child: Container(
+                      color: Colors.transparent,
+                      child: Container(
+                        height: MediaQuery.of(context).size.height / 2,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(40.0),
+                            topRight: Radius.circular(40.0),
                           ),
                         ),
-                        SizedBox(height: 10.0),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+                        child: Column(
                           children: [
+                            SizedBox(height: 40.0),
                             Text(
-                              widget.movie.year.toString(),
-                              style: TextStyle(color: Colors.white),
+                              widget.movie.title,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 26.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            SizedBox(width: 5.0),
+                            SizedBox(height: 10.0),
                             Row(
-                              children: widget.movie.genreList
-                                  .map((genre) => Padding(
-                                      padding: EdgeInsets.only(right: 10.0),
-                                      child: Text(genre)))
-                                  .toList(),
-                            )
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  widget.movie.year.toString(),
+                                  style: TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(width: 5.0),
+                                Row(
+                                  children: (widget.movie.genreList.length > 0)
+                                      ? widget.movie.genreList
+                                          .map((genre) => Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 5.0),
+                                                child: Text(genre,
+                                                    style: TextStyle(
+                                                        color: Colors.white)),
+                                              ))
+                                          .toList()
+                                      : Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 5.0),
+                                          child: Text('No Genres',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                        ),
+                                ),
+                                Row(
+                                    children: (widget.movie.language.length > 0)
+                                        ? widget.movie.language
+                                            .map((language) => Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 5.0),
+                                                  child: Text(language,
+                                                      style: TextStyle(
+                                                          color: Colors.white)),
+                                                ))
+                                            .toList()
+                                        : [
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 5.0),
+                                              child: Text('No ',
+                                                  style: TextStyle(
+                                                      color: Colors.white)),
+                                            ),
+                                          ]),
+                              ],
+                            ),
+                            SizedBox(height: 10.0),
+                            Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Text(
+                                widget.movie.description,
+                                style: TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center,
+                                maxLines: 7,
+                              ),
+                            ),
                           ],
                         ),
-                        SizedBox(height: 10.0),
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Text(
-                            widget.movie.description,
-                            style: TextStyle(color: Colors.white),
-                            textAlign: TextAlign.center,
-                            maxLines: 7,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-              Positioned(
-                bottom: MediaQuery.of(context).size.height / 2.2,
-                left: MediaQuery.of(context).size.width / 2.2,
-                child: Container(
-                  height: 50.0,
-                  width: 50.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30.0),
-                    color: Colors.blue,
-                  ),
-                  child: IconButton(
-                    icon: SvgPicture.asset("assets/icons/Play.svg"),
-                    onPressed: () {
-                      _showInterstitialAd();
-                    },
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-    }
+            ),
+          )
+        : Center(child: Container(child: Text('Something went wrong')));
   }
 }

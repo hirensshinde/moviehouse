@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:movie_house4/models/moviex.dart';
+import 'package:movie_house4/models/movies.dart';
 import 'package:movie_house4/provider/navigationProvider.dart';
 import 'package:movie_house4/widgets/sidebarWidget.dart';
 import 'package:path_provider/path_provider.dart';
