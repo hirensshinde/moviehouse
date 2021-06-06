@@ -42,11 +42,23 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _results.clear();
+    page = 1;
+
+    super.dispose();
+  }
+
   void _populateAllResults(page) async {
     try {
       final results = await _fetchAllResults(page);
-      Future.delayed();
-      if (results != null) {
+      if (_results == null) {
+        setState(() {
+          _results = results;
+        });
+      } else {
         setState(() {
           _results.addAll(results);
         });

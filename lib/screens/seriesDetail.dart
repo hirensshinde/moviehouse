@@ -138,7 +138,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
 
       if (this.mounted) {
         setState(() {
-          _seasons = seasons;
+          _seasons.addAll(seasons);
         });
       }
     } on Exception catch (_) {

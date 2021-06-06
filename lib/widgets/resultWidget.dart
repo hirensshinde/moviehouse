@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_house4/screens/movieDetail.dart';
 import 'package:movie_house4/screens/seriesDetail.dart';
@@ -48,14 +49,15 @@ class ResultWidget extends StatelessWidget {
                       },
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.30,
-                        height: 120,
+                        height: 150,
                         // margin: EdgeInsets.symmetric(vertical: 10.0),
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: (result.poster != null)
-                                ? NetworkImage(
+                            image: (result.poster != null || result.poster)
+                                ? CachedNetworkImageProvider(
                                     'https://api.moviehouse.download/admin/movie/image/' +
-                                        result.poster)
+                                        result.poster,
+                                  )
                                 : AssetImage(
                                     'assets/images/poster_placeholder.png'),
                             fit: BoxFit.fill,
