@@ -1,21 +1,11 @@
 import 'dart:convert';
 
-import 'package:device_apps/device_apps.dart';
-import 'package:direct_link/direct_link.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:movie_house4/models/genres.dart';
-import 'package:movie_house4/models/movies.dart';
-import 'package:movie_house4/screens/NewDownloadScreen.dart';
-import 'package:movie_house4/screens/downloadsScreen.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:moviehouse/models/movies.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
 // import 'package:url_launcher/url_launcher.dart';
 
 const int maxFailedLoadAttempts = 3;
@@ -30,15 +20,15 @@ class MovieDetail extends StatefulWidget {
 }
 
 class _MovieDetailState extends State<MovieDetail> {
-  static final AdRequest request = AdRequest(
-    keywords: <String>['foo', 'bar'],
-    contentUrl: 'http://foo.com/bar.html',
-    nonPersonalizedAds: true,
-  );
+  // static final AdRequest request = AdRequest(
+  //   keywords: <String>['foo', 'bar'],
+  //   contentUrl: 'http://foo.com/bar.html',
+  //   nonPersonalizedAds: true,
+  // );
 
   RewardedAd rewardedAd;
   InterstitialAd _interstitialAd;
-  int _numInterstitialLoadAttempts = 0;
+  int _numInterstitialLoadAttempts = 5;
 
   @override
   initState() {
@@ -48,8 +38,8 @@ class _MovieDetailState extends State<MovieDetail> {
 
   void _createInterstitialAd() {
     InterstitialAd.load(
-        adUnitId: InterstitialAd.testAdUnitId,
-        request: request,
+        adUnitId: 'ca-app-pub-1527057564066862/9641981646',
+        request: AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (InterstitialAd ad) {
             print('$ad loaded');
@@ -65,34 +55,6 @@ class _MovieDetailState extends State<MovieDetail> {
             }
           },
         ));
-  }
-
-  void _showInterstitialAd() {
-    if (_interstitialAd == null) {
-      print('Warning: attempt to show interstitial before loaded.');
-      return;
-    }
-    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (InterstitialAd ad) =>
-          print('ad onAdShowedFullScreenContent.'),
-      onAdDismissedFullScreenContent: (InterstitialAd ad) {
-        print('$ad onAdDismissedFullScreenContent.');
-        ad.dispose();
-        _createInterstitialAd();
-        return Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    PlayScreen(link: widget.movie.downloadLink)));
-      },
-      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
-        print('$ad onAdFailedToShowFullScreenContent: $error');
-        ad.dispose();
-        _createInterstitialAd();
-      },
-    );
-    _interstitialAd.show();
-    _interstitialAd = null;
   }
 
   void _showInterstitialAdfromDownload() {
@@ -115,6 +77,7 @@ class _MovieDetailState extends State<MovieDetail> {
         _createInterstitialAd();
       },
     );
+    print(_interstitialAd.adUnitId);
     _interstitialAd.show();
     _interstitialAd = null;
   }
@@ -143,6 +106,7 @@ class _MovieDetailState extends State<MovieDetail> {
               children: [
                 FloatingActionButton(
                   backgroundColor: Colors.black,
+                  heroTag: 'btn2',
                   onPressed: () async {
                     Share.share(
                         "Watch or download ${widget.movie.title} on MovieHouse app for completely FREE. Get this app from this link \n" +
@@ -156,6 +120,7 @@ class _MovieDetailState extends State<MovieDetail> {
                 SizedBox(width: 10.0),
                 FloatingActionButton(
                   backgroundColor: Colors.blue[800],
+                  heroTag: 'btn1',
                   onPressed: () async {
                     return _showInterstitialAdfromDownload();
                   },
@@ -187,10 +152,13 @@ class _MovieDetailState extends State<MovieDetail> {
                     // color: Colors.transparent,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: NetworkImage(
-                          'https://api.moviehouse.download/admin/movie/image/' +
-                              widget.movie.poster,
-                        ),
+                        image: (widget.movie.poster != null)
+                            ? NetworkImage(
+                                'https://api.moviehouse.download/admin/movie/image/' +
+                                    widget.movie.poster,
+                              )
+                            : AssetImage(
+                                'assets/images/poster_placeholder.png'),
                         fit: BoxFit.cover,
                       ),
                       // backgroundBlendMode: BlendMode.
@@ -269,7 +237,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                             Padding(
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 5.0),
-                                              child: Text('No ',
+                                              child: Text('No Language',
                                                   style: TextStyle(
                                                       color: Colors.white)),
                                             ),

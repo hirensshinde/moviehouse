@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:movie_house4/models/webseries.dart';
-import 'package:movie_house4/screens/seriesDetail.dart';
+import 'package:moviehouse/models/webseries.dart';
+import 'package:moviehouse/screens/seriesDetail.dart';
 
 class SeriesWidget extends StatelessWidget {
   final List<WebSeries> webSeries;

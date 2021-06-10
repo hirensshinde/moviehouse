@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:movie_house4/models/navigation_item.dart';
-import 'package:movie_house4/provider/google_sign_in.dart';
-import 'package:movie_house4/provider/navigationProvider.dart';
+import 'package:moviehouse/models/navigation_item.dart';
+import 'package:moviehouse/provider/google_sign_in.dart';
+import 'package:moviehouse/provider/navigationProvider.dart';
 import 'package:provider/provider.dart';
 
 class NavigationDrawerWidget extends StatelessWidget {

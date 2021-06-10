@@ -1,17 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
-import 'package:movie_house4/models/navigation_item.dart';
-import 'package:movie_house4/provider/google_sign_in.dart';
-import 'package:movie_house4/provider/navigationProvider.dart';
-import 'package:movie_house4/screens/categoryScreen.dart';
-import 'package:movie_house4/screens/downloadsScreen.dart';
-import 'package:movie_house4/screens/homescreen.dart';
-import 'package:movie_house4/screens/savedContentScreen.dart';
-import 'package:movie_house4/screens/searchScreen.dart';
-import 'package:movie_house4/screens/subscriptionScreen.dart';
-import 'package:movie_house4/screens/updateScreen.dart';
-import 'package:movie_house4/widgets/signUpWidget.dart';
+import 'package:moviehouse/models/navigation_item.dart';
+import 'package:moviehouse/provider/google_sign_in.dart';
+import 'package:moviehouse/provider/navigationProvider.dart';
+import 'package:moviehouse/screens/categoryScreen.dart';
+import 'package:moviehouse/screens/downloadsScreen.dart';
+import 'package:moviehouse/screens/savedContentScreen.dart';
+import 'package:moviehouse/screens/searchScreen.dart';
+import 'package:moviehouse/screens/subscriptionScreen.dart';
+import 'package:moviehouse/screens/updateScreen.dart';
+import 'package:moviehouse/widgets/signUpWidget.dart';
 
 import 'package:provider/provider.dart';
 

@@ -3,15 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:movie_house4/models/movies.dart';
-import 'package:movie_house4/models/webseries.dart';
-import 'package:movie_house4/screens/downloadsScreen.dart';
-import 'package:movie_house4/screens/movieDetail.dart';
-import 'package:movie_house4/screens/searchScreen.dart';
-import 'package:movie_house4/widgets/resultWidget.dart';
-import 'package:movie_house4/widgets/seriesWidget.dart';
-import 'package:movie_house4/widgets/sidebarWidget.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moviehouse/models/movies.dart';
+import 'package:moviehouse/models/webseries.dart';
+import 'package:moviehouse/screens/searchScreen.dart';
+import 'package:moviehouse/widgets/resultWidget.dart';
 
 class GenreScreen extends StatefulWidget {
   final String title;
@@ -25,20 +20,43 @@ class GenreScreen extends StatefulWidget {
 
 class _GenreScreenState extends State<GenreScreen> {
   List _results;
+  bool isLoading = false;
+  ScrollController _scrollController = ScrollController();
+  static int page = 1;
 
   @override
   void initState() {
     super.initState();
-    _populateAllResults();
+    _populateAllResults(page);
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _populateAllResults(page);
+        print('Reached to end of the screen');
+      }
+    });
   }
 
-  void _populateAllResults() async {
-    try {
-      final results = await _fetchAllResults();
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _results.clear();
+    page = 1;
 
-      if (this.mounted) {
+    super.dispose();
+  }
+
+  void _populateAllResults(page) async {
+    try {
+      final results = await _fetchAllResults(page);
+
+      if (_results == null) {
         setState(() {
           _results = results;
+        });
+      } else {
+        setState(() {
+          _results.addAll(results);
         });
       }
     } on Exception catch (_) {
@@ -48,12 +66,12 @@ class _GenreScreenState extends State<GenreScreen> {
   }
 
   //
-  Future<List> _fetchAllResults() async {
+  Future<List> _fetchAllResults(int index) async {
     // final String apiUrl =
     //     "https://api.themoviedb.org/3/movie/now_playing?api_key=a8d93a34b26202fd9917272a3535e340";
 
     final String apiUrl =
-        "https://api.moviehouse.download/api/all/genre/${widget.id}";
+        "https://api.moviehouse.download/api/all/genre/${widget.id}?page=$index";
     var url = Uri.parse(apiUrl);
     final response = await http.get(url);
 
@@ -76,7 +94,7 @@ class _GenreScreenState extends State<GenreScreen> {
 
   Future<Null> refreshList() async {
     await Future.delayed(Duration(seconds: 2));
-    _populateAllResults();
+    _populateAllResults(page);
 
     return null;
   }
@@ -121,7 +139,8 @@ class _GenreScreenState extends State<GenreScreen> {
                 padding: EdgeInsets.only(top: 20.0),
                 width: double.infinity,
                 // height: MediaQuery.of(context).size.height,
-                child: ResultWidget(results: _results),
+                child: ResultWidget(
+                    results: _results, controller: _scrollController),
               ),
             ],
           ),

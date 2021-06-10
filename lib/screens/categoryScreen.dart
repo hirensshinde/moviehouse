@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'package:expandable_card/expandable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:movie_house4/models/categories.dart';
-import 'package:movie_house4/screens/downloadsScreen.dart';
-import 'package:movie_house4/screens/homescreen.dart';
-import 'package:movie_house4/screens/searchScreen.dart';
-import 'package:movie_house4/widgets/sidebarWidget.dart';
+import 'package:moviehouse/models/categories.dart';
+import 'package:moviehouse/screens/homescreen.dart';
+import 'package:moviehouse/screens/searchScreen.dart';
+import 'package:moviehouse/widgets/sidebarWidget.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 

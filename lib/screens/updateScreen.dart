@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:movie_house4/provider/navigationProvider.dart';
-import 'package:movie_house4/widgets/sidebarWidget.dart';
+import 'package:moviehouse/provider/navigationProvider.dart';
+import 'package:moviehouse/widgets/sidebarWidget.dart';
 
 class UpdateScreen extends StatelessWidget {
   @override

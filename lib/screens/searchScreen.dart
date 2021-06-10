@@ -2,14 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:movie_house4/models/genres.dart';
+import 'package:moviehouse/models/genres.dart';
 import 'package:http/http.dart' as http;
-import 'package:movie_house4/models/movies.dart';
-import 'package:movie_house4/models/webseries.dart';
-import 'package:movie_house4/screens/genreScreen.dart';
-import 'package:movie_house4/screens/homescreen.dart';
-import 'package:movie_house4/screens/movieDetail.dart';
-import 'package:movie_house4/widgets/resultWidget.dart';
+import 'package:moviehouse/models/movies.dart';
+import 'package:moviehouse/models/webseries.dart';
+import 'package:moviehouse/screens/genreScreen.dart';
+import 'package:moviehouse/widgets/resultWidget.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -17,6 +15,10 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  bool isLoading = false;
+  ScrollController _scrollController = ScrollController();
+  static int page = 1;
+
   List<Genre> _genres;
   List<dynamic> _searchResult;
 

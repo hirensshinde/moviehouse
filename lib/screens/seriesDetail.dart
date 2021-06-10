@@ -1,12 +1,9 @@
 import 'dart:io';
 
-import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:movie_house4/models/webseries.dart';
-import 'package:movie_house4/screens/NewDownloadScreen.dart';
+import 'package:moviehouse/models/webseries.dart';
 import 'package:url_launcher/url_launcher.dart';
 // import 'package:movie_house4/screens/downloadsScreen.dart';
 // import 'package:progress_indicators/progress_indicators.dart';
@@ -24,20 +21,14 @@ class SeriesDetail extends StatefulWidget {
 }
 
 class _SeriesDetailState extends State<SeriesDetail> {
-  static final AdRequest request = AdRequest(
-    keywords: <String>['foo', 'bar'],
-    contentUrl: 'http://foo.com/bar.html',
-    nonPersonalizedAds: true,
-  );
-
   RewardedAd rewardedAd;
   InterstitialAd _interstitialAd;
-  int _numInterstitialLoadAttempts = 0;
+  int _numInterstitialLoadAttempts = 5;
 
   void _createInterstitialAd() {
     InterstitialAd.load(
-        adUnitId: InterstitialAd.testAdUnitId,
-        request: request,
+        adUnitId: "ca-app-pub-1527057564066862/9641981646",
+        request: AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (InterstitialAd ad) {
             print('$ad loaded');
@@ -53,34 +44,6 @@ class _SeriesDetailState extends State<SeriesDetail> {
             }
           },
         ));
-  }
-
-  void _showInterstitialAd(index) {
-    if (_interstitialAd == null) {
-      print('Warning: attempt to show interstitial before loaded.');
-      return;
-    }
-    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (InterstitialAd ad) =>
-          print('ad onAdShowedFullScreenContent.'),
-      onAdDismissedFullScreenContent: (InterstitialAd ad) {
-        print('$ad onAdDismissedFullScreenContent.');
-        ad.dispose();
-        _createInterstitialAd();
-        return Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    PlayScreen(link: _allEpisodes[index].downloadLink)));
-      },
-      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
-        print('$ad onAdFailedToShowFullScreenContent: $error');
-        ad.dispose();
-        _createInterstitialAd();
-      },
-    );
-    _interstitialAd.show();
-    _interstitialAd = null;
   }
 
   void _showInterstitialAdfromDownload(index) {
@@ -138,7 +101,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
 
       if (this.mounted) {
         setState(() {
-          _seasons.addAll(seasons);
+          _seasons = seasons;
         });
       }
     } on Exception catch (_) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie_house4/models/navigation_item.dart';
+import 'package:moviehouse/models/navigation_item.dart';
 
 class NavigationProvider extends ChangeNotifier {
   NavigationItem _navigationItem = NavigationItem.home;

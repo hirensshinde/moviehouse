@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:movie_house4/screens/movieDetail.dart';
-import 'package:movie_house4/screens/seriesDetail.dart';
+import 'package:moviehouse/screens/movieDetail.dart';
+import 'package:moviehouse/screens/seriesDetail.dart';
 // import 'package:movie_house4/models/movies.dart';
 
 class ResultWidget extends StatelessWidget {
   final List results;
-  ScrollController controller;
+  final ScrollController controller;
 
   ResultWidget({this.results, this.controller});
 
@@ -19,6 +19,7 @@ class ResultWidget extends StatelessWidget {
         padding: EdgeInsets.all(10.0),
         child: GridView.builder(
             // scrollDirection: Axis.
+
             shrinkWrap: true,
             itemCount: results.length - 5,
             physics: ScrollPhysics(),
@@ -47,22 +48,33 @@ class ResultWidget extends StatelessWidget {
                           ),
                         );
                       },
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.30,
-                        height: 150,
-                        // margin: EdgeInsets.symmetric(vertical: 10.0),
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: (result.poster != null || result.poster)
-                                ? CachedNetworkImageProvider(
-                                    'https://api.moviehouse.download/admin/movie/image/' +
-                                        result.poster,
-                                  )
-                                : AssetImage(
-                                    'assets/images/poster_placeholder.png'),
-                            fit: BoxFit.fill,
+                      child: CachedNetworkImage(
+                        imageUrl:
+                            'https://api.moviehouse.download/admin/movie/image/' +
+                                result.poster,
+                        imageBuilder: (context, imageProvider) => Container(
+                          width: MediaQuery.of(context).size.width * 0.30,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            // shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(10.0),
+                            image: DecorationImage(
+                                image: imageProvider, fit: BoxFit.fill),
                           ),
-                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        placeholder: (context, url) =>
+                            CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => Container(
+                          width: MediaQuery.of(context).size.width * 0.30,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            // shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(10.0),
+                            image: DecorationImage(
+                                image: AssetImage(
+                                    'assets/images/poster_placeholder.png'),
+                                fit: BoxFit.fill),
+                          ),
                         ),
                       ),
                     ),

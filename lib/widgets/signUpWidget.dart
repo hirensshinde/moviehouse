@@ -1,8 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
-import 'package:movie_house4/provider/google_sign_in.dart';
+import 'package:moviehouse/provider/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 class SignUpWidget extends StatelessWidget {
@@ -21,7 +20,7 @@ class SignUpWidget extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                  'assets/images/SplashLogo.png',
+                  'assets/images/SplashLogo',
                 ),
                 // fit: BoxFit.fill,
               ),

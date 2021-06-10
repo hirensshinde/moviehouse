@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:movie_house4/provider/navigationProvider.dart';
-import 'package:movie_house4/screens/homescreen.dart';
-import 'package:movie_house4/screens/loginScreen.dart';
+import 'package:moviehouse/provider/navigationProvider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:movie_house4/screens/testScreen.dart';
+import 'package:moviehouse/screens/loginScreen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {

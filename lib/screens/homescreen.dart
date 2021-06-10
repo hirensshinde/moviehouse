@@ -3,15 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:movie_house4/models/movies.dart';
-import 'package:movie_house4/models/webseries.dart';
-import 'package:movie_house4/screens/downloadsScreen.dart';
-import 'package:movie_house4/screens/movieDetail.dart';
-import 'package:movie_house4/screens/searchScreen.dart';
-import 'package:movie_house4/widgets/resultWidget.dart';
-import 'package:movie_house4/widgets/seriesWidget.dart';
-import 'package:movie_house4/widgets/sidebarWidget.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moviehouse/models/movies.dart';
+import 'package:moviehouse/models/webseries.dart';
+import 'package:moviehouse/screens/searchScreen.dart';
+import 'package:moviehouse/widgets/resultWidget.dart';
 
 class HomeScreen extends StatefulWidget {
   final String title;
@@ -36,8 +31,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-        _populateAllResults(page);
-        print('Reached to end of the screen');
+        if (!isLoading) {
+          isLoading = !isLoading;
+          _populateAllResults(page);
+          print('Reached to end of the screen');
+        }
       }
     });
   }
@@ -71,15 +69,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //
   Future<List> _fetchAllResults(int index) async {
-    // final String apiUrl =
-    //     "https://api.themoviedb.org/3/movie/now_playing?api_key=a8d93a34b26202fd9917272a3535e340";
-    // if (!isLoading) {
-    //   setState(() {
-    //     isLoading == true;
-    //   });
-    // }
+    isLoading = false;
     final String apiUrl =
-        "https://api.moviehouse.download/api/all/category/${widget.id}?page=${index}";
+        "https://api.moviehouse.download/api/all/category/${widget.id}?page=$index";
     var url = Uri.parse(apiUrl);
     final response = await http.get(url);
 
