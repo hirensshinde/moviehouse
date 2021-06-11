@@ -138,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: EdgeInsets.only(top: 20.0),
+              // padding: EdgeInsets.only(top: 10.0),
               width: double.infinity,
               height: MediaQuery.of(context).size.height,
               child: ResultWidget(

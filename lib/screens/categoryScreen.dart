@@ -8,6 +8,7 @@ import 'package:moviehouse/screens/homescreen.dart';
 import 'package:moviehouse/screens/searchScreen.dart';
 import 'package:moviehouse/widgets/sidebarWidget.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:moviehouse/models/banners.dart';
 import 'package:http/http.dart' as http;
 
 class CategoryScreen extends StatefulWidget {
@@ -17,13 +18,29 @@ class CategoryScreen extends StatefulWidget {
 
 class _CategoryScreenState extends State<CategoryScreen> {
   List<Category> _categories;
+  List<Banners> _banners;
 
-  List posters = [
-    'assets/images/image1.jpg',
-    'assets/images/image2.jpg',
-    'assets/images/image3.jpg',
-    'assets/images/image4.jpg',
-  ];
+  // List posters = [
+  //   'assets/images/image1.jpg',
+  //   'assets/images/image2.jpg',
+  //   'assets/images/image3.jpg',
+  //   'assets/images/image4.jpg',
+  // ];
+
+  Future<List<Banners>> getBanner() async {
+    final apikey = "45293422347apQ8ob9hR9ITXS6YikayOc5iA2";
+    final url = Uri.parse(
+        "https://api.moviehouse.download/api/banners?api_key=${apikey}");
+    final response = await http.get(url);
+    List banners;
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      if (result.length > 0) {
+        banners = result['data'];
+      }
+    }
+    return banners.map((banner) => Banners.fromJson(banner)).toList();
+  }
 
   @override
   void initState() {
@@ -35,9 +52,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
   void _populateAllCategories() async {
     try {
       final categories = await _fetchAllCategories();
+      final banners = await getBanner();
 
       setState(() {
         _categories = categories;
+        _banners = banners;
       });
     } on Exception catch (_) {
       print('Data Not arrived yet');
@@ -71,31 +90,39 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return null;
   }
 
-  Widget _body() => CarouselSlider.builder(
-      itemCount: posters.length,
-      options: CarouselOptions(
-        autoPlay: true,
-        height: MediaQuery.of(context).size.height,
-        viewportFraction: 1.0,
-        disableCenter: true,
-        autoPlayInterval: Duration(seconds: 5),
-        autoPlayCurve: Curves.easeInOut,
-        initialPage: 0,
-        autoPlayAnimationDuration: Duration(milliseconds: 800),
-        scrollDirection: Axis.horizontal,
-      ),
-      itemBuilder: (BuildContext context, int index, int pageItemIndex) =>
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.5,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(posters[index]),
-                fit: BoxFit.cover,
-                alignment: Alignment.topLeft,
+  Widget _body() => Column(
+        children: [
+          CarouselSlider.builder(
+            itemCount: _banners.length,
+            options: CarouselOptions(
+              autoPlay: true,
+              height: MediaQuery.of(context).size.height * .5,
+              viewportFraction: 1.0,
+              disableCenter: true,
+              autoPlayInterval: Duration(seconds: 10),
+              autoPlayCurve: Curves.easeInOut,
+              initialPage: 0,
+              autoPlayAnimationDuration: Duration(milliseconds: 800),
+              scrollDirection: Axis.horizontal,
+            ),
+            itemBuilder: (BuildContext context, int index, int pageItemIndex) =>
+                Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * .5,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(
+                      'https://api.moviehouse.download/admin/movie/image/' +
+                          _banners[index].banner),
+                  fit: BoxFit.fill,
+                  // alignment: Alignment.topLeft,
+                ),
               ),
             ),
-          ));
+          ),
+          Container(height: MediaQuery.of(context).size.height * .5),
+        ],
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +142,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
           backgroundColor: Colors.black,
           padding: EdgeInsets.only(top: 5, left: 20, right: 20),
           // maxHeight: MediaQuery.of(context).size.height - 100,
+
           minHeight: MediaQuery.of(context).size.height * 0.55,
           maxHeight: MediaQuery.of(context).size.height * 0.55,
           hasRoundedCorners: true,

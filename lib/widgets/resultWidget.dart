@@ -21,7 +21,7 @@ class ResultWidget extends StatelessWidget {
             // scrollDirection: Axis.
 
             shrinkWrap: true,
-            itemCount: results.length - 5,
+            itemCount: results.length,
             physics: ScrollPhysics(),
             controller: controller,
             gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
@@ -55,18 +55,57 @@ class ResultWidget extends StatelessWidget {
                         imageBuilder: (context, imageProvider) => Container(
                           width: MediaQuery.of(context).size.width * 0.30,
                           height: 150,
+                          alignment: Alignment.topRight,
                           decoration: BoxDecoration(
                             // shape: BoxShape.circle,
                             borderRadius: BorderRadius.circular(10.0),
                             image: DecorationImage(
                                 image: imageProvider, fit: BoxFit.fill),
                           ),
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                top: 2.0,
+                                right: 0.0,
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 10.0),
+                                  color: Colors.yellow,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.star, size: 14.0),
+                                      Text(
+                                        '7.8 ',
+                                        style: TextStyle(
+                                          fontSize: 10.0,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                child: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.30,
+                                  color: Colors.black87,
+                                  child: Text(result.title,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.0,
+                                      ),
+                                      textAlign: TextAlign.center),
+                                  padding: EdgeInsets.all(5.0),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        placeholder: (context, url) =>
-                            CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => Container(
+                        placeholder: (context, url) => Container(
                           width: MediaQuery.of(context).size.width * 0.30,
                           height: 150,
+                          alignment: Alignment.topRight,
                           decoration: BoxDecoration(
                             // shape: BoxShape.circle,
                             borderRadius: BorderRadius.circular(10.0),
@@ -76,20 +115,60 @@ class ResultWidget extends StatelessWidget {
                                 fit: BoxFit.fill),
                           ),
                         ),
+                        errorWidget: (context, url, error) => Container(
+                          width: MediaQuery.of(context).size.width * 0.30,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            // shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(10.0),
+                            image: DecorationImage(
+                                image:
+                                    AssetImage('assets/images/nopreview.jpg'),
+                                fit: BoxFit.fill),
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                top: 2.0,
+                                right: 0.0,
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 10.0),
+                                  color: Colors.yellow,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.star, size: 14.0),
+                                      Text(
+                                        '7.8 ',
+                                        style: TextStyle(
+                                          fontSize: 10.0,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                child: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.30,
+                                  color: Colors.black87,
+                                  child: Text(result.title,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.0,
+                                      ),
+                                      textAlign: TextAlign.center),
+                                  padding: EdgeInsets.all(5.0),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: 5.0,
-                  ),
-                  Text(
-                    result.title,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12.0,
-                    ),
-                    textAlign: TextAlign.center,
-                  )
                 ],
               );
             }),

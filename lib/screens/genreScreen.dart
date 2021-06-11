@@ -80,9 +80,11 @@ class _GenreScreenState extends State<GenreScreen> {
 
       if (result["movie"].length > 0) {
         List movies = result["movie"];
+        page++;
         return movies.map((movie) => Movie.fromJson(movie)).toList();
       } else if (result["web_series"].length > 0) {
         List webSeries = result["web_series"];
+        page++;
         return webSeries.map((series) => WebSeries.fromJson(series)).toList();
       } else {
         return [];
@@ -90,13 +92,6 @@ class _GenreScreenState extends State<GenreScreen> {
     } else {
       throw Exception("Failed to load movies!");
     }
-  }
-
-  Future<Null> refreshList() async {
-    await Future.delayed(Duration(seconds: 2));
-    _populateAllResults(page);
-
-    return null;
   }
 
   @override
@@ -130,20 +125,17 @@ class _GenreScreenState extends State<GenreScreen> {
         backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
-        child: RefreshIndicator(
-          onRefresh: refreshList,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: EdgeInsets.only(top: 20.0),
-                width: double.infinity,
-                // height: MediaQuery.of(context).size.height,
-                child: ResultWidget(
-                    results: _results, controller: _scrollController),
-              ),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.only(top: 20.0),
+              width: double.infinity,
+              // height: MediaQuery.of(context).size.height,
+              child: ResultWidget(
+                  results: _results, controller: _scrollController),
+            ),
+          ],
         ),
       ),
     );

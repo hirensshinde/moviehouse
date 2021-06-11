@@ -59,6 +59,7 @@ dependencies:
 
   # Mobile Ads
   google_mobile_ads: ^0.13.0
+  adcolony_flutter: ^1.4.1+1
 
   # Share functionality
   share: ^2.0.2

@@ -16,8 +16,8 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   bool isLoading = false;
-  ScrollController _scrollController = ScrollController();
-  static int page = 1;
+  // ScrollController _scrollController = ScrollController();
+  // static int page = 1;
   List _results;
 
   List<Genre> _genres;
@@ -61,58 +61,33 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  Future<List> _fetchSearchResult(query, index) async {
+  Future<List> _fetchSearchResult(query) async {
     final String apiUrl =
-        "http://api.moviehouse.download/api/search?query=$query&page=$index";
+        "https://api.moviehouse.download/api/search?query=$query";
     var url = Uri.parse(apiUrl);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> result = jsonDecode(response.body);
-      List<dynamic> list = result['data'];
-      print(result);
+      final result = jsonDecode(response.body);
 
-      if (list[0].length > 0 && list[0][0]["type"] == "movie") {
-        List newList = list[0].map((movie) => Movie.fromJson(movie)).toList();
-        page++;
-
-        return newList;
+      if (result['movie'].length > 0) {
+        final data = result['movie'];
+        return data.map((movie) => Movie.fromJson(movie)).toList();
       } else {
-        List newList =
-            list[1].map((series) => WebSeries.fromJson(series)).toList();
-        page++;
-
-        return newList;
+        final data = result['web_series'];
+        return data.map((series) => WebSeries.fromJson(series)).toList();
       }
     } else {
       throw Exception("Failed to load movie");
     }
   }
 
-  void pagination(String query) async {
-    _results = await _fetchSearchResult(query, page);
-    print(_results);
-
-    _scrollController.addListener(() async {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        try {
-          final results = await _fetchSearchResult(query, page);
-          if (_results == null) {
-            setState(() {
-              _results = results;
-            });
-          } else {
-            setState(() {
-              _results.addAll(results);
-            });
-          }
-        } on Exception catch (_) {
-          print('Data Not arrived yet');
-          throw Exception('Data not arrived yet');
-        }
-      }
+  Future pagination(String query) async {
+    final results = await _fetchSearchResult(query);
+    setState(() {
+      _results = results;
     });
+    print(_results);
   }
 
   Future<Null> refreshList() async {
@@ -151,7 +126,7 @@ class _SearchScreenState extends State<SearchScreen> {
             controller: textController,
             onSubmitted: (String value) async {
               if (value.isNotEmpty) {
-                pagination(value);
+                await pagination(value);
                 // textController.clear();
               } else {
                 setState(() {
