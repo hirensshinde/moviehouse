@@ -25,6 +25,9 @@ class _SeriesDetailState extends State<SeriesDetail> {
   InterstitialAd _interstitialAd;
   int _numInterstitialLoadAttempts = 5;
 
+  List<Season> _seasons;
+  List<Part> _allEpisodes;
+
   void _createInterstitialAd() {
     InterstitialAd.load(
         adUnitId: "ca-app-pub-1527057564066862/9641981646",
@@ -84,10 +87,6 @@ class _SeriesDetailState extends State<SeriesDetail> {
     }
   }
 
-  List<Season> _seasons;
-  List<Part> _allEpisodes;
-  List<Part> listEpisodes;
-
   @override
   initState() {
     super.initState();
@@ -98,10 +97,10 @@ class _SeriesDetailState extends State<SeriesDetail> {
   _populateAllResults() async {
     try {
       final seasons = await _fetchAllSeasons();
-
-      if (this.mounted) {
+      if (seasons.length > 0 && seasons[0].parts.length > 0) {
         setState(() {
           _seasons = seasons;
+          _fetchAllParts(_seasons[0].parts);
         });
       }
     } on Exception catch (_) {
@@ -127,7 +126,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
     final partList = episodes;
     print(partList);
     if (partList != null) {
-      listEpisodes =
+      List<Part> listEpisodes =
           partList.map((part) => Part.fromJson(part)).cast<Part>().toList();
 
       setState(() {

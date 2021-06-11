@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:287609316918:android:3a398f462344be79b3da97",
+        "mobilesdk_app_id": "1:287609316918:android:440edf80e38659fdb3da97",
         "android_client_info": {
           "package_name": "com.moviehouse.download"
         }
       },
       "oauth_client": [
         {
-          "client_id": "287609316918-nricrkvrak3lh6jar1evjidcio5um5a2.apps.googleusercontent.com",
+          "client_id": "287609316918-rnin690qgvk1ut98ul9hphuesqav1nt0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.moviehouse.download",
-            "certificate_hash": "1a50d33d1d6ec2ffa8b2d84127df78cef0af3d1d"
+            "certificate_hash": "d7d32ead61b5b2d941cb8a7883bf23da70e3f717"
           }
         },
         {

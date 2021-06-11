@@ -18,9 +18,9 @@ class _SearchScreenState extends State<SearchScreen> {
   bool isLoading = false;
   ScrollController _scrollController = ScrollController();
   static int page = 1;
+  List _results;
 
   List<Genre> _genres;
-  List<dynamic> _searchResult;
 
   TextEditingController textController = TextEditingController();
 
@@ -61,46 +61,58 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  Future<void> _fetchSearchResult(query) async {
+  Future<List> _fetchSearchResult(query, index) async {
     final String apiUrl =
-        "http://api.moviehouse.download/api/search?query=$query";
+        "http://api.moviehouse.download/api/search?query=$query&page=$index";
     var url = Uri.parse(apiUrl);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final result = jsonDecode(response.body);
-      List list = result["data"];
+      Map<String, dynamic> result = jsonDecode(response.body);
+      List<dynamic> list = result['data'];
+      print(result);
 
-      if (list.length > 0 && list[0]['type'] == 'movie') {
-        List newList = list.map((movie) => Movie.fromJson(movie)).toList();
-        try {
-          setState(() {
-            _searchResult = newList;
-          });
+      if (list[0].length > 0 && list[0][0]["type"] == "movie") {
+        List newList = list[0].map((movie) => Movie.fromJson(movie)).toList();
+        page++;
 
-          print(_searchResult);
-        } on Exception catch (_) {
-          print('Data Not arrived yet');
-          throw Exception('Data not arrived yet');
-        }
+        return newList;
       } else {
         List newList =
-            list.map((series) => WebSeries.fromJson(series)).toList();
-        try {
-          setState(() {
-            _searchResult = newList;
-          });
+            list[1].map((series) => WebSeries.fromJson(series)).toList();
+        page++;
 
-          print(_searchResult);
-        } on Exception catch (_) {
-          print('Data Not arrived yet');
-          throw Exception('Data not arrived yet');
-        }
-        return _searchResult;
+        return newList;
       }
     } else {
       throw Exception("Failed to load movie");
     }
+  }
+
+  void pagination(String query) async {
+    _results = await _fetchSearchResult(query, page);
+    print(_results);
+
+    _scrollController.addListener(() async {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        try {
+          final results = await _fetchSearchResult(query, page);
+          if (_results == null) {
+            setState(() {
+              _results = results;
+            });
+          } else {
+            setState(() {
+              _results.addAll(results);
+            });
+          }
+        } on Exception catch (_) {
+          print('Data Not arrived yet');
+          throw Exception('Data not arrived yet');
+        }
+      }
+    });
   }
 
   Future<Null> refreshList() async {
@@ -139,7 +151,7 @@ class _SearchScreenState extends State<SearchScreen> {
             controller: textController,
             onSubmitted: (String value) async {
               if (value.isNotEmpty) {
-                _fetchSearchResult(value);
+                pagination(value);
                 // textController.clear();
               } else {
                 setState(() {
@@ -175,10 +187,10 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            (_searchResult != null && _searchResult.length > 0)
+            (_results != null && _results.length > 0)
                 ? Container(
                     padding: EdgeInsets.all(10.0),
-                    child: ResultWidget(results: _searchResult),
+                    child: ResultWidget(results: _results),
                   )
                 : (_genres != null && _genres.length > 0)
                     ? Container(

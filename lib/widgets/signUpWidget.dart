@@ -20,7 +20,7 @@ class SignUpWidget extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                  'assets/images/SplashLogo',
+                  'assets/images/SplashLogo.png',
                 ),
                 // fit: BoxFit.fill,
               ),
