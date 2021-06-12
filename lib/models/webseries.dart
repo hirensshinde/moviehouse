@@ -5,6 +5,7 @@ class WebSeries {
   String genreId;
   String poster;
   String type;
+  dynamic ratings;
   int featured;
   int year;
   String description;
@@ -18,6 +19,7 @@ class WebSeries {
       this.genreId,
       this.poster,
       this.type,
+      this.ratings,
       this.year,
       this.featured,
       this.description,
@@ -36,6 +38,7 @@ class WebSeries {
       // downloadLink: json['url'],
       // downloadCount: json['download'],
       featured: json['featured'],
+      ratings: json['rating'],
       year: json['year'],
       type: json['type'],
       categoryId: json['category_id'],

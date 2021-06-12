@@ -285,6 +285,8 @@ class _SeriesDetailState extends State<SeriesDetail> {
                               itemBuilder: (context, index) {
                                 print("UI rendering");
                                 return Card(
+                                  elevation: 0.0,
+                                  shadowColor: Colors.black,
                                   child: ListTile(
                                     visualDensity: VisualDensity.standard,
                                     tileColor: Color.fromARGB(255, 25, 27, 45),

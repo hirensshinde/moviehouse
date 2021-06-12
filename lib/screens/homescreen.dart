@@ -7,6 +7,7 @@ import 'package:moviehouse/models/movies.dart';
 import 'package:moviehouse/models/webseries.dart';
 import 'package:moviehouse/screens/searchScreen.dart';
 import 'package:moviehouse/widgets/resultWidget.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class HomeScreen extends StatefulWidget {
   final String title;
@@ -141,8 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
               // padding: EdgeInsets.only(top: 10.0),
               width: double.infinity,
               height: MediaQuery.of(context).size.height,
-              child: ResultWidget(
-                  results: _results, controller: _scrollController),
+              child: (!isLoading)
+                  ? ResultWidget(
+                      results: _results, controller: _scrollController)
+                  : CircularProgressIndicator(),
             ),
           ],
         ),

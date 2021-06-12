@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expandable_card/expandable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -92,34 +93,52 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   Widget _body() => Column(
         children: [
-          CarouselSlider.builder(
-            itemCount: _banners.length,
-            options: CarouselOptions(
-              autoPlay: true,
-              height: MediaQuery.of(context).size.height * .5,
-              viewportFraction: 1.0,
-              disableCenter: true,
-              autoPlayInterval: Duration(seconds: 10),
-              autoPlayCurve: Curves.easeInOut,
-              initialPage: 0,
-              autoPlayAnimationDuration: Duration(milliseconds: 800),
-              scrollDirection: Axis.horizontal,
-            ),
-            itemBuilder: (BuildContext context, int index, int pageItemIndex) =>
-                Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * .5,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(
-                      'https://api.moviehouse.download/admin/movie/image/' +
-                          _banners[index].banner),
-                  fit: BoxFit.fill,
-                  // alignment: Alignment.topLeft,
-                ),
-              ),
-            ),
-          ),
+          FutureBuilder(
+              future: getBanner(),
+              initialData: [],
+              builder: (context, snapshot) {
+                return (snapshot.hasData)
+                    ? CarouselSlider.builder(
+                        itemCount: _banners?.length ?? 0,
+                        options: CarouselOptions(
+                          autoPlay: true,
+                          height: MediaQuery.of(context).size.height * .5,
+                          viewportFraction: 1.0,
+                          disableCenter: true,
+                          autoPlayInterval: Duration(seconds: 10),
+                          autoPlayCurve: Curves.easeInOut,
+                          initialPage: 0,
+                          autoPlayAnimationDuration:
+                              Duration(milliseconds: 800),
+                          scrollDirection: Axis.horizontal,
+                        ),
+                        itemBuilder: (BuildContext context, int index,
+                                int pageItemIndex) =>
+                            CachedNetworkImage(
+                          imageUrl:
+                              'https://api.moviehouse.download/admin/movie/image/' +
+                                  _banners[index].banner,
+                          imageBuilder: (context, imageProvider) => Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * .5,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: imageProvider,
+                                fit: BoxFit.fill,
+                                // alignment: Alignment.topLeft,
+                              ),
+                            ),
+                          ),
+                          placeholder: (context, url) =>
+                              CircularProgressIndicator(),
+                        ),
+                      )
+                    : Center(
+                        child: Container(
+                            height: 70.0,
+                            width: 70.0,
+                            child: CircularProgressIndicator()));
+              }),
           Container(height: MediaQuery.of(context).size.height * .5),
         ],
       );

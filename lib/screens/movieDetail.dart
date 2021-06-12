@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:adcolony_flutter/adcolony_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -26,61 +27,65 @@ class _MovieDetailState extends State<MovieDetail> {
   //   nonPersonalizedAds: true,
   // );
 
-  RewardedAd rewardedAd;
-  InterstitialAd _interstitialAd;
-  int _numInterstitialLoadAttempts = 5;
+  // RewardedAd rewardedAd;
+  // InterstitialAd _interstitialAd;
+  // int _numInterstitialLoadAttempts = 5;
+
+  final zones = [
+    'vzfcb0fc4cffec44f78d',
+  ];
 
   @override
   initState() {
     super.initState();
-    _createInterstitialAd();
+    AdColony.init(AdColonyOptions('appdbb93c3885d94a2697', '0', this.zones));
   }
 
-  void _createInterstitialAd() {
-    InterstitialAd.load(
-        adUnitId: 'ca-app-pub-1527057564066862/9641981646',
-        request: AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          onAdLoaded: (InterstitialAd ad) {
-            print('$ad loaded');
-            _interstitialAd = ad;
-            _numInterstitialLoadAttempts = 0;
-          },
-          onAdFailedToLoad: (LoadAdError error) {
-            print('InterstitialAd failed to load: $error.');
-            _numInterstitialLoadAttempts += 1;
-            _interstitialAd = null;
-            if (_numInterstitialLoadAttempts <= maxFailedLoadAttempts) {
-              _createInterstitialAd();
-            }
-          },
-        ));
-  }
+  // void _createInterstitialAd() {
+  //   InterstitialAd.load(
+  //       adUnitId: 'ca-app-pub-1527057564066862/9641981646',
+  //       request: AdRequest(),
+  //       adLoadCallback: InterstitialAdLoadCallback(
+  //         onAdLoaded: (InterstitialAd ad) {
+  //           print('$ad loaded');
+  //           _interstitialAd = ad;
+  //           _numInterstitialLoadAttempts = 0;
+  //         },
+  //         onAdFailedToLoad: (LoadAdError error) {
+  //           print('InterstitialAd failed to load: $error.');
+  //           _numInterstitialLoadAttempts += 1;
+  //           _interstitialAd = null;
+  //           if (_numInterstitialLoadAttempts <= maxFailedLoadAttempts) {
+  //             _createInterstitialAd();
+  //           }
+  //         },
+  //       ));
+  // }
 
-  void _showInterstitialAdfromDownload() {
-    if (_interstitialAd == null) {
-      print('Warning: attempt to show interstitial before loaded.');
-      return;
-    }
-    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (InterstitialAd ad) =>
-          print('ad onAdShowedFullScreenContent.'),
-      onAdDismissedFullScreenContent: (InterstitialAd ad) {
-        print('$ad onAdDismissedFullScreenContent.');
-        ad.dispose();
-        _createInterstitialAd();
-        return _downloadLink();
-      },
-      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
-        print('$ad onAdFailedToShowFullScreenContent: $error');
-        ad.dispose();
-        _createInterstitialAd();
-      },
-    );
-    print(_interstitialAd.adUnitId);
-    _interstitialAd.show();
-    _interstitialAd = null;
-  }
+  // void _showInterstitialAdfromDownload() {
+  //   if (_interstitialAd == null) {
+  //     print('Warning: attempt to show interstitial before loaded.');
+  //     return;
+  //   }
+  //   _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+  //     onAdShowedFullScreenContent: (InterstitialAd ad) =>
+  //         print('ad onAdShowedFullScreenContent.'),
+  //     onAdDismissedFullScreenContent: (InterstitialAd ad) {
+  //       print('$ad onAdDismissedFullScreenContent.');
+  //       ad.dispose();
+  //       _createInterstitialAd();
+  //       return _downloadLink();
+  //     },
+  //     onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError error) {
+  //       print('$ad onAdFailedToShowFullScreenContent: $error');
+  //       ad.dispose();
+  //       _createInterstitialAd();
+  //     },
+  //   );
+  //   print(_interstitialAd.adUnitId);
+  //   _interstitialAd.show();
+  //   _interstitialAd = null;
+  // }
 
   void _downloadLink() async {
     var url = widget.movie.downloadLink;
@@ -122,7 +127,23 @@ class _MovieDetailState extends State<MovieDetail> {
                   backgroundColor: Colors.blue[800],
                   heroTag: 'btn1',
                   onPressed: () async {
-                    return _showInterstitialAdfromDownload();
+                    listener(AdColonyAdListener event, int reward) async {
+                      print(event);
+                      if (event == AdColonyAdListener.onRequestFilled) {
+                        if (await AdColony.isLoaded()) {
+                          AdColony.show();
+                        }
+                      }
+                      if (event == AdColonyAdListener.onReward) {
+                        print('ADCOLONY: $reward');
+                      }
+                      if (event == AdColonyAdListener.onClosed) {
+                        print('closed ad');
+                        return _downloadLink();
+                      }
+                    }
+
+                    return AdColony.request(this.zones[0], listener);
                   },
                   child: SvgPicture.asset(
                     'assets/icons/Download.svg',

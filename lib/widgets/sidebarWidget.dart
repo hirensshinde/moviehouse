@@ -16,79 +16,83 @@ class NavigationDrawerWidget extends StatelessWidget {
     final userEmail = user.email;
     final userId = user.uid;
 
-    return Drawer(
-      elevation: 5.0,
-      child: Container(
-        color: Colors.black,
-        child: ListView(
-          children: [
-            buildHeader(
-              context,
-              userName: userName,
-              userPhoto: userPhoto,
-              userEmail: userEmail,
-            ),
-            Container(
-              padding: padding,
-              child: Column(
-                children: [
-                  Divider(color: Colors.white24),
-                  SizedBox(height: 24.0),
-                  buildMenuItem(
-                    context,
-                    item: NavigationItem.home,
-                    text: "Home",
-                    icon: Icons.subscriptions,
-                  ),
-                  SizedBox(height: 18.0),
-                  buildMenuItem(
-                    context,
-                    item: NavigationItem.subscription,
-                    text: "Subscription",
-                    icon: Icons.subscriptions,
-                  ),
-                  SizedBox(height: 18.0),
-                  buildMenuItem(
-                    context,
-                    item: NavigationItem.savedContent,
-                    text: "Saved Content",
-                    icon: Icons.favorite,
-                  ),
-                  SizedBox(height: 18.0),
-                  buildMenuItem(
-                    context,
-                    item: NavigationItem.updates,
-                    text: "Updates",
-                    icon: Icons.update,
-                  ),
-                  SizedBox(height: 18.0),
-                  Divider(
-                    color: Colors.white70,
-                  ),
-                  SizedBox(height: 24.0),
-                  Material(
-                    color: Colors.transparent,
-                    child: ListTile(
-                      leading: Icon(Icons.logout, color: Colors.white),
-                      title: Text(
-                        'Logout',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                      onTap: () {
-                        final provider = Provider.of<GoogleSignInProvider>(
-                            context,
-                            listen: false);
-                        provider.logout();
-                      },
-                    ),
-                  ),
-                ],
+    return Container(
+      width: MediaQuery.of(context).size.width * .9,
+      child: Drawer(
+        elevation: 5.0,
+        child: Container(
+          color: Colors.black,
+          child: ListView(
+            children: [
+              buildHeader(
+                context,
+                userName: userName,
+                userPhoto: userPhoto,
+                userEmail: userEmail,
               ),
-            ),
-          ],
+              Container(
+                padding: padding,
+                child: Column(
+                  children: [
+                    Divider(color: Colors.white24),
+                    SizedBox(height: 24.0),
+                    buildMenuItem(
+                      context,
+                      item: NavigationItem.home,
+                      text: "Home",
+                      icon: Icons.subscriptions,
+                    ),
+                    SizedBox(height: 18.0),
+                    buildMenuItem(
+                      context,
+                      item: NavigationItem.subscription,
+                      text: "Subscription",
+                      icon: Icons.subscriptions,
+                    ),
+                    SizedBox(height: 18.0),
+                    buildMenuItem(
+                      context,
+                      item: NavigationItem.savedContent,
+                      text: "Saved Content",
+                      icon: Icons.favorite,
+                    ),
+                    SizedBox(height: 18.0),
+                    buildMenuItem(
+                      context,
+                      item: NavigationItem.updates,
+                      text: "Updates",
+                      icon: Icons.update,
+                    ),
+
+                    // SizedBox(height: 18.0),
+                    Divider(
+                      color: Colors.white70,
+                    ),
+                    SizedBox(height: 24.0),
+                    Material(
+                      color: Colors.transparent,
+                      child: ListTile(
+                        leading: Icon(Icons.logout, color: Colors.white),
+                        title: Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18.0,
+                          ),
+                        ),
+                        onTap: () {
+                          final provider = Provider.of<GoogleSignInProvider>(
+                              context,
+                              listen: false);
+                          provider.logout();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

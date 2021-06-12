@@ -4,6 +4,7 @@ class Movie {
   final String description;
   final String poster;
   final int year;
+  final dynamic ratings;
   final String type;
   final String downloadLink;
   final int downloadCount;
@@ -22,6 +23,7 @@ class Movie {
       this.downloadCount,
       this.language,
       this.year,
+      this.ratings,
       this.type,
       this.featured,
       this.categoryId,
@@ -36,6 +38,7 @@ class Movie {
       poster: json['image'],
       downloadLink: json['url'],
       downloadCount: json['download'],
+      ratings: json['rating'],
       year: json['year'],
       type: json['type'],
       language: json['language_name'],

@@ -28,7 +28,7 @@ class ResultWidget extends StatelessWidget {
               crossAxisCount: 3,
               mainAxisSpacing: 10.0,
               crossAxisSpacing: 15.0,
-              childAspectRatio: width / (height / 1.2),
+              childAspectRatio: width / (height / 1.5),
             ),
             itemBuilder: (context, index) {
               // print(movies[index].posterPath);
@@ -73,15 +73,19 @@ class ResultWidget extends StatelessWidget {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.star, size: 14.0),
+                                      Icon(Icons.star, size: 12.0),
                                       Text(
-                                        '7.8 ',
+                                        (result.ratings == null)
+                                            ? '7.8'
+                                            : result.ratings.toString(),
                                         style: TextStyle(
                                           fontSize: 10.0,
                                         ),
                                       )
                                     ],
                                   ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 2.0, vertical: 1.0),
                                 ),
                               ),
                               Positioned(
