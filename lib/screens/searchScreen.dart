@@ -19,6 +19,7 @@ class _SearchScreenState extends State<SearchScreen> {
   // ScrollController _scrollController = ScrollController();
   // static int page = 1;
   List _results;
+  List searchResult;
 
   List<Genre> _genres;
 
@@ -70,12 +71,22 @@ class _SearchScreenState extends State<SearchScreen> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
 
-      if (result['movie'].length > 0) {
+      if (result['movie'].length > 0 && result['web_series'].length > 0) {
+        final movies = result['movie'];
+        final webseries = result['web_series'];
+        List moviesResult =
+            movies.map((movie) => Movie.fromJson(movie)).toList();
+        List seriesResult =
+            webseries.map((series) => WebSeries.fromJson(series)).toList();
+        return List.from(moviesResult)..addAll(seriesResult);
+      } else if (result['movie'].length > 0) {
         final data = result['movie'];
-        return data.map((movie) => Movie.fromJson(movie)).toList();
-      } else {
+        return data.map((series) => Movie.fromJson(series)).toList();
+      } else if (result['web_series'].length > 0) {
         final data = result['web_series'];
         return data.map((series) => WebSeries.fromJson(series)).toList();
+      } else {
+        return [];
       }
     } else {
       throw Exception("Failed to load movie");
@@ -87,7 +98,6 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       _results = results;
     });
-    print(_results);
   }
 
   Future<Null> refreshList() async {
@@ -127,10 +137,11 @@ class _SearchScreenState extends State<SearchScreen> {
             onSubmitted: (String value) async {
               if (value.isNotEmpty) {
                 await pagination(value);
+                _isSearching = true;
                 // textController.clear();
               } else {
                 setState(() {
-                  _isSearching = !_isSearching;
+                  _isSearching = false;
                 });
               }
             },
@@ -162,14 +173,23 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            (_results != null && _results.length > 0)
-                ? Container(
-                    padding: EdgeInsets.all(10.0),
-                    child: ResultWidget(results: _results),
-                  )
-                : (_genres != null && _genres.length > 0)
+            (_results != null)
+                ? (_results.isNotEmpty)
                     ? Container(
-                        padding: EdgeInsets.symmetric(vertical: 20.0),
+                        padding: EdgeInsets.all(10.0),
+                        child: ResultWidget(results: _results),
+                      )
+                    : Container(
+                        height: MediaQuery.of(context).size.height,
+                        child: Center(
+                          child: Text('No search result found',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      )
+                : (_isSearching || _genres != null && _genres.length > 0)
+                    ? Container(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 20.0, horizontal: 10.0),
                         child: GridView.builder(
                           // scrollDirection: Axis.
                           shrinkWrap: true,
