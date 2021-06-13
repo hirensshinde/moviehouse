@@ -11,9 +11,9 @@ class NavigationDrawerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    final userName = user.displayName;
-    final userPhoto = user.photoURL;
-    final userEmail = user.email;
+    final userName = user.displayName ?? "";
+    final userPhoto = user.photoURL ?? "";
+    final userEmail = user.email ?? "";
     final userId = user.uid;
 
     return Container(

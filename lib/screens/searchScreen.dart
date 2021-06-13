@@ -134,6 +134,9 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           child: TextField(
             controller: textController,
+            onChanged: (String value) {
+              if (value.isEmpty) {}
+            },
             onSubmitted: (String value) async {
               if (value.isNotEmpty) {
                 await pagination(value);
@@ -141,6 +144,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 // textController.clear();
               } else {
                 setState(() {
+                  _results.clear();
                   _isSearching = false;
                 });
               }
@@ -173,7 +177,7 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            (_results != null)
+            (_isSearching || _results != null)
                 ? (_results.isNotEmpty)
                     ? Container(
                         padding: EdgeInsets.all(10.0),

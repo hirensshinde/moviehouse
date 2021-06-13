@@ -7,7 +7,6 @@ import 'package:moviehouse/models/movies.dart';
 import 'package:moviehouse/models/webseries.dart';
 import 'package:moviehouse/screens/searchScreen.dart';
 import 'package:moviehouse/widgets/resultWidget.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class HomeScreen extends StatefulWidget {
   final String title;

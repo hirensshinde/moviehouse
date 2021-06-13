@@ -31,10 +31,10 @@ dependencies:
   flutter_svg: ^0.21.0+1
   http: ^0.13.1
   dio:
-  filesize:
+  # filesize:
   path_provider:
-  flutter_downloader:
-  permission_handler:
+  # flutter_downloader:
+  # permission_handler:
 
   # Test packages
   # flutter_downloader:
@@ -44,16 +44,16 @@ dependencies:
 
   #
   # flutter_downloader: ^1.1.7
-  progress_dialog: ^1.1.0+1
-  percent_indicator: "^2.1.1"
-  fluttertoast: ^3.1.0
+  # progress_dialog: ^1.1.0+1
+  # percent_indicator: "^2.1.1"
+  # fluttertoast: ^3.1.0
   change_app_package_name: ^1.0.0
 
   # latest depedencies
-  progress_indicators: ^1.0.0
+  # progress_indicators: ^1.0.0
   # url_launcher: ^5.4.2
-  device_apps:
-  android_intent:
+  # device_apps:
+  # android_intent:
   url_launcher: ^6.0.0
 
 
@@ -70,16 +70,16 @@ dependencies:
   # Google Signin
   firebase_auth: ^1.0.0 
   google_sign_in:
-  flutter_auth_buttons: ^0.10.0
+  # flutter_auth_buttons: ^0.10.0
 
   # Facebook Signin
-  flutter_facebook_login:
-  flutter_inappwebview:
+  # flutter_facebook_login:
+  # flutter_inappwebview:
   
   expandable_card:
   carousel_slider:
   expandable_bottom_sheet: ^1.0.0+2
-  direct_link: ^0.1.7
+  # direct_link: ^0.1.7
   cached_network_image: ^3.0.0
   # firebase_auth_web: ^1.0.0
   # http_parser: ^4.0.0 

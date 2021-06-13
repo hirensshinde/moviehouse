@@ -67,26 +67,26 @@ class ResultWidget extends StatelessWidget {
                               Positioned(
                                 top: 2.0,
                                 right: 0.0,
-                                child: Container(
-                                  margin: EdgeInsets.only(top: 10.0),
-                                  color: Colors.yellow,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.star, size: 12.0),
-                                      Text(
-                                        (result.ratings == null)
-                                            ? '7.8'
-                                            : result.ratings.toString(),
-                                        style: TextStyle(
-                                          fontSize: 10.0,
+                                child: (result.ratings != null)
+                                    ? Container(
+                                        margin: EdgeInsets.only(top: 10.0),
+                                        color: Colors.yellow,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.star, size: 12.0),
+                                            Text(
+                                              result.ratings.toString(),
+                                              style: TextStyle(
+                                                fontSize: 10.0,
+                                              ),
+                                            )
+                                          ],
                                         ),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 2.0, vertical: 1.0),
                                       )
-                                    ],
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 2.0, vertical: 1.0),
-                                ),
+                                    : Container(),
                               ),
                               Positioned(
                                 bottom: 0,

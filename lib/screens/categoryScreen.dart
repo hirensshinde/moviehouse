@@ -46,8 +46,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 2));
     _populateAllCategories();
+    getBanner();
   }
 
   void _populateAllCategories() async {
@@ -93,52 +93,44 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   Widget _body() => Column(
         children: [
-          FutureBuilder(
-              future: getBanner(),
-              initialData: [],
-              builder: (context, snapshot) {
-                return (snapshot.hasData)
-                    ? CarouselSlider.builder(
-                        itemCount: _banners?.length ?? 0,
-                        options: CarouselOptions(
-                          autoPlay: true,
-                          height: MediaQuery.of(context).size.height * .5,
-                          viewportFraction: 1.0,
-                          disableCenter: true,
-                          autoPlayInterval: Duration(seconds: 10),
-                          autoPlayCurve: Curves.easeInOut,
-                          initialPage: 0,
-                          autoPlayAnimationDuration:
-                              Duration(milliseconds: 800),
-                          scrollDirection: Axis.horizontal,
+          (_banners != null)
+              ? CarouselSlider.builder(
+                  itemCount: _banners?.length ?? 0,
+                  options: CarouselOptions(
+                    autoPlay: true,
+                    height: MediaQuery.of(context).size.height * .5,
+                    viewportFraction: 1.0,
+                    disableCenter: true,
+                    autoPlayInterval: Duration(seconds: 10),
+                    autoPlayCurve: Curves.easeInOut,
+                    initialPage: 0,
+                    autoPlayAnimationDuration: Duration(milliseconds: 800),
+                    scrollDirection: Axis.horizontal,
+                  ),
+                  itemBuilder:
+                      (BuildContext context, int index, int pageItemIndex) =>
+                          CachedNetworkImage(
+                    imageUrl:
+                        'https://api.moviehouse.download/admin/movie/image/' +
+                            _banners[index].banner,
+                    imageBuilder: (context, imageProvider) => Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height * .5,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.fill,
+                          // alignment: Alignment.topLeft,
                         ),
-                        itemBuilder: (BuildContext context, int index,
-                                int pageItemIndex) =>
-                            CachedNetworkImage(
-                          imageUrl:
-                              'https://api.moviehouse.download/admin/movie/image/' +
-                                  _banners[index].banner,
-                          imageBuilder: (context, imageProvider) => Container(
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height * .5,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: imageProvider,
-                                fit: BoxFit.fill,
-                                // alignment: Alignment.topLeft,
-                              ),
-                            ),
-                          ),
-                          placeholder: (context, url) =>
-                              CircularProgressIndicator(),
-                        ),
-                      )
-                    : Center(
-                        child: Container(
-                            height: 70.0,
-                            width: 70.0,
-                            child: CircularProgressIndicator()));
-              }),
+                      ),
+                    ),
+                    placeholder: (context, url) =>
+                        Center(child: CircularProgressIndicator()),
+                  ),
+                )
+              : Container(
+                  child: Center(child: CircularProgressIndicator()),
+                  height: MediaQuery.of(context).size.height * .5),
           Container(height: MediaQuery.of(context).size.height * .5),
         ],
       );
@@ -271,8 +263,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         );
                       },
                     )
-                  : Center(
-                      child: CircularProgressIndicator(),
+                  : Container(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
                     ),
             ),
           ],
