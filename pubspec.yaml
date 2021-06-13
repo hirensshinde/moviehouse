@@ -111,8 +111,8 @@ flutter_icons:
   ios: true
 
 flutter_native_splash:
-  color: "#000000"
-  image: assets/images/SplashLogo.png
+  background_image: "assets/images/splashbg.png"
+  image: assets/images/splashlogo.png
   android: true
   ios: true
 

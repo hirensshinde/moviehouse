@@ -218,7 +218,11 @@ class _MovieDetailState extends State<MovieDetail> {
                               children: [
                                 Text(
                                   widget.movie.year.toString(),
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 151, 169, 170),
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   textAlign: TextAlign.center,
                                 ),
                                 SizedBox(width: 5.0),
@@ -231,7 +235,12 @@ class _MovieDetailState extends State<MovieDetail> {
                                                         horizontal: 5.0),
                                                 child: Text(genre,
                                                     style: TextStyle(
-                                                        color: Colors.white)),
+                                                      color: Color.fromARGB(
+                                                          255, 151, 169, 170),
+                                                      fontSize: 14.0,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    )),
                                               ))
                                           .toList()
                                       : Padding(
@@ -239,7 +248,11 @@ class _MovieDetailState extends State<MovieDetail> {
                                               horizontal: 5.0),
                                           child: Text('No Genres',
                                               style: TextStyle(
-                                                  color: Colors.white)),
+                                                color: Color.fromARGB(
+                                                    255, 151, 169, 170),
+                                                fontSize: 14.0,
+                                                fontWeight: FontWeight.bold,
+                                              )),
                                         ),
                                 ),
                                 Row(
@@ -251,7 +264,12 @@ class _MovieDetailState extends State<MovieDetail> {
                                                       horizontal: 5.0),
                                                   child: Text(language,
                                                       style: TextStyle(
-                                                          color: Colors.white)),
+                                                        color: Color.fromARGB(
+                                                            255, 151, 169, 170),
+                                                        fontSize: 14.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      )),
                                                 ))
                                             .toList()
                                         : [
@@ -260,7 +278,11 @@ class _MovieDetailState extends State<MovieDetail> {
                                                   horizontal: 5.0),
                                               child: Text('No Language',
                                                   style: TextStyle(
-                                                      color: Colors.white)),
+                                                    color: Color.fromARGB(
+                                                        255, 151, 169, 170),
+                                                    fontSize: 14.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  )),
                                             ),
                                           ]),
                               ],

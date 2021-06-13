@@ -217,9 +217,47 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 5.0),
                                   child: Text(genre,
-                                      style: TextStyle(color: Colors.white)),
+                                      style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 151, 169, 170),
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.bold,
+                                      )),
                                 ))
                             .toList(),
+                      ),
+                      SizedBox(width: 5.0),
+                      Row(
+                        children: (widget.series.language.length > 0)
+                            ? widget.series.language
+                                .map((language) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5.0),
+                                      child: Text(
+                                        'text',
+                                        style: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 151, 169, 170),
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ))
+                                .toList()
+                            : [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 5.0),
+                                  child: Text(
+                                    'No Language',
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 151, 169, 170),
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                       ),
                     ],
                   ),

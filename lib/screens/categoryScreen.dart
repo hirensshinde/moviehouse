@@ -264,6 +264,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       },
                     )
                   : Container(
+                      margin: EdgeInsets.only(top: 50.0),
                       child: Center(
                         child: CircularProgressIndicator(),
                       ),

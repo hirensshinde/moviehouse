@@ -11,6 +11,7 @@ class WebSeries {
   String description;
   List season;
   List genres;
+  List language;
 
   WebSeries(
       {this.id,
@@ -24,6 +25,7 @@ class WebSeries {
       this.featured,
       this.description,
       this.genres,
+      this.language,
       this.season});
 
   // factory WebSeries.fromJson(Map<String, dynamic> json) {
@@ -45,6 +47,7 @@ class WebSeries {
       genreId: json['genere_id'],
       season: json['season'],
       genres: json['genere_name'],
+      language: json['language_name'],
     );
   }
 }
