@@ -1,12 +1,13 @@
+import 'dart:convert';
+
 import 'package:expandable_card/expandable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moviehouse/models/webseries.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:adcolony_flutter/adcolony_flutter.dart';
-// import 'package:movie_house4/screens/downloadsScreen.dart';
-// import 'package:progress_indicators/progress_indicators.dart';
-// import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 const int maxFailedLoadAttempts = 3;
 
@@ -133,6 +134,15 @@ class _SeriesDetailState extends State<SeriesDetail> {
     }
   }
 
+  Future _downloadCount() async {
+    var url =
+        "http://api.moviehouse.download/api/downloads/add?type=web_series&id=${widget.series.id}";
+    var response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      print(jsonDecode(response.body));
+    }
+  }
+
   @override
   initState() {
     super.initState();
@@ -149,6 +159,21 @@ class _SeriesDetailState extends State<SeriesDetail> {
         ? Scaffold(
             backgroundColor: Colors.transparent,
             extendBodyBehindAppBar: true,
+            // floatingActionButtonAnimator: ,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.miniEndTop,
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: Colors.black,
+              onPressed: () async {
+                Share.share(
+                    "Watch or download ${widget.series.title} on MovieHouse app for completely FREE. Get this app from this link \n" +
+                        "http://moviehouse.download/Moviehouse-v1.0.apk");
+              },
+              child: SvgPicture.asset(
+                'assets/icons/Share.svg',
+                height: 25.0,
+              ),
+            ),
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0.0,
@@ -177,11 +202,12 @@ class _SeriesDetailState extends State<SeriesDetail> {
               expandableCard: ExpandableCard(
                 // hasHandle: false,
                 hasHandle: true,
+
                 backgroundColor: Colors.black,
                 padding: EdgeInsets.only(top: 5, left: 10, right: 10),
                 // maxHeight: MediaQuery.of(context).size.height - 100,
                 minHeight: MediaQuery.of(context).size.height * 0.55,
-                maxHeight: MediaQuery.of(context).size.height * 0.9,
+                maxHeight: MediaQuery.of(context).size.height * 0.90,
                 hasRoundedCorners: true,
                 hasShadow: true,
                 children: <Widget>[
@@ -234,7 +260,8 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 5.0),
                                       child: Text(
-                                        'text',
+                                        language,
+                                        overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           color: Color.fromARGB(
                                               255, 151, 169, 170),
@@ -317,14 +344,14 @@ class _SeriesDetailState extends State<SeriesDetail> {
                               padding: EdgeInsets.only(
                                   bottom: 50.0, left: 5.0, right: 5.0),
                               itemCount: _allEpisodes.length,
-                              // shrinkWrap: true,
+                              shrinkWrap: true,
                               physics: ScrollPhysics(),
                               scrollDirection: Axis.vertical,
                               itemBuilder: (context, index) {
-                                print("UI rendering");
-                                return Card(
-                                  elevation: 0.0,
-                                  shadowColor: Colors.black,
+                                // print("UI rendering");
+                                return Container(
+                                  color: Color.fromARGB(255, 25, 27, 45),
+                                  margin: EdgeInsets.only(bottom: 5.0),
                                   child: ListTile(
                                     visualDensity: VisualDensity.standard,
                                     tileColor: Color.fromARGB(255, 25, 27, 45),
@@ -341,6 +368,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                         height: 25.0,
                                       ),
                                       onPressed: () {
+                                        _downloadCount();
                                         listener(AdColonyAdListener event,
                                             int reward) async {
                                           print(event);
@@ -358,6 +386,12 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                           if (event ==
                                               AdColonyAdListener.onClosed) {
                                             print('closed ad');
+                                            return _downloadLink(index);
+                                          }
+                                          if (event ==
+                                              AdColonyAdListener
+                                                  .onRequestNotFilled) {
+                                            print('ad failed');
                                             return _downloadLink(index);
                                           }
                                         }

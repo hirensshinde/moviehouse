@@ -12,8 +12,7 @@ class ResultWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
+    var size = MediaQuery.of(context).size;
     return (results == null)
         ? Container(
             child: Center(child: CircularProgressIndicator()),
@@ -21,19 +20,25 @@ class ResultWidget extends StatelessWidget {
           )
         : (results.length > 0)
             ? Container(
-                padding: EdgeInsets.all(10.0),
+                padding: EdgeInsets.symmetric(horizontal: 5.0),
                 child: GridView.builder(
                     // scrollDirection: Axis.
-
+                    scrollDirection: Axis.vertical,
+                    // addSemanticIndexes: true,
                     shrinkWrap: true,
+                    padding: EdgeInsets.only(bottom: 100.0),
                     itemCount: results.length,
                     physics: ScrollPhysics(),
                     controller: controller,
+                    cacheExtent: 20.0,
+                    // addRepaintBoundaries: ,
+                    // addAutomaticKeepAlives: true,
                     gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       mainAxisSpacing: 10.0,
-                      crossAxisSpacing: 15.0,
-                      childAspectRatio: width / (height / 1.5),
+                      crossAxisSpacing: 5.0,
+                      mainAxisExtent: 150.0,
+                      childAspectRatio: size.width / (size.height / 1.5),
                     ),
                     itemBuilder: (context, index) {
                       // print(movies[index].posterPath);
@@ -55,6 +60,8 @@ class ResultWidget extends StatelessWidget {
                                 );
                               },
                               child: CachedNetworkImage(
+                                placeholderFadeInDuration:
+                                    Duration(milliseconds: 500),
                                 imageUrl:
                                     'https://api.moviehouse.download/admin/movie/image/' +
                                         result.poster,

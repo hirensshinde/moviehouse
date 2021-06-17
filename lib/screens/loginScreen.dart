@@ -10,6 +10,7 @@ import 'package:moviehouse/screens/subscriptionScreen.dart';
 // import 'package:moviehouse/screens/subscriptionScreen.dart';
 import 'package:moviehouse/screens/updateScreen.dart';
 import 'package:moviehouse/widgets/signUpWidget.dart';
+import 'package:moviehouse/widgets/updateWidget.dart';
 
 import 'package:provider/provider.dart';
 
@@ -44,7 +45,7 @@ class LoginScreen extends StatelessWidget {
 
     switch (navigationItem) {
       case NavigationItem.home:
-        return CategoryScreen();
+        return UpdateApp(child: CategoryScreen());
       case NavigationItem.subscription:
         return Container();
       case NavigationItem.downloads:

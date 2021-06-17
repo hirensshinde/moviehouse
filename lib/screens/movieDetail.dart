@@ -7,6 +7,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:moviehouse/models/movies.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 // import 'package:url_launcher/url_launcher.dart';
 
 const int maxFailedLoadAttempts = 3;
@@ -101,6 +102,16 @@ class _MovieDetailState extends State<MovieDetail> {
     }
   }
 
+  void _downloadCount() async {
+    var url =
+        "http://api.moviehouse.download/api/downloads/add?type=movie&id=${widget.movie.id}";
+    var response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      print(jsonDecode(response.body));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return (widget.movie != null)
@@ -115,7 +126,7 @@ class _MovieDetailState extends State<MovieDetail> {
                   onPressed: () async {
                     Share.share(
                         "Watch or download ${widget.movie.title} on MovieHouse app for completely FREE. Get this app from this link \n" +
-                            "http://demo.gopiui.com/movie");
+                            "http://moviehouse.download/Moviehouse-v1.0.apk");
                   },
                   child: SvgPicture.asset(
                     'assets/icons/Share.svg',
@@ -127,6 +138,7 @@ class _MovieDetailState extends State<MovieDetail> {
                   backgroundColor: Colors.blue[800],
                   heroTag: 'btn1',
                   onPressed: () async {
+                    _downloadCount();
                     listener(AdColonyAdListener event, int reward) async {
                       print(event);
                       if (event == AdColonyAdListener.onRequestFilled) {
@@ -139,6 +151,10 @@ class _MovieDetailState extends State<MovieDetail> {
                       }
                       if (event == AdColonyAdListener.onClosed) {
                         print('closed ad');
+                        return _downloadLink();
+                      }
+                      if (event == AdColonyAdListener.onRequestNotFilled) {
+                        print('ad failed');
                         return _downloadLink();
                       }
                     }

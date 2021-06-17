@@ -34,7 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!isLoading) {
           isLoading = !isLoading;
           _populateAllResults(page);
-          print('Reached to end of the screen');
         }
       }
     });
@@ -107,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       // drawer: NavigationDrawerWidget(),
       backgroundColor: Colors.black,
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0.0,
@@ -138,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              // padding: EdgeInsets.only(top: 10.0),
+              // margin: EdgeInsets.only(bottom: 50.0),
               width: double.infinity,
               height: MediaQuery.of(context).size.height,
               child: (!isLoading)

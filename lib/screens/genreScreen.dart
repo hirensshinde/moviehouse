@@ -31,8 +31,11 @@ class _GenreScreenState extends State<GenreScreen> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-        _populateAllResults(page);
-        print('Reached to end of the screen');
+        if (!isLoading) {
+          isLoading = !isLoading;
+          _populateAllResults(page);
+          print('Reached to end of the screen');
+        }
       }
     });
   }
@@ -69,7 +72,7 @@ class _GenreScreenState extends State<GenreScreen> {
   Future<List> _fetchAllResults(int index) async {
     // final String apiUrl =
     //     "https://api.themoviedb.org/3/movie/now_playing?api_key=a8d93a34b26202fd9917272a3535e340";
-
+    isLoading = false;
     final String apiUrl =
         "https://api.moviehouse.download/api/all/genre/${widget.id}?page=$index";
     var url = Uri.parse(apiUrl);
@@ -132,8 +135,10 @@ class _GenreScreenState extends State<GenreScreen> {
               padding: EdgeInsets.only(top: 10.0),
               width: double.infinity,
               // height: MediaQuery.of(context).size.height,
-              child: ResultWidget(
-                  results: _results, controller: _scrollController),
+              child: (!isLoading)
+                  ? ResultWidget(
+                      results: _results, controller: _scrollController)
+                  : CircularProgressIndicator(),
             ),
           ],
         ),

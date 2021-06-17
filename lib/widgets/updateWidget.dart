@@ -4,20 +4,25 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:moviehouse/models/update.dart';
-import 'package:moviehouse/widgets/sidebarWidget.dart';
 import 'package:package_info/package_info.dart';
 import 'package:pub_semver/pub_semver.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+// import 'package:talkfootball/constants.dart';
+// import 'package:talkfootball/dialogs/do_not_ask_again_dialog.dart';
+// import 'package:talkfootball/models/app_version.dart';
 
-class UpdateScreen extends StatefulWidget {
+class UpdateApp extends StatefulWidget {
+  final Widget child;
+
+  UpdateApp({this.child});
+
   @override
-  _UpdateScreenState createState() => _UpdateScreenState();
+  _UpdateAppState createState() => _UpdateAppState();
 }
 
-class _UpdateScreenState extends State<UpdateScreen> {
+class _UpdateAppState extends State<UpdateApp> {
   String _url;
-  String text;
 
   @override
   void initState() {
@@ -48,7 +53,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       Version currentVersion = Version.parse(packageInfo.version);
 
-      _url = "http://moviehouse.download/${appVersion.link}";
+      _url = "http://moviehouse.download/" + appVersion.link;
       setState(() {});
       if (latestAppVersion > currentVersion) {
         _showCompulsoryUpdateDialog(
@@ -56,15 +61,14 @@ class _UpdateScreenState extends State<UpdateScreen> {
           "Please update the app to continue\n${appVersion.about ?? ""}",
         );
       } else {
-        setState(() {
-          text = 'App is up to date';
-        });
+        print('App is up to date');
       }
     }
   }
 
   _onUpdateNowClicked() async {
     await canLaunch(_url) ? await launch(_url) : throw 'Could not launch $_url';
+    print(_url);
   }
 
   _showCompulsoryUpdateDialog(context, String message) async {
@@ -110,22 +114,6 @@ class _UpdateScreenState extends State<UpdateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: NavigationDrawerWidget(),
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text('Check Update'),
-        // centerTitle: true,
-      ),
-      body: Container(
-        color: Colors.black,
-        child: Center(
-          child: (text != null)
-              ? Text(text,
-                  style: TextStyle(fontSize: 22.0, color: Colors.white))
-              : CircularProgressIndicator(),
-        ),
-      ),
-    );
+    return widget.child;
   }
 }

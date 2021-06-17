@@ -98,7 +98,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   itemCount: _banners?.length ?? 0,
                   options: CarouselOptions(
                     autoPlay: true,
-                    height: MediaQuery.of(context).size.height * .5,
+                    height: MediaQuery.of(context).size.height * .40,
                     viewportFraction: 1.0,
                     disableCenter: true,
                     autoPlayInterval: Duration(seconds: 10),
@@ -130,8 +130,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 )
               : Container(
                   child: Center(child: CircularProgressIndicator()),
-                  height: MediaQuery.of(context).size.height * .5),
-          Container(height: MediaQuery.of(context).size.height * .5),
+                  height: MediaQuery.of(context).size.height * .40),
+          Container(height: MediaQuery.of(context).size.height * .60),
         ],
       );
 
@@ -142,6 +142,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       drawer: NavigationDrawerWidget(),
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
@@ -154,8 +155,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
           padding: EdgeInsets.only(top: 5, left: 20, right: 20),
           // maxHeight: MediaQuery.of(context).size.height - 100,
 
-          minHeight: MediaQuery.of(context).size.height * 0.55,
-          maxHeight: MediaQuery.of(context).size.height * 0.55,
+          minHeight: MediaQuery.of(context).size.height * 0.65,
+          maxHeight: MediaQuery.of(context).size.height * 0.65,
           hasRoundedCorners: true,
           hasShadow: true,
           children: <Widget>[
@@ -168,9 +169,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SearchScreen()),
-                  );
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchScreen(),
+                      ));
                 },
                 child: Container(
                   height: 60.0,

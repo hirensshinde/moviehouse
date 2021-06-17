@@ -113,10 +113,11 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      // extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         // toolbarHeight: 40.0,
+
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         leading: IconButton(
@@ -127,7 +128,7 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         title: Container(
           // width: size.width * 0.8,
-          // margin: EdgeInsets.only(left: 50.0, right: 10.0, top: 60.0),
+          // margin: EdgeInsets.only(bottom: 10.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30.0),
             color: Color.fromARGB(255, 25, 27, 45),
@@ -149,9 +150,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 });
               }
             },
-            style: TextStyle(color: Colors.white24, fontSize: 18.0),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18.0,
+            ),
             decoration: InputDecoration(
               border: InputBorder.none,
+              focusedBorder: InputBorder.none,
               prefixIcon: Padding(
                 padding: EdgeInsets.all(15.0),
                 child: Container(
@@ -180,7 +185,7 @@ class _SearchScreenState extends State<SearchScreen> {
             (_isSearching || _results != null)
                 ? (_results.isNotEmpty)
                     ? Container(
-                        padding: EdgeInsets.all(10.0),
+                        padding: EdgeInsets.only(top: 10.0),
                         child: ResultWidget(results: _results),
                       )
                     : Container(
@@ -192,6 +197,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       )
                 : (_isSearching || _genres != null && _genres.length > 0)
                     ? Container(
+                        // margin: EdgeInsets.only(top: 50.0),
                         padding: EdgeInsets.symmetric(
                             vertical: 20.0, horizontal: 10.0),
                         child: GridView.builder(
