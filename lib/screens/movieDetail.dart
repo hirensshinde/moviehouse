@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:adcolony_flutter/adcolony_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:moviehouse/models/movies.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
