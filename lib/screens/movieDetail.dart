@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:adcolony_flutter/adcolony_flutter.dart';
@@ -35,6 +36,8 @@ class _MovieDetailState extends State<MovieDetail> {
   final zones = [
     'vzfcb0fc4cffec44f78d',
   ];
+  bool buttonClicked = false;
+  int countdown = 5;
 
   @override
   initState() {
@@ -138,6 +141,9 @@ class _MovieDetailState extends State<MovieDetail> {
                   backgroundColor: Colors.blue[800],
                   heroTag: 'btn1',
                   onPressed: () async {
+                    setState(() {
+                      buttonClicked = true;
+                    });
                     _downloadCount();
                     listener(AdColonyAdListener event, int reward) async {
                       print(event);
@@ -161,10 +167,28 @@ class _MovieDetailState extends State<MovieDetail> {
 
                     return AdColony.request(this.zones[0], listener);
                   },
-                  child: SvgPicture.asset(
-                    'assets/icons/Download.svg',
-                    height: 20.0,
-                  ),
+                  child: (buttonClicked)
+                      ? Builder(
+                          builder: (context) {
+                            Timer.periodic(Duration(seconds: 1), (value) {
+                              if (value.tick == 5) {
+                                setState(() {
+                                  buttonClicked = false;
+                                  value.cancel();
+                                });
+                              }
+
+                              setState(() {
+                                countdown = 5 - value.tick;
+                              });
+                            });
+                            return Text('$countdown');
+                          },
+                        )
+                      : SvgPicture.asset(
+                          'assets/icons/Download.svg',
+                          height: 20.0,
+                        ),
                 ),
               ],
             ),
@@ -172,6 +196,7 @@ class _MovieDetailState extends State<MovieDetail> {
               elevation: 0.0,
               backgroundColor: Colors.transparent,
               leading: IconButton(
+                splashRadius: 25.0,
                 icon: SvgPicture.asset('assets/icons/Back.svg'),
                 onPressed: () {
                   return Navigator.pop(context);

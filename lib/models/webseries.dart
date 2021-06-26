@@ -4,6 +4,7 @@ class WebSeries {
   int categoryId;
   String genreId;
   String poster;
+  String banner;
   String type;
   dynamic ratings;
   int featured;
@@ -19,6 +20,7 @@ class WebSeries {
       this.categoryId,
       this.genreId,
       this.poster,
+      this.banner,
       this.type,
       this.ratings,
       this.year,
@@ -37,6 +39,8 @@ class WebSeries {
       title: json['name'],
       description: json['description'],
       poster: json['image'],
+      banner: json['banner_image'] ??
+          'https://via.placeholder.com/600x350.png?text=No+Preview+available',
       // downloadLink: json['url'],
       // downloadCount: json['download'],
       featured: json['featured'],
@@ -47,9 +51,26 @@ class WebSeries {
       genreId: json['genere_id'],
       season: json['season'],
       genres: json['genere_name'],
-      language: json['language_name'],
+      language: json['language_name'] ?? ['No Language'],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": title,
+        "rating": ratings == null ? null : ratings,
+        "year": year,
+        "language": language,
+        "description": description == null ? null : description,
+        "image": poster,
+        "featured": featured,
+        "category_id": categoryId,
+        "type": type,
+        "genere_id": genreId == null ? null : genreId,
+        "season": season == null
+            ? null
+            : List<dynamic>.from(season.map((x) => x.toJson())),
+      };
 }
 
 class Season {

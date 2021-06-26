@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moviehouse/widgets/sidebarWidget.dart';
 
 class SavedContentScreen extends StatelessWidget {
@@ -7,8 +8,18 @@ class SavedContentScreen extends StatelessWidget {
     return Scaffold(
       drawer: NavigationDrawerWidget(),
       appBar: AppBar(
-        backgroundColor: Colors.black,
         title: Text('Saved Contents'),
+        backgroundColor: Color.fromARGB(255, 25, 27, 45),
+        leading: Builder(
+          builder: (context) => IconButton(
+              splashRadius: 30.0,
+              padding: EdgeInsets.all(0.0),
+              icon: SvgPicture.asset(
+                'assets/icons/Drawer2.svg',
+                height: 35.0,
+              ),
+              onPressed: () => Scaffold.of(context).openDrawer()),
+        ),
         // centerTitle: true,
       ),
       body: Container(

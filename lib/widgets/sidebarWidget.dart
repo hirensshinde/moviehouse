@@ -46,7 +46,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 30.0),
           height: MediaQuery.of(context).size.height,
-          color: Colors.black,
+          color: Color.fromARGB(255, 25, 27, 45),
           child: Column(
             children: [
               buildHeader(
@@ -55,6 +55,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                 userPhoto: userPhoto,
                 userEmail: userEmail,
               ),
+              SizedBox(height: 10.0),
               Expanded(
                 child: Container(
                   padding: NavigationDrawerWidget.padding,
@@ -63,7 +64,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Divider(color: Colors.white70),
-                      SizedBox(height: 24.0),
+                      SizedBox(height: 20.0),
                       buildMenuItem(
                         context,
                         item: NavigationItem.home,
@@ -90,6 +91,14 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                         context,
                         item: NavigationItem.updates,
                         text: "Updates",
+                        icon: Icons.update,
+                      ),
+                      SizedBox(height: 18.0),
+
+                      buildMenuItem(
+                        context,
+                        item: NavigationItem.bugreport,
+                        text: "Report a bug",
                         icon: Icons.update,
                       ),
                       SizedBox(height: 24.0),
@@ -157,7 +166,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
       color: Colors.transparent,
       child: ListTile(
         selected: isSelected,
-        selectedTileColor: Colors.white24,
+        selectedTileColor: Colors.blue,
         leading: Icon(icon, color: color),
         title: Text(
           text,
@@ -194,7 +203,10 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               children: [
                 Text(
                   userName,
-                  style: TextStyle(fontSize: 16.0, color: Colors.white70),
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.bold),
                 ),
                 SizedBox(
                   height: 10.0,

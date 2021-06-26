@@ -178,6 +178,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
               backgroundColor: Colors.transparent,
               elevation: 0.0,
               leading: IconButton(
+                splashRadius: 25.0,
                 icon: SvgPicture.asset('assets/icons/Back.svg'),
                 onPressed: () {
                   return Navigator.pop(context);

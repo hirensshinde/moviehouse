@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="105.707" height="105.707" viewBox="0 0 105.707 105.707">
+  <g id="Arrow_-_Left_Circle" data-name="Arrow - Left Circle" transform="translate(105.874 0.072) rotate(90)">
+    <path id="Fill_1" data-name="Fill 1" d="M105.707,52.853A52.853,52.853,0,1,1,52.853,0a52.91,52.91,0,0,1,52.853,52.853" transform="translate(-0.072 0.167)" fill="#fff" opacity="0.14"/>
+    <g id="Category" transform="translate(35.083 71.77) rotate(-90)">
+      <path id="Fill_1-2" data-name="Fill 1" d="M4.759,0h6.348a4.779,4.779,0,0,1,4.759,4.8v6.4A4.779,4.779,0,0,1,11.108,16H4.759A4.779,4.779,0,0,1,0,11.2V4.8A4.779,4.779,0,0,1,4.759,0" transform="translate(21.631 0)" fill="#fff" opacity="0.4"/>
+      <path id="Combined_Shape" data-name="Combined Shape" d="M26.389,37.5a4.779,4.779,0,0,1-4.759-4.8V26.3a4.779,4.779,0,0,1,4.759-4.8h6.35A4.779,4.779,0,0,1,37.5,26.3v6.4a4.779,4.779,0,0,1-4.758,4.8ZM4.76,37.5A4.78,4.78,0,0,1,0,32.7V26.3a4.781,4.781,0,0,1,4.76-4.8h6.348a4.779,4.779,0,0,1,4.759,4.8v6.4a4.779,4.779,0,0,1-4.759,4.8Zm0-21.5A4.78,4.78,0,0,1,0,11.2V4.8A4.779,4.779,0,0,1,4.76,0h6.348a4.778,4.778,0,0,1,4.759,4.8v6.4A4.778,4.778,0,0,1,11.108,16Z" transform="translate(0 0)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

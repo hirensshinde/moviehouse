@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:moviehouse/models/navigation_item.dart';
 import 'package:moviehouse/provider/google_sign_in.dart';
 import 'package:moviehouse/provider/navigationProvider.dart';
+import 'package:moviehouse/screens/bugreport.dart';
 import 'package:moviehouse/screens/categoryScreen.dart';
+import 'package:moviehouse/screens/category_copy.dart';
 import 'package:moviehouse/screens/savedContentScreen.dart';
 import 'package:moviehouse/screens/searchScreen.dart';
 import 'package:moviehouse/screens/subscriptionScreen.dart';
@@ -46,14 +48,15 @@ class LoginScreen extends StatelessWidget {
     switch (navigationItem) {
       case NavigationItem.home:
         return UpdateApp(child: CategoryScreen());
+
       case NavigationItem.subscription:
-        return Container();
-      case NavigationItem.downloads:
         return SubscriptionScreen();
       case NavigationItem.savedContent:
         return SavedContentScreen();
       case NavigationItem.updates:
         return UpdateScreen();
+      case NavigationItem.bugreport:
+        return BugReport();
       default:
         return SearchScreen();
     }

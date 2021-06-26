@@ -4,21 +4,50 @@ import 'package:moviehouse/screens/movieDetail.dart';
 import 'package:moviehouse/screens/seriesDetail.dart';
 // import 'package:movie_house4/models/movies.dart';
 
-class ResultWidget extends StatelessWidget {
+class HomeWidget extends StatefulWidget {
   final List results;
-  final ScrollController controller;
+  ScrollController controller;
+  bool bottomReached;
+  HomeWidget({this.results, this.controller, this.bottomReached});
 
-  ResultWidget({this.results, this.controller});
+  @override
+  _HomeWidgetState createState() => _HomeWidgetState();
+}
+
+class _HomeWidgetState extends State<HomeWidget> {
+  bool isTopReached = false;
+  ScrollController scrollController = ScrollController();
+
+  @override
+  initState() {
+    super.initState();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.minScrollExtent) {
+        setState(() {
+          widget.bottomReached = false;
+        });
+        print('GridView reached top');
+      }
+    });
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    scrollController.dispose();
+    print('dispose called on widget');
+  }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return (results == null)
+    return (widget.results == null)
         ? Container(
             child: Center(child: CircularProgressIndicator()),
             height: MediaQuery.of(context).size.height,
           )
-        : (results.length > 0)
+        : (widget.results.length > 0)
             ? Container(
                 padding: EdgeInsets.symmetric(horizontal: 5.0),
                 child: GridView.builder(
@@ -27,12 +56,14 @@ class ResultWidget extends StatelessWidget {
                     // addSemanticIndexes: true,
                     shrinkWrap: true,
                     padding: EdgeInsets.only(bottom: 100.0),
-                    itemCount: results.length,
-                    // physics: NeverScrollableScrollPhysics(),
-                    controller: controller,
-                    cacheExtent: 20.0,
-                    // addRepaintBoundaries: ,
-                    // addAutomaticKeepAlives: true,
+                    itemCount: widget.results.length,
+                    physics: widget.bottomReached
+                        ? ScrollPhysics()
+                        : NeverScrollableScrollPhysics(),
+                    controller: scrollController,
+                    // cacheExtent: 20.0,
+                    addRepaintBoundaries: true,
+                    addAutomaticKeepAlives: true,
                     gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       mainAxisSpacing: 10.0,
@@ -43,7 +74,7 @@ class ResultWidget extends StatelessWidget {
                     itemBuilder: (context, index) {
                       // print(movies[index].posterPath);
                       // print(movies);
-                      var result = results[index];
+                      var result = widget.results[index];
                       return Column(
                         children: [
                           Flexible(

@@ -106,6 +106,7 @@ class _GenreScreenState extends State<GenreScreen> {
         backgroundColor: Colors.black,
         elevation: 0.0,
         leading: IconButton(
+          splashRadius: 25.0,
           icon: SvgPicture.asset(
             'assets/icons/Back.svg',
             height: 40.0,
