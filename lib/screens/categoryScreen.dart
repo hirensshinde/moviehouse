@@ -17,6 +17,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:moviehouse/models/banners.dart';
 import 'package:http/http.dart' as http;
 
+// crashlytics
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
 class CategoryScreen extends StatefulWidget {
   @override
   _CategoryScreenState createState() => _CategoryScreenState();
@@ -33,7 +36,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   ScrollController _scrollController = ScrollController();
   ScrollController _homeController = ScrollController();
   static int page = 1;
-  int categoryId;
+  int selectedCategoryId;
   bool isBottomReached = false;
   List _categoryBanners;
 
@@ -164,6 +167,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
     var url = Uri.parse(apiUrl);
     final response = await http.get(url);
 
+    FirebaseCrashlytics.instance.crash();
+
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       if (result["movie"].length > 0 ?? []) {
@@ -191,12 +196,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
     if (response.statusCode == 200) {
       var result = jsonDecode(response.body);
       var data = result['data'];
+      print(data);
 
-      return data.map((banner) {
+      List categorybanners = data.map((banner) {
         if (banner['type'] == "movie")
           Movie.fromJson(banner);
         else if (banner['type'] == "web_series") WebSeries.fromJson(banner);
       }).toList();
+      print(categorybanners);
+      return categorybanners;
     }
     return [];
   }
@@ -278,6 +286,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               // _scrollController.dispose();
                             } else {
                               _populateListings(_categories[index].id);
+                              selectedCategoryId = _categories[index].id;
                             }
                           },
                           child: Container(
@@ -328,81 +337,52 @@ class _CategoryScreenState extends State<CategoryScreen> {
               scrollDirection: Axis.vertical,
               child: Column(
                 children: [
-                  CarouselSlider.builder(
-                    itemCount: (selectedIndex == 0)
-                        ? _banners?.length ?? 0
-                        : _categoryBanners.length,
-                    options: CarouselOptions(
-                      autoPlay: true,
-                      height: MediaQuery.of(context).size.height * .35,
-                      viewportFraction: 1.0,
-                      disableCenter: true,
-                      autoPlayInterval: Duration(seconds: 10),
-                      autoPlayCurve: Curves.easeInOut,
-                      initialPage: 0,
-                      onPageChanged: (index, _) {
-                        setState(() {
-                          _current = index;
-                        });
-                      },
-                      autoPlayAnimationDuration: Duration(milliseconds: 800),
-                      scrollDirection: Axis.horizontal,
-                    ),
-                    itemBuilder: (BuildContext context, int index,
-                            int pageItemIndex) =>
-                        selectedIndex == 0
-                            ? CachedNetworkImage(
-                                imageUrl:
-                                    'https://api.moviehouse.download/admin/movie/image/' +
-                                        _banners[index].banner,
-                                imageBuilder: (context, imageProvider) =>
-                                    GestureDetector(
-                                  onTap: () {
-                                    print('Banner Poster Clicked!!!');
-                                  },
-                                  child: Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height:
-                                        MediaQuery.of(context).size.height * .5,
-                                    margin: EdgeInsets.all(10.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      image: DecorationImage(
-                                        image: imageProvider,
-
-                                        fit: BoxFit.fill,
-
-                                        // alignment: Alignment.topLeft,
-                                      ),
-                                    ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * .30,
+                    child: FutureBuilder(
+                        future: selectedIndex == 0
+                            ? getBanner()
+                            : getCategoryBanners(selectedCategoryId),
+                        initialData: [],
+                        builder: (context, AsyncSnapshot snapshot) {
+                          return (snapshot.hasData)
+                              ? CarouselSlider.builder(
+                                  itemCount: snapshot.data.length,
+                                  options: CarouselOptions(
+                                    autoPlay: true,
+                                    height: MediaQuery.of(context).size.height *
+                                        .30,
+                                    viewportFraction: 1.0,
+                                    disableCenter: true,
+                                    autoPlayInterval: Duration(seconds: 10),
+                                    autoPlayCurve: Curves.easeInOut,
+                                    initialPage: 0,
+                                    onPageChanged: (index, _) {
+                                      setState(() {
+                                        _current = index;
+                                      });
+                                    },
+                                    autoPlayAnimationDuration:
+                                        Duration(milliseconds: 800),
+                                    scrollDirection: Axis.horizontal,
                                   ),
-                                ),
-                                placeholder: (context, url) =>
-                                    Center(child: CircularProgressIndicator()),
-                              )
-                            : (_categoryBanners == null &&
-                                    _categoryBanners == [])
-                                ? (_categoryBanners[index] != null)
-                                    ? CachedNetworkImage(
+                                  itemBuilder: (BuildContext context, int index,
+                                          int pageItemIndex) =>
+                                      CachedNetworkImage(
                                         imageUrl:
                                             'https://api.moviehouse.download/admin/movie/image/' +
-                                                _categoryBanners[index].banner,
+                                                snapshot.data[index].banner,
                                         imageBuilder:
                                             (context, imageProvider) =>
                                                 GestureDetector(
                                           onTap: () {
                                             print('Banner Poster Clicked!!!');
-                                            print(
-                                                _categoryBanners[index].banner);
                                           },
                                           child: Container(
                                             width: MediaQuery.of(context)
                                                 .size
                                                 .width,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                .5,
+                                            // height: MediaQuery.of(context).size.height * .5,
                                             margin: EdgeInsets.all(10.0),
                                             decoration: BoxDecoration(
                                               borderRadius:
@@ -417,56 +397,149 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                             ),
                                           ),
                                         ),
-                                        placeholder: (context, url) => Center(
-                                            child: CircularProgressIndicator()),
-                                      )
-                                    : GestureDetector(
-                                        onTap: () {},
-                                        child: Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              .5,
-                                          margin: EdgeInsets.all(10.0),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            image: DecorationImage(
-                                              image: AssetImage(
-                                                  'assets/images/poster_placeholder.png'),
-
-                                              fit: BoxFit.fill,
-
-                                              // alignment: Alignment.topLeft,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                : GestureDetector(
-                                    onTap: () {},
-                                    child: Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              .5,
-                                      margin: EdgeInsets.all(10.0),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/poster_placeholder.png'),
-
-                                          fit: BoxFit.fill,
-
-                                          // alignment: Alignment.topLeft,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                      ))
+                              : Center(child: CircularProgressIndicator());
+                        }),
                   ),
+                  // CarouselSlider.builder(
+                  //   itemCount: (selectedIndex == 0)
+                  //       ? _banners?.length ?? 0
+                  //       : _categoryBanners.length,
+                  //   options: CarouselOptions(
+                  //     autoPlay: true,
+                  //     height: MediaQuery.of(context).size.height * .35,
+                  //     viewportFraction: 1.0,
+                  //     disableCenter: true,
+                  //     autoPlayInterval: Duration(seconds: 10),
+                  //     autoPlayCurve: Curves.easeInOut,
+                  //     initialPage: 0,
+                  //     onPageChanged: (index, _) {
+                  //       setState(() {
+                  //         _current = index;
+                  //       });
+                  //     },
+                  //     autoPlayAnimationDuration: Duration(milliseconds: 800),
+                  //     scrollDirection: Axis.horizontal,
+                  //   ),
+                  //   itemBuilder: (BuildContext context, int index,
+                  //           int pageItemIndex) =>
+                  //       selectedIndex == 0
+                  //           ? CachedNetworkImage(
+                  //               imageUrl:
+                  //                   'https://api.moviehouse.download/admin/movie/image/' +
+                  //                       _banners[index].banner,
+                  //               imageBuilder: (context, imageProvider) =>
+                  //                   GestureDetector(
+                  //                 onTap: () {
+                  //                   print('Banner Poster Clicked!!!');
+                  //                 },
+                  //                 child: Container(
+                  //                   width: MediaQuery.of(context).size.width,
+                  //                   height:
+                  //                       MediaQuery.of(context).size.height * .5,
+                  //                   margin: EdgeInsets.all(10.0),
+                  //                   decoration: BoxDecoration(
+                  //                     borderRadius: BorderRadius.circular(10.0),
+                  //                     image: DecorationImage(
+                  //                       image: imageProvider,
+
+                  //                       fit: BoxFit.fill,
+
+                  //                       // alignment: Alignment.topLeft,
+                  //                     ),
+                  //                   ),
+                  //                 ),
+                  //               ),
+                  //               placeholder: (context, url) =>
+                  //                   Center(child: CircularProgressIndicator()),
+                  //             )
+                  //           : (_categoryBanners == null &&
+                  //                   _categoryBanners == [])
+                  //               ? (_categoryBanners[index] != null)
+                  //                   ? CachedNetworkImage(
+                  //                       imageUrl:
+                  //                           'https://api.moviehouse.download/admin/movie/image/' +
+                  //                               _categoryBanners[index].banner,
+                  //                       imageBuilder:
+                  //                           (context, imageProvider) =>
+                  //                               GestureDetector(
+                  //                         onTap: () {
+                  //                           print('Banner Poster Clicked!!!');
+                  //                           print(
+                  //                               _categoryBanners[index].banner);
+                  //                         },
+                  //                         child: Container(
+                  //                           width: MediaQuery.of(context)
+                  //                               .size
+                  //                               .width,
+                  //                           height: MediaQuery.of(context)
+                  //                                   .size
+                  //                                   .height *
+                  //                               .5,
+                  //                           margin: EdgeInsets.all(10.0),
+                  //                           decoration: BoxDecoration(
+                  //                             borderRadius:
+                  //                                 BorderRadius.circular(10.0),
+                  //                             image: DecorationImage(
+                  //                               image: imageProvider,
+
+                  //                               fit: BoxFit.fill,
+
+                  //                               // alignment: Alignment.topLeft,
+                  //                             ),
+                  //                           ),
+                  //                         ),
+                  //                       ),
+                  //                       placeholder: (context, url) => Center(
+                  //                           child: CircularProgressIndicator()),
+                  //                     )
+                  //                   : GestureDetector(
+                  //                       onTap: () {},
+                  //                       child: Container(
+                  //                         width:
+                  //                             MediaQuery.of(context).size.width,
+                  //                         height: MediaQuery.of(context)
+                  //                                 .size
+                  //                                 .height *
+                  //                             .5,
+                  //                         margin: EdgeInsets.all(10.0),
+                  //                         decoration: BoxDecoration(
+                  //                           borderRadius:
+                  //                               BorderRadius.circular(10.0),
+                  //                           image: DecorationImage(
+                  //                             image: AssetImage(
+                  //                                 'assets/images/poster_placeholder.png'),
+
+                  //                             fit: BoxFit.fill,
+
+                  //                             // alignment: Alignment.topLeft,
+                  //                           ),
+                  //                         ),
+                  //                       ),
+                  //                     )
+                  //               : GestureDetector(
+                  //                   onTap: () {},
+                  //                   child: Container(
+                  //                     width: MediaQuery.of(context).size.width,
+                  //                     height:
+                  //                         MediaQuery.of(context).size.height *
+                  //                             .5,
+                  //                     margin: EdgeInsets.all(10.0),
+                  //                     decoration: BoxDecoration(
+                  //                       borderRadius:
+                  //                           BorderRadius.circular(10.0),
+                  //                       image: DecorationImage(
+                  //                         image: AssetImage(
+                  //                             'assets/images/poster_placeholder.png'),
+
+                  //                         fit: BoxFit.fill,
+
+                  //                         // alignment: Alignment.topLeft,
+                  //                       ),
+                  //                     ),
+                  //                   ),
+                  //                 ),
+                  // ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: _banners.map(
