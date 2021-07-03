@@ -45,7 +45,9 @@ class Movie {
       ratings: json['rating'],
       year: json['year'],
       type: json['type'],
-      language: json['language_name'] ?? ['No Language'],
+      language: (json['language_name'].runtimeType == String)
+          ? []
+          : json['language_name'],
       featured: json['featured'],
       categoryId: json['category_id'],
       genreId: json['generes_id'],

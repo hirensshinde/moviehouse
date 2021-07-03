@@ -205,7 +205,9 @@ class _SeriesDetailState extends State<SeriesDetail> {
                 hasHandle: true,
 
                 backgroundColor: Colors.black,
-                padding: EdgeInsets.only(top: 5, left: 10, right: 10),
+                padding: EdgeInsets.only(
+                  top: 5,
+                ),
                 // maxHeight: MediaQuery.of(context).size.height - 100,
                 minHeight: MediaQuery.of(context).size.height * 0.55,
                 maxHeight: MediaQuery.of(context).size.height * 0.90,
@@ -219,6 +221,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
                       color: Colors.white,
                       fontSize: 28.0,
                       fontWeight: FontWeight.bold,
+                      fontFamily: "NEXA",
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -232,6 +235,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
                           color: Color.fromARGB(255, 151, 169, 170),
                           fontSize: 14.0,
                           fontWeight: FontWeight.bold,
+                          fontFamily: "NEXA",
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -249,6 +253,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                             Color.fromARGB(255, 151, 169, 170),
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.bold,
+                                        fontFamily: "NEXA",
                                       )),
                                 ))
                             .toList(),
@@ -268,6 +273,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                               255, 151, 169, 170),
                                           fontSize: 14.0,
                                           fontWeight: FontWeight.bold,
+                                          fontFamily: "NEXA",
                                         ),
                                       ),
                                     ))
@@ -281,6 +287,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                     style: TextStyle(
                                       color: Color.fromARGB(255, 151, 169, 170),
                                       fontSize: 14.0,
+                                      fontFamily: "NEXA",
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -361,7 +368,11 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                     title: Text(
                                       _allEpisodes[index].partName,
                                       style: TextStyle(
-                                          color: Colors.white, fontSize: 16.0),
+                                        color: Colors.white,
+                                        fontSize: 16.0,
+                                        fontFamily: "NEXA",
+                                        // fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     trailing: IconButton(
                                       icon: SvgPicture.asset(

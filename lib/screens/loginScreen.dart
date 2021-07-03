@@ -5,7 +5,8 @@ import 'package:moviehouse/provider/google_sign_in.dart';
 import 'package:moviehouse/provider/navigationProvider.dart';
 import 'package:moviehouse/screens/bugreport.dart';
 import 'package:moviehouse/screens/categoryScreen.dart';
-import 'package:moviehouse/screens/category_copy.dart';
+// import 'package:moviehouse/screens/category_copy.dart';
+import 'package:moviehouse/screens/homescreen.dart';
 import 'package:moviehouse/screens/savedContentScreen.dart';
 import 'package:moviehouse/screens/searchScreen.dart';
 import 'package:moviehouse/screens/subscriptionScreen.dart';
@@ -47,7 +48,7 @@ class LoginScreen extends StatelessWidget {
 
     switch (navigationItem) {
       case NavigationItem.home:
-        return UpdateApp(child: CategoryScreen());
+        return UpdateApp(child: HomeScreen());
 
       case NavigationItem.subscription:
         return SubscriptionScreen();

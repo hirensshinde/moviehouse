@@ -136,8 +136,17 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           child: TextField(
             controller: textController,
-            onChanged: (String value) {
-              if (value.isEmpty) {}
+            onChanged: (String value) async {
+              if (value.isNotEmpty) {
+                await pagination(value);
+                _isSearching = true;
+                // textController.clear();
+              } else {
+                setState(() {
+                  _results.clear();
+                  _isSearching = false;
+                });
+              }
             },
             onSubmitted: (String value) async {
               if (value.isNotEmpty) {
@@ -173,7 +182,10 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               prefixStyle: TextStyle(color: Colors.red),
               hintText: "Search",
-              hintStyle: TextStyle(color: Colors.white24),
+              hintStyle: TextStyle(
+                  color: Colors.white24,
+                  fontFamily: "NEXA",
+                  fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -193,7 +205,10 @@ class _SearchScreenState extends State<SearchScreen> {
                         height: MediaQuery.of(context).size.height,
                         child: Center(
                           child: Text('No search result found',
-                              style: TextStyle(color: Colors.white)),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "NEXA",
+                                  fontWeight: FontWeight.bold)),
                         ),
                       )
                 : (_isSearching || _genres != null && _genres.length > 0)
@@ -235,8 +250,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                   child: Text(
                                     _genres[index].genre,
                                     style: TextStyle(
-                                      color: Colors.white70,
-                                    ),
+                                        color: Colors.white70,
+                                        fontFamily: "NEXA",
+                                        fontWeight: FontWeight.bold),
                                     // textAlign: TextAlign.center,
                                   ),
                                 ),

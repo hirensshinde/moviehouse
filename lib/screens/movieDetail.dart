@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:adcolony_flutter/adcolony_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:moviehouse/models/movies.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -117,93 +117,93 @@ class _MovieDetailState extends State<MovieDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return (widget.movie != null)
-        ? Scaffold(
-            extendBodyBehindAppBar: true,
-            floatingActionButton: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FloatingActionButton(
-                  backgroundColor: Colors.black,
-                  heroTag: 'btn2',
-                  onPressed: () async {
-                    Share.share(
-                        "Watch or download ${widget.movie.title} on MovieHouse app for completely FREE. Get this app from this link \n" +
-                            "http://moviehouse.download/Moviehouse-v1.0.apk");
-                  },
-                  child: SvgPicture.asset(
-                    'assets/icons/Share.svg',
-                    height: 30.0,
-                  ),
-                ),
-                SizedBox(width: 10.0),
-                FloatingActionButton(
-                  backgroundColor: Colors.blue[800],
-                  heroTag: 'btn1',
-                  onPressed: () async {
-                    setState(() {
-                      buttonClicked = true;
-                    });
-                    _downloadCount();
-                    listener(AdColonyAdListener event, int reward) async {
-                      print(event);
-                      if (event == AdColonyAdListener.onRequestFilled) {
-                        if (await AdColony.isLoaded()) {
-                          AdColony.show();
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            backgroundColor: Colors.black,
+            heroTag: 'btn2',
+            onPressed: () async {
+              Share.share(
+                  "Watch or download ${widget.movie.title} on MovieHouse app for completely FREE. Get this app from this link \n" +
+                      "http://moviehouse.download/Moviehouse-v1.0.apk");
+            },
+            child: SvgPicture.asset(
+              'assets/icons/Share.svg',
+              height: 30.0,
+            ),
+          ),
+          SizedBox(width: 10.0),
+          FloatingActionButton(
+            backgroundColor: Colors.blue[800],
+            heroTag: 'btn1',
+            onPressed: () async {
+              setState(() {
+                buttonClicked = true;
+              });
+              _downloadCount();
+              listener(AdColonyAdListener event, int reward) async {
+                print(event);
+                if (event == AdColonyAdListener.onRequestFilled) {
+                  if (await AdColony.isLoaded()) {
+                    AdColony.show();
+                  }
+                }
+                if (event == AdColonyAdListener.onReward) {
+                  print('ADCOLONY: $reward');
+                }
+                if (event == AdColonyAdListener.onClosed) {
+                  print('closed ad');
+                  return _downloadLink();
+                }
+                if (event == AdColonyAdListener.onRequestNotFilled) {
+                  print('ad failed');
+                  return _downloadLink();
+                }
+              }
+
+              return AdColony.request(this.zones[0], listener);
+            },
+            child: (buttonClicked)
+                ? Builder(
+                    builder: (context) {
+                      Timer.periodic(Duration(seconds: 1), (value) {
+                        if (value.tick == 5) {
+                          setState(() {
+                            buttonClicked = false;
+                            value.cancel();
+                          });
                         }
-                      }
-                      if (event == AdColonyAdListener.onReward) {
-                        print('ADCOLONY: $reward');
-                      }
-                      if (event == AdColonyAdListener.onClosed) {
-                        print('closed ad');
-                        return _downloadLink();
-                      }
-                      if (event == AdColonyAdListener.onRequestNotFilled) {
-                        print('ad failed');
-                        return _downloadLink();
-                      }
-                    }
 
-                    return AdColony.request(this.zones[0], listener);
-                  },
-                  child: (buttonClicked)
-                      ? Builder(
-                          builder: (context) {
-                            Timer.periodic(Duration(seconds: 1), (value) {
-                              if (value.tick == 5) {
-                                setState(() {
-                                  buttonClicked = false;
-                                  value.cancel();
-                                });
-                              }
-
-                              setState(() {
-                                countdown = 5 - value.tick;
-                              });
-                            });
-                            return Text('$countdown');
-                          },
-                        )
-                      : SvgPicture.asset(
-                          'assets/icons/Download.svg',
-                          height: 20.0,
-                        ),
-                ),
-              ],
-            ),
-            appBar: AppBar(
-              elevation: 0.0,
-              backgroundColor: Colors.transparent,
-              leading: IconButton(
-                splashRadius: 25.0,
-                icon: SvgPicture.asset('assets/icons/Back.svg'),
-                onPressed: () {
-                  return Navigator.pop(context);
-                },
-              ),
-            ),
-            body: SingleChildScrollView(
+                        setState(() {
+                          countdown = 5 - value.tick;
+                        });
+                      });
+                      return Text('$countdown');
+                    },
+                  )
+                : SvgPicture.asset(
+                    'assets/icons/Download.svg',
+                    height: 20.0,
+                  ),
+          ),
+        ],
+      ),
+      appBar: AppBar(
+        elevation: 0.0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          splashRadius: 25.0,
+          icon: SvgPicture.asset('assets/icons/Back.svg'),
+          onPressed: () {
+            return Navigator.pop(context);
+          },
+        ),
+      ),
+      body: (widget.movie != null)
+          ? SingleChildScrollView(
               child: Stack(
                 // alignment: Alignment.bottomCenter,
                 // fit: StackFit.expand,
@@ -251,6 +251,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                 color: Colors.white,
                                 fontSize: 26.0,
                                 fontWeight: FontWeight.bold,
+                                fontFamily: "NEXA",
                               ),
                             ),
                             SizedBox(height: 10.0),
@@ -263,6 +264,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                     color: Color.fromARGB(255, 151, 169, 170),
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.bold,
+                                    fontFamily: "NEXA",
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
@@ -281,6 +283,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                                       fontSize: 14.0,
                                                       fontWeight:
                                                           FontWeight.bold,
+                                                      fontFamily: "NEXA",
                                                     )),
                                               ))
                                           .toList()
@@ -293,6 +296,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                                     255, 151, 169, 170),
                                                 fontSize: 14.0,
                                                 fontWeight: FontWeight.bold,
+                                                fontFamily: "NEXA",
                                               )),
                                         ),
                                 ),
@@ -310,6 +314,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                                         fontSize: 14.0,
                                                         fontWeight:
                                                             FontWeight.bold,
+                                                        fontFamily: "NEXA",
                                                       )),
                                                 ))
                                             .toList()
@@ -323,6 +328,7 @@ class _MovieDetailState extends State<MovieDetail> {
                                                         255, 151, 169, 170),
                                                     fontSize: 14.0,
                                                     fontWeight: FontWeight.bold,
+                                                    fontFamily: "NEXA",
                                                   )),
                                             ),
                                           ]),
@@ -333,7 +339,11 @@ class _MovieDetailState extends State<MovieDetail> {
                               padding: const EdgeInsets.all(20.0),
                               child: Text(
                                 widget.movie.description,
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "NEXA",
+                                  color: Colors.white,
+                                ),
                                 textAlign: TextAlign.center,
                                 maxLines: 7,
                               ),
@@ -345,8 +355,8 @@ class _MovieDetailState extends State<MovieDetail> {
                   ),
                 ],
               ),
-            ),
-          )
-        : Center(child: Container(child: Text('Something went wrong')));
+            )
+          : Center(child: Container(child: Text('Something went wrong'))),
+    );
   }
 }

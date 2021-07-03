@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter_pagewise/flutter_pagewise.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moviehouse/models/categories.dart';
 import 'package:moviehouse/models/homeCategories.dart';
@@ -11,14 +12,12 @@ import 'package:moviehouse/models/webseries.dart';
 import 'package:moviehouse/screens/movieDetail.dart';
 import 'package:moviehouse/screens/requestmovie.dart';
 import 'package:moviehouse/screens/searchScreen.dart';
+import 'package:moviehouse/screens/seriesDetail.dart';
 import 'package:moviehouse/widgets/homeWidget.dart';
 import 'package:moviehouse/widgets/sidebarWidget.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:moviehouse/models/banners.dart';
 import 'package:http/http.dart' as http;
-
-// crashlytics
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class CategoryScreen extends StatefulWidget {
   @override
@@ -39,7 +38,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
   int selectedCategoryId;
   bool isBottomReached = false;
   List _categoryBanners;
+  int totalPages;
 
+  // Fetch Banners for All Category
   Future<List<Banners>> getBanner() async {
     final apikey = "45293422347apQ8ob9hR9ITXS6YikayOc5iA2";
     final url = Uri.parse(
@@ -65,6 +66,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     // getBanner();
   }
 
+  // Populate data for All Category in HomeScreen
   void _populateAllCategories() async {
     try {
       final List<Category> categories = await _fetchAllCategories();
@@ -84,7 +86,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     }
   }
 
-  //
+  // Fetch Categories function
   Future<List<Category>> _fetchAllCategories() async {
     // final String apiUrl =
     //     "https://api.themoviedb.org/3/movie/now_playing?api_key=a8d93a34b26202fd9917272a3535e340";
@@ -103,6 +105,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     }
   }
 
+  // Banners for All Category Function
   Future<List> _homeScreenCategories() async {
     final String apiurl = "https://api.moviehouse.download/api/top-category";
 
@@ -117,6 +120,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return null;
   }
 
+  // Lazy Loading Scroll Controller
   void _populateListings(int id) async {
     print('==>Called First time');
     _populateCategoryListing(id);
@@ -139,6 +143,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     });
   }
 
+  // Listing Movies or Series from FetchContentFromCategory functions
   _populateCategoryListing(id) async {
     try {
       final results = await _fetchAllResults(id);
@@ -160,6 +165,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     }
   }
 
+  // Fetch all Movies / Webseries from Each Category
   Future<List> _fetchAllResults(int id) async {
     isLoading = false;
     final String apiUrl =
@@ -167,10 +173,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
     var url = Uri.parse(apiUrl);
     final response = await http.get(url);
 
-    FirebaseCrashlytics.instance.crash();
-
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
+      // totalPages = result.total;
       if (result["movie"].length > 0 ?? []) {
         List movies = result["movie"];
         page++;
@@ -187,6 +192,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     return null;
   }
 
+  // Fetch Banners for category from API
   Future<List> getCategoryBanners(id) async {
     String url =
         'https://api.moviehouse.download/api/banners/home?category_id=$id';
@@ -196,17 +202,21 @@ class _CategoryScreenState extends State<CategoryScreen> {
     if (response.statusCode == 200) {
       var result = jsonDecode(response.body);
       var data = result['data'];
-      print(data);
 
-      List categorybanners = data.map((banner) {
-        if (banner['type'] == "movie")
-          Movie.fromJson(banner);
-        else if (banner['type'] == "web_series") WebSeries.fromJson(banner);
-      }).toList();
-      print(categorybanners);
-      return categorybanners;
+      print("Received banners data from category API ==> $data");
+      if (data.length > 0) {
+        List modelList = await data
+            .map((banner) => (banner['type'] == 'movie')
+                ? Movie.fromJson(banner)
+                : WebSeries.fromJson(banner))
+            .toList();
+        print("Received Model list ==> $modelList");
+        return modelList;
+      }
+
+      return null;
     }
-    return [];
+    return null;
   }
 
   // ignore: unused_element
@@ -237,7 +247,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
         // fit: BoxFit.fitHeight,
 
-        title: Text('Movie House', style: TextStyle(fontSize: 20.0)),
+        title: Text('Movie House',
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              fontFamily: "NEXA",
+            )),
         actions: [
           Padding(
             padding:
@@ -254,7 +269,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       borderRadius: BorderRadius.circular(30.0)),
                   primary: Color.fromARGB(255, 235, 170, 73),
                 ),
-                child: Text('Request Movie')),
+                child: Text(
+                  'Request Movie',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "NEXA",
+                  ),
+                )),
           )
         ],
         bottom: PreferredSize(
@@ -307,6 +328,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 '${_categories[index].category}',
                                 style: TextStyle(
                                   color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "NEXA",
                                 ),
                               ),
                             ),
@@ -330,217 +353,106 @@ class _CategoryScreenState extends State<CategoryScreen> {
         backgroundColor: Colors.blue,
       ),
       body: (_categories != null)
-          ? SingleChildScrollView(
+          ? CustomScrollView(
               controller:
                   (selectedIndex == 0) ? _homeController : _scrollController,
               physics: ScrollPhysics(),
               scrollDirection: Axis.vertical,
-              child: Column(
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * .30,
-                    child: FutureBuilder(
+              slivers: [
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  expandedHeight: 200.0,
+                  backgroundColor: Colors.black,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      height: MediaQuery.of(context).size.height * .30,
+                      child: FutureBuilder(
                         future: selectedIndex == 0
                             ? getBanner()
                             : getCategoryBanners(selectedCategoryId),
                         initialData: [],
-                        builder: (context, AsyncSnapshot snapshot) {
-                          return (snapshot.hasData)
-                              ? CarouselSlider.builder(
-                                  itemCount: snapshot.data.length,
-                                  options: CarouselOptions(
-                                    autoPlay: true,
-                                    height: MediaQuery.of(context).size.height *
-                                        .30,
-                                    viewportFraction: 1.0,
-                                    disableCenter: true,
-                                    autoPlayInterval: Duration(seconds: 10),
-                                    autoPlayCurve: Curves.easeInOut,
-                                    initialPage: 0,
-                                    onPageChanged: (index, _) {
-                                      setState(() {
-                                        _current = index;
-                                      });
-                                    },
-                                    autoPlayAnimationDuration:
-                                        Duration(milliseconds: 800),
-                                    scrollDirection: Axis.horizontal,
-                                  ),
-                                  itemBuilder: (BuildContext context, int index,
-                                          int pageItemIndex) =>
-                                      CachedNetworkImage(
-                                        imageUrl:
-                                            'https://api.moviehouse.download/admin/movie/image/' +
-                                                snapshot.data[index].banner,
-                                        imageBuilder:
-                                            (context, imageProvider) =>
-                                                GestureDetector(
-                                          onTap: () {
-                                            print('Banner Poster Clicked!!!');
-                                          },
-                                          child: Container(
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            // height: MediaQuery.of(context).size.height * .5,
-                                            margin: EdgeInsets.all(10.0),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              image: DecorationImage(
-                                                image: imageProvider,
+                        builder: (context, AsyncSnapshot snapshot) => (snapshot
+                                .hasData)
+                            ? CarouselSlider.builder(
+                                itemCount: (snapshot.hasData == null)
+                                    ? 3
+                                    : snapshot.data.length,
+                                options: CarouselOptions(
+                                  autoPlay: true,
+                                  height:
+                                      MediaQuery.of(context).size.height * .35,
+                                  viewportFraction: 1.0,
+                                  disableCenter: true,
+                                  autoPlayInterval: Duration(seconds: 10),
+                                  autoPlayCurve: Curves.easeInOut,
+                                  initialPage: 0,
+                                  onPageChanged: (index, _) {
+                                    setState(() {
+                                      _current = index;
+                                    });
+                                  },
+                                  autoPlayAnimationDuration:
+                                      Duration(milliseconds: 800),
+                                  scrollDirection: Axis.horizontal,
+                                ),
+                                itemBuilder: (BuildContext context, int index,
+                                        int pageItemIndex) =>
+                                    CachedNetworkImage(
+                                      imageUrl: (snapshot.hasData == null)
+                                          ? 'https://via.placeholder.com/600x350.png?text=No+Preview+available'
+                                          : 'https://api.moviehouse.download/admin/movie/image/' +
+                                              snapshot.data[index].banner,
+                                      imageBuilder: (context, imageProvider) =>
+                                          GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      (snapshot.data[index]
+                                                                  .type ==
+                                                              'movie')
+                                                          ? MovieDetail(
+                                                              movie: snapshot
+                                                                  .data[index])
+                                                          : SeriesDetail(
+                                                              series:
+                                                                  snapshot.data[
+                                                                      index])));
+                                        },
+                                        child: Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              .5,
+                                          margin: EdgeInsets.all(10.0),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            image: DecorationImage(
+                                              image: imageProvider,
 
-                                                fit: BoxFit.fill,
+                                              fit: BoxFit.fill,
 
-                                                // alignment: Alignment.topLeft,
-                                              ),
+                                              // alignment: Alignment.topLeft,
                                             ),
                                           ),
                                         ),
-                                      ))
-                              : Center(child: CircularProgressIndicator());
-                        }),
+                                      ),
+                                      placeholder: (context, url) => Center(
+                                          child: CircularProgressIndicator()),
+                                    ))
+                            : (snapshot.hasError)
+                                ? Container(child: Text('nothing'))
+                                : Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
                   ),
-                  // CarouselSlider.builder(
-                  //   itemCount: (selectedIndex == 0)
-                  //       ? _banners?.length ?? 0
-                  //       : _categoryBanners.length,
-                  //   options: CarouselOptions(
-                  //     autoPlay: true,
-                  //     height: MediaQuery.of(context).size.height * .35,
-                  //     viewportFraction: 1.0,
-                  //     disableCenter: true,
-                  //     autoPlayInterval: Duration(seconds: 10),
-                  //     autoPlayCurve: Curves.easeInOut,
-                  //     initialPage: 0,
-                  //     onPageChanged: (index, _) {
-                  //       setState(() {
-                  //         _current = index;
-                  //       });
-                  //     },
-                  //     autoPlayAnimationDuration: Duration(milliseconds: 800),
-                  //     scrollDirection: Axis.horizontal,
-                  //   ),
-                  //   itemBuilder: (BuildContext context, int index,
-                  //           int pageItemIndex) =>
-                  //       selectedIndex == 0
-                  //           ? CachedNetworkImage(
-                  //               imageUrl:
-                  //                   'https://api.moviehouse.download/admin/movie/image/' +
-                  //                       _banners[index].banner,
-                  //               imageBuilder: (context, imageProvider) =>
-                  //                   GestureDetector(
-                  //                 onTap: () {
-                  //                   print('Banner Poster Clicked!!!');
-                  //                 },
-                  //                 child: Container(
-                  //                   width: MediaQuery.of(context).size.width,
-                  //                   height:
-                  //                       MediaQuery.of(context).size.height * .5,
-                  //                   margin: EdgeInsets.all(10.0),
-                  //                   decoration: BoxDecoration(
-                  //                     borderRadius: BorderRadius.circular(10.0),
-                  //                     image: DecorationImage(
-                  //                       image: imageProvider,
-
-                  //                       fit: BoxFit.fill,
-
-                  //                       // alignment: Alignment.topLeft,
-                  //                     ),
-                  //                   ),
-                  //                 ),
-                  //               ),
-                  //               placeholder: (context, url) =>
-                  //                   Center(child: CircularProgressIndicator()),
-                  //             )
-                  //           : (_categoryBanners == null &&
-                  //                   _categoryBanners == [])
-                  //               ? (_categoryBanners[index] != null)
-                  //                   ? CachedNetworkImage(
-                  //                       imageUrl:
-                  //                           'https://api.moviehouse.download/admin/movie/image/' +
-                  //                               _categoryBanners[index].banner,
-                  //                       imageBuilder:
-                  //                           (context, imageProvider) =>
-                  //                               GestureDetector(
-                  //                         onTap: () {
-                  //                           print('Banner Poster Clicked!!!');
-                  //                           print(
-                  //                               _categoryBanners[index].banner);
-                  //                         },
-                  //                         child: Container(
-                  //                           width: MediaQuery.of(context)
-                  //                               .size
-                  //                               .width,
-                  //                           height: MediaQuery.of(context)
-                  //                                   .size
-                  //                                   .height *
-                  //                               .5,
-                  //                           margin: EdgeInsets.all(10.0),
-                  //                           decoration: BoxDecoration(
-                  //                             borderRadius:
-                  //                                 BorderRadius.circular(10.0),
-                  //                             image: DecorationImage(
-                  //                               image: imageProvider,
-
-                  //                               fit: BoxFit.fill,
-
-                  //                               // alignment: Alignment.topLeft,
-                  //                             ),
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                       placeholder: (context, url) => Center(
-                  //                           child: CircularProgressIndicator()),
-                  //                     )
-                  //                   : GestureDetector(
-                  //                       onTap: () {},
-                  //                       child: Container(
-                  //                         width:
-                  //                             MediaQuery.of(context).size.width,
-                  //                         height: MediaQuery.of(context)
-                  //                                 .size
-                  //                                 .height *
-                  //                             .5,
-                  //                         margin: EdgeInsets.all(10.0),
-                  //                         decoration: BoxDecoration(
-                  //                           borderRadius:
-                  //                               BorderRadius.circular(10.0),
-                  //                           image: DecorationImage(
-                  //                             image: AssetImage(
-                  //                                 'assets/images/poster_placeholder.png'),
-
-                  //                             fit: BoxFit.fill,
-
-                  //                             // alignment: Alignment.topLeft,
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                     )
-                  //               : GestureDetector(
-                  //                   onTap: () {},
-                  //                   child: Container(
-                  //                     width: MediaQuery.of(context).size.width,
-                  //                     height:
-                  //                         MediaQuery.of(context).size.height *
-                  //                             .5,
-                  //                     margin: EdgeInsets.all(10.0),
-                  //                     decoration: BoxDecoration(
-                  //                       borderRadius:
-                  //                           BorderRadius.circular(10.0),
-                  //                       image: DecorationImage(
-                  //                         image: AssetImage(
-                  //                             'assets/images/poster_placeholder.png'),
-
-                  //                         fit: BoxFit.fill,
-
-                  //                         // alignment: Alignment.topLeft,
-                  //                       ),
-                  //                     ),
-                  //                   ),
-                  //                 ),
-                  // ),
-                  Row(
+                ),
+                SliverToBoxAdapter(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: _banners.map(
                       (image) {
@@ -560,8 +472,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       },
                     ).toList(),
                   ),
-                  (selectedIndex == 0)
-                      ? Column(
+                ),
+                (selectedIndex == 0)
+                    ? SliverToBoxAdapter(
+                        child: Column(
                           children: _homeCategories.map((category) {
                             return Container(
                               padding: EdgeInsets.symmetric(vertical: 10.0),
@@ -577,7 +491,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline6
-                                          .copyWith(color: Colors.white),
+                                          .copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: "NEXA",
+                                          ),
                                     ),
                                   ),
                                   SizedBox(
@@ -586,20 +504,26 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                   Container(
                                     height: 150.0,
                                     child: ListView.builder(
-                                      itemCount: category.movie.length,
+                                      itemCount: category.contents.length,
                                       // shrinkWrap: true,
 
                                       scrollDirection: Axis.horizontal,
                                       itemBuilder: (context, index) {
-                                        Movie result = category.movie[index];
+                                        dynamic result =
+                                            category.contents[index];
                                         return GestureDetector(
                                           onTap: () {
                                             return Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      MovieDetail(
-                                                          movie: result)),
+                                                  builder: (context) {
+                                                return (category.contents[index]
+                                                            .type ==
+                                                        "movie")
+                                                    ? MovieDetail(movie: result)
+                                                    : SeriesDetail(
+                                                        series: result);
+                                              }),
                                             );
                                           },
                                           child: CachedNetworkImage(
@@ -755,12 +679,17 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                       },
                                     ),
                                   ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
                                 ],
                               ),
                             );
                           }).toList(),
-                        )
-                      : Column(
+                        ),
+                      )
+                    : SliverToBoxAdapter(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
@@ -777,12 +706,202 @@ class _CategoryScreenState extends State<CategoryScreen> {
                             ),
                           ],
                         ),
-                ],
-              ),
+                      ),
+                // : SliverPadding(
+                //     padding: const EdgeInsets.all(8.0),
+                //     sliver: PagewiseSliverGrid.count(
+                //         pageSize: totalPages,
+                //         crossAxisCount: 3,
+                //         mainAxisSpacing: 8.0,
+                //         crossAxisSpacing: 8.0,
+                //         // childAspectRatio: 0.555,
+                //         // ignore: missing_return
+                //         itemBuilder: (context, a, index) {
+                //           var result = _results[index];
+                //           return Column(
+                //             children: [
+                //               Flexible(
+                //                 child: GestureDetector(
+                //                   onTap: () {
+                //                     return Navigator.push(
+                //                       context,
+                //                       MaterialPageRoute(
+                //                         builder: (context) => (result
+                //                                     .type ==
+                //                                 'movie')
+                //                             ? MovieDetail(movie: result)
+                //                             : SeriesDetail(series: result),
+                //                       ),
+                //                     );
+                //                   },
+                //                   child: CachedNetworkImage(
+                //                     placeholderFadeInDuration:
+                //                         Duration(milliseconds: 500),
+                //                     imageUrl:
+                //                         'https://api.moviehouse.download/admin/movie/image/' +
+                //                             result.poster,
+                //                     imageBuilder:
+                //                         (context, imageProvider) =>
+                //                             Container(
+                //                       width: MediaQuery.of(context)
+                //                               .size
+                //                               .width *
+                //                           0.30,
+                //                       height: 150,
+                //                       alignment: Alignment.topRight,
+                //                       decoration: BoxDecoration(
+                //                         // shape: BoxShape.circle,
+                //                         borderRadius:
+                //                             BorderRadius.circular(10.0),
+                //                         image: DecorationImage(
+                //                             image: imageProvider,
+                //                             fit: BoxFit.fill),
+                //                       ),
+                //                       child: Stack(
+                //                         children: [
+                //                           Positioned(
+                //                             top: 2.0,
+                //                             right: 0.0,
+                //                             child: (result.ratings != null)
+                //                                 ? Container(
+                //                                     margin: EdgeInsets.only(
+                //                                         top: 10.0),
+                //                                     color: Colors.yellow,
+                //                                     child: Row(
+                //                                       mainAxisSize:
+                //                                           MainAxisSize.min,
+                //                                       children: [
+                //                                         Icon(Icons.star,
+                //                                             size: 12.0),
+                //                                         Text(
+                //                                           result.ratings
+                //                                               .toString(),
+                //                                           style: TextStyle(
+                //                                             fontSize: 10.0,
+                //                                           ),
+                //                                         )
+                //                                       ],
+                //                                     ),
+                //                                     padding: EdgeInsets
+                //                                         .symmetric(
+                //                                             horizontal: 2.0,
+                //                                             vertical: 1.0),
+                //                                   )
+                //                                 : Container(),
+                //                           ),
+                //                           Positioned(
+                //                             bottom: 0,
+                //                             child: Container(
+                //                               width: MediaQuery.of(context)
+                //                                       .size
+                //                                       .width *
+                //                                   0.30,
+                //                               color: Colors.black87,
+                //                               child: Text(result.title,
+                //                                   style: TextStyle(
+                //                                     color: Colors.white,
+                //                                     fontSize: 12.0,
+                //                                   ),
+                //                                   textAlign:
+                //                                       TextAlign.center),
+                //                               padding: EdgeInsets.all(5.0),
+                //                             ),
+                //                           ),
+                //                         ],
+                //                       ),
+                //                     ),
+                //                     placeholder: (context, url) =>
+                //                         Container(
+                //                       width: MediaQuery.of(context)
+                //                               .size
+                //                               .width *
+                //                           0.30,
+                //                       height: 150,
+                //                       alignment: Alignment.topRight,
+                //                       decoration: BoxDecoration(
+                //                         // shape: BoxShape.circle,
+                //                         borderRadius:
+                //                             BorderRadius.circular(10.0),
+                //                         image: DecorationImage(
+                //                             image: AssetImage(
+                //                                 'assets/images/poster_placeholder.png'),
+                //                             fit: BoxFit.fill),
+                //                       ),
+                //                     ),
+                //                     errorWidget: (context, url, error) =>
+                //                         Container(
+                //                       width: MediaQuery.of(context)
+                //                               .size
+                //                               .width *
+                //                           0.30,
+                //                       height: 150,
+                //                       decoration: BoxDecoration(
+                //                         // shape: BoxShape.circle,
+                //                         borderRadius:
+                //                             BorderRadius.circular(10.0),
+                //                         image: DecorationImage(
+                //                             image: AssetImage(
+                //                                 'assets/images/nopreview.jpg'),
+                //                             fit: BoxFit.fill),
+                //                       ),
+                //                       child: Stack(
+                //                         children: [
+                //                           Positioned(
+                //                             top: 2.0,
+                //                             right: 0.0,
+                //                             child: Container(
+                //                               margin: EdgeInsets.only(
+                //                                   top: 10.0),
+                //                               color: Colors.yellow,
+                //                               child: Row(
+                //                                 mainAxisSize:
+                //                                     MainAxisSize.min,
+                //                                 children: [
+                //                                   Icon(Icons.star,
+                //                                       size: 14.0),
+                //                                   Text(
+                //                                     '7.8 ',
+                //                                     style: TextStyle(
+                //                                       fontSize: 10.0,
+                //                                     ),
+                //                                   )
+                //                                 ],
+                //                               ),
+                //                             ),
+                //                           ),
+                //                           Positioned(
+                //                             bottom: 0,
+                //                             child: Container(
+                //                               width: MediaQuery.of(context)
+                //                                       .size
+                //                                       .width *
+                //                                   0.30,
+                //                               color: Colors.black87,
+                //                               child: Text(result.title,
+                //                                   style: TextStyle(
+                //                                     color: Colors.white,
+                //                                     fontSize: 12.0,
+                //                                   ),
+                //                                   textAlign:
+                //                                       TextAlign.center),
+                //                               padding: EdgeInsets.all(5.0),
+                //                             ),
+                //                           ),
+                //                         ],
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 ),
+                //               ),
+                //             ],
+                //           );
+                //         },
+                //         pageFuture: (pageIndex) =>
+                //             _fetchAllResults(selectedCategoryId)),
+                //   )
+              ],
             )
-          : Center(
-              child: CircularProgressIndicator(),
-            ),
+          : Center(child: CircularProgressIndicator()),
     );
   }
 }

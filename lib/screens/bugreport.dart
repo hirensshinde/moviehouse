@@ -17,112 +17,162 @@ class _BugReportState extends State<BugReport> {
     final bool showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
 
     return Scaffold(
-      drawer: NavigationDrawerWidget(),
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+        drawer: NavigationDrawerWidget(),
         backgroundColor: Colors.black,
-        title: Text('Tell me our Bug', style: TextStyle(fontSize: 20.0)),
-        leading: Builder(
-          builder: (context) => IconButton(
-              splashRadius: 30.0,
-              padding: EdgeInsets.all(0.0),
-              icon: SvgPicture.asset(
-                'assets/icons/Drawer2.svg',
-                height: 35.0,
-              ),
-              onPressed: () => Scaffold.of(context).openDrawer()),
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: Text('Tell me our Bug',
+              style: TextStyle(
+                  fontSize: 20.0,
+                  fontFamily: "NEXA",
+                  fontWeight: FontWeight.bold)),
+          leading: Builder(
+            builder: (context) => IconButton(
+                splashRadius: 30.0,
+                padding: EdgeInsets.all(0.0),
+                icon: SvgPicture.asset(
+                  'assets/icons/Drawer2.svg',
+                  height: 35.0,
+                ),
+                onPressed: () => Scaffold.of(context).openDrawer()),
+          ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: !showFab
-          ? FloatingActionButton.extended(
-              label: Text('Submit Request',
-                  style: TextStyle(color: Colors.white, fontSize: 18.0)),
-              onPressed: () {},
-            )
-          : null,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Spacer(),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 0.0),
-              width: size.width * .7,
-              height: size.height * .4,
-              alignment: Alignment.center,
-              child: SvgPicture.asset('assets/images/bugreport.svg'),
-            ),
-            Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 30.0, vertical: 10.0),
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(children: <TextSpan>[
-                    TextSpan(
-                        text: "Tell me",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline5
-                            .copyWith(color: Colors.white)),
-                    TextSpan(
-                        text: " OUR BUG ",
-                        style: Theme.of(context).textTheme.headline5.copyWith(
-                            color: Colors.orange, fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text: "and \n issues you are facing now",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline5
-                            .copyWith(color: Colors.white)),
-                  ]),
-                )),
-            Text(
-              "We will resolve it within 72 hrs.",
-              style: Theme.of(context).textTheme.subtitle1.copyWith(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: !showFab
+            ? FloatingActionButton.extended(
+                label: Text('Submit Request',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                      fontFamily: "NEXA",
+                    )),
+                onPressed: () {},
+              )
+            : null,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Spacer(),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 0.0),
+                width: size.width * .7,
+                height: size.height * .4,
+                alignment: Alignment.center,
+                child: SvgPicture.asset('assets/images/bugreport.svg'),
+              ),
+              Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 30.0, vertical: 10.0),
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(children: <TextSpan>[
+                      TextSpan(
+                          text: "Tell me",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline5
+                              .copyWith(color: Colors.white)),
+                      TextSpan(
+                          text: " OUR BUG ",
+                          style: Theme.of(context).textTheme.headline5.copyWith(
+                              color: Colors.orange,
+                              fontWeight: FontWeight.bold)),
+                      TextSpan(
+                          text: "and \n issues you are facing now",
+                          style: Theme.of(context).textTheme.headline5.copyWith(
+                                color: Colors.white,
+                                fontFamily: "NEXA",
+                              )),
+                    ]),
+                  )),
+              Text(
+                "We will resolve it within 72 hrs.",
+                style: Theme.of(context).textTheme.subtitle1.copyWith(
                     color: Color.fromARGB(255, 2, 198, 151),
+                    fontFamily: "NEXA",
+                    fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              Center(
+                child: Container(
+                  width: size.width * 0.9,
+                  height: 120.0,
+                  // margin: EdgeInsets.only(bottom: 10.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Color.fromARGB(255, 25, 27, 45),
                   ),
-            ),
-            SizedBox(
-              height: 20.0,
-            ),
-            Center(
-              child: Container(
-                width: size.width * 0.9,
-                height: 100.0,
-                // margin: EdgeInsets.only(bottom: 10.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.0),
-                  color: Color.fromARGB(255, 25, 27, 45),
-                ),
-                child: TextField(
-                  controller: textController,
-                  onSubmitted: (String value) async {
-                    if (value.isNotEmpty) {
-                      setState(() {
-                        // textController.clear();
-                      });
-                    }
-                  },
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.0,
-                  ),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
-                    focusedBorder: InputBorder.none,
-                    hintText: "Tell me our bugs and issues...",
-                    hintStyle: TextStyle(color: Colors.white24, fontSize: 16.0),
+                  child: TextField(
+                    controller: textController,
+                    onSubmitted: (String value) async {
+                      if (value.isNotEmpty) {
+                        setState(() {
+                          // textController.clear();
+                        });
+                      }
+                    },
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                    ),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+                      focusedBorder: InputBorder.none,
+                      hintText: "Tell me our bugs and issues...",
+                      hintStyle: TextStyle(
+                        color: Colors.white24,
+                        fontSize: 16.0,
+                        fontFamily: "NEXA",
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(
-              height: 10.0,
-            ),
-          ],
+              SizedBox(
+                height: 10.0,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: InkWell(
+            onTap: () {
+// checkCodeMethod();
+            },
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.blueAccent,
+                        Colors.blueAccent,
+                      ])),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Text(
+                      "Submit Request",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17.3,
+                          fontFamily: "NEXA",
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ));
   }
 }

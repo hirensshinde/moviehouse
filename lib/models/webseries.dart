@@ -51,7 +51,9 @@ class WebSeries {
       genreId: json['genere_id'],
       season: json['season'],
       genres: json['genere_name'],
-      language: json['language_name'] ?? ['No Language'],
+      language: (json['language_name'].runtimeType == String)
+          ? []
+          : json['language_name'],
     );
   }
 
