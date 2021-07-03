@@ -22,6 +22,7 @@ class _GenreScreenState extends State<GenreScreen> {
   List _results;
   bool isLoading = false;
   ScrollController _scrollController = ScrollController();
+  ScrollController _genreController = ScrollController();
   static int page = 1;
 
   @override
@@ -31,9 +32,10 @@ class _GenreScreenState extends State<GenreScreen> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
+        print("====>> >>>>> >>>>> >>>");
+        _populateAllResults(page);
         if (!isLoading) {
           isLoading = !isLoading;
-          _populateAllResults(page);
           print('Reached to end of the screen');
         }
       }
@@ -52,6 +54,7 @@ class _GenreScreenState extends State<GenreScreen> {
   void _populateAllResults(page) async {
     try {
       final results = await _fetchAllResults(page);
+      print(results.length);
 
       if (_results == null) {
         setState(() {
@@ -81,14 +84,20 @@ class _GenreScreenState extends State<GenreScreen> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
 
-      if (result["movie"].length > 0) {
-        List movies = result["movie"];
-        page++;
-        return movies.map((movie) => Movie.fromJson(movie)).toList();
-      } else if (result["web_series"].length > 0) {
-        List webSeries = result["web_series"];
-        page++;
-        return webSeries.map((series) => WebSeries.fromJson(series)).toList();
+      if (result['movie'].length > 0 && result['web_series'].length > 0) {
+        final movies = result['movie'];
+        final webseries = result['web_series'];
+        List moviesResult =
+            movies.map((movie) => Movie.fromJson(movie)).toList();
+        List seriesResult =
+            webseries.map((series) => WebSeries.fromJson(series)).toList();
+        return List.from(moviesResult)..addAll(seriesResult);
+      } else if (result['movie'].length > 0) {
+        final data = result['movie'];
+        return data.map((series) => Movie.fromJson(series)).toList();
+      } else if (result['web_series'].length > 0) {
+        final data = result['web_series'];
+        return data.map((series) => WebSeries.fromJson(series)).toList();
       } else {
         return [];
       }
@@ -129,18 +138,18 @@ class _GenreScreenState extends State<GenreScreen> {
         backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              // height: MediaQuery.of(context).size.height,
-              child: (!isLoading)
-                  ? ResultWidget(
-                      results: _results, controller: _scrollController)
-                  : CircularProgressIndicator(),
-            ),
+                padding: EdgeInsets.only(top: 10.0),
+                width: double.infinity,
+                // height: MediaQuery.of(context).size.height,
+                child: ResultWidget(
+                  results: _results,
+                  controller: _genreController,
+                )),
           ],
         ),
       ),

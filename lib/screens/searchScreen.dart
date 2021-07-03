@@ -22,6 +22,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List searchResult;
 
   List<Genre> _genres;
+  ScrollController _scrollController = ScrollController();
 
   TextEditingController textController = TextEditingController();
 
@@ -199,7 +200,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 ? (_results.isNotEmpty)
                     ? Container(
                         padding: EdgeInsets.only(top: 10.0),
-                        child: ResultWidget(results: _results),
+                        child: ResultWidget(
+                            results: _results, controller: _scrollController),
                       )
                     : Container(
                         height: MediaQuery.of(context).size.height,

@@ -6,7 +6,7 @@ import 'package:moviehouse/screens/seriesDetail.dart';
 
 class ResultWidget extends StatelessWidget {
   final List results;
-  final ScrollController controller;
+  ScrollController controller;
 
   ResultWidget({this.results, this.controller});
 
@@ -30,7 +30,7 @@ class ResultWidget extends StatelessWidget {
                     itemCount: results.length,
                     // physics: NeverScrollableScrollPhysics(),
                     controller: controller,
-                    cacheExtent: 20.0,
+                    // cacheExtent: 20.0,
                     // addRepaintBoundaries: ,
                     // addAutomaticKeepAlives: true,
                     gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
@@ -97,6 +97,9 @@ class ResultWidget extends StatelessWidget {
                                                       result.ratings.toString(),
                                                       style: TextStyle(
                                                         fontSize: 10.0,
+                                                        fontFamily: "NEXA",
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
                                                     )
                                                   ],
@@ -119,6 +122,8 @@ class ResultWidget extends StatelessWidget {
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 12.0,
+                                                fontFamily: "NEXA",
+                                                fontWeight: FontWeight.bold,
                                               ),
                                               textAlign: TextAlign.center),
                                           padding: EdgeInsets.all(5.0),
