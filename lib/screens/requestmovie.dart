@@ -1,23 +1,59 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moviehouse/screens/successScreen.dart';
+import 'package:http/http.dart' as http;
 
 class RequestMovie extends StatefulWidget {
+  final String apiKey;
+  RequestMovie({this.apiKey});
+
   @override
   _RequestMovieState createState() => _RequestMovieState();
 }
 
 class _RequestMovieState extends State<RequestMovie> {
   TextEditingController textController = TextEditingController();
-  List contents = [];
+  List<String> contents = [];
   ScrollController controller;
-  bool fabIsVisible = true;
+  // bool fabIsVisible = true;
+
+  Future<void> submitRequest() async {
+    String apiKey = widget.apiKey;
+    String values;
+    if (contents.isNotEmpty) {
+      values = contents.join(',');
+    }
+    var body = jsonEncode(<String, String>{
+      'message': values,
+    });
+
+    print(body);
+
+    http.Response response = await http.post(
+      Uri.parse('https://api.moviehouse.download/api/request?api_key=$apiKey'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      var result = jsonDecode(response.body);
+      print(result['message']);
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to submit request');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
-    final bool showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
+    // bool showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
 
     return Scaffold(
         // drawer: NavigationDrawerWidget(),
@@ -30,7 +66,7 @@ class _RequestMovieState extends State<RequestMovie> {
                 fontSize: 20.0,
                 fontFamily: "NEXA",
                 fontWeight: FontWeight.bold,
-                letterSpacing: -0.24,
+                // letterSpacing: -0.24,
               )),
           leading: IconButton(
             splashRadius: 25.0,
@@ -120,12 +156,12 @@ class _RequestMovieState extends State<RequestMovie> {
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
-                    return Center(
-                      child: Container(
-                        // width: MediaQuery.of(context).size.width * .9,
-                        height: 40.0,
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                        // color: Colors.grey[400],
+                    return Container(
+                      // width: MediaQuery.of(context).size.width * .9,
+                      height: 40.0,
+                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      // color: Colors.grey[400],
+                      child: Center(
                         child: ListTile(
                           title: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -137,18 +173,30 @@ class _RequestMovieState extends State<RequestMovie> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 18.0,
                                   )),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.close,
-                                  // size: 20.0,
-                                ),
-                                color: Colors.white,
-                                onPressed: () {
+                              GestureDetector(
+                                onTap: () {
                                   setState(() {
                                     contents.removeAt(index);
                                   });
                                 },
+                                child: SvgPicture.asset(
+                                  'assets/icons/Close2.svg',
+                                  height: 15.0,
+                                ),
                               ),
+
+                              // IconButton(
+                              //   icon: Icon(
+                              //     Icons.close,
+                              //     // size: 20.0,
+                              //   ),
+                              //   color: Colors.white,
+                              //   onPressed: () {
+                              //     setState(() {
+                              //       contents.removeAt(index);
+                              //     });
+                              //   },
+                              // ),
                             ],
                           ),
                           contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
@@ -165,7 +213,50 @@ class _RequestMovieState extends State<RequestMovie> {
           padding: const EdgeInsets.all(16.0),
           child: InkWell(
             onTap: () {
-// checkCodeMethod();
+              if (contents.length > 0) {
+                submitRequest();
+                setState(() {
+                  contents.clear();
+                });
+                BuildContext dialogContext;
+
+                showGeneralDialog(
+                  barrierColor: Colors.black.withOpacity(0.5),
+                  transitionBuilder: (context, a1, a2, widget) {
+                    dialogContext = context;
+                    return Transform.scale(
+                      scale: a1.value,
+                      child: Opacity(
+                          opacity: a1.value,
+                          child: AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 3,
+                            title: Center(child: CheckAnimation()),
+                            // contentPadding: EdgeInsets.only(top: 20.0),
+                            content: Text('Your request submitted successfully',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "NEXA",
+                                  fontWeight: FontWeight.bold,
+                                )),
+                            backgroundColor: Color.fromARGB(255, 25, 27, 45),
+                          )),
+                    );
+                  },
+                  transitionDuration: Duration(milliseconds: 300),
+                  barrierDismissible: true,
+                  barrierLabel: '',
+                  context: context,
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation) {},
+                );
+                Future.delayed(
+                    Duration(seconds: 3), () => Navigator.pop(dialogContext));
+              }
             },
             child: Container(
               height: 60,

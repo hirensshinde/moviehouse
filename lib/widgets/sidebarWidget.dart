@@ -44,7 +44,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
       child: Drawer(
         elevation: 5.0,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 30.0),
+          padding: EdgeInsets.only(top: 40.0),
           height: MediaQuery.of(context).size.height,
           color: Color.fromARGB(255, 25, 27, 45),
           child: Column(
@@ -57,93 +57,103 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               ),
               SizedBox(height: 10.0),
               Expanded(
-                child: Container(
-                  padding: NavigationDrawerWidget.padding,
-                  // height: double.infinity,
-                  child: Column(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Divider(color: Colors.white70),
-                      SizedBox(height: 20.0),
-                      buildMenuItem(
-                        context,
-                        item: NavigationItem.home,
-                        text: "Home",
-                        icon: Icons.subscriptions,
-                      ),
-                      // SizedBox(height: 18.0),
-                      // buildMenuItem(
-                      //   context,
-                      //   item: NavigationItem.subscription,
-                      //   text: "Subscription",
-                      //   icon: Icons.subscriptions,
-                      // ),
-                      SizedBox(height: 18.0),
-                      buildMenuItem(
-                        context,
-                        item: NavigationItem.savedContent,
-                        text: "Saved Content",
-                        icon: Icons.favorite,
-                      ),
-                      SizedBox(height: 18.0),
+                child: Column(
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Divider(color: Colors.white70),
+                    SizedBox(height: 20.0),
+                    buildMenuItem(
+                      context,
+                      item: NavigationItem.home,
+                      text: "Home",
+                      icon: Icons.subscriptions,
+                    ),
+                    // SizedBox(height: 18.0),
+                    // buildMenuItem(
+                    //   context,
+                    //   item: NavigationItem.subscription,
+                    //   text: "Subscription",
+                    //   icon: Icons.subscriptions,
+                    // ),
+                    SizedBox(height: 18.0),
+                    buildMenuItem(
+                      context,
+                      item: NavigationItem.savedContent,
+                      text: "Saved Content",
+                      icon: Icons.favorite,
+                    ),
+                    SizedBox(height: 18.0),
 
-                      buildMenuItem(
-                        context,
-                        item: NavigationItem.updates,
-                        text: "Updates",
-                        icon: Icons.update,
-                      ),
-                      SizedBox(height: 18.0),
+                    buildMenuItem(
+                      context,
+                      item: NavigationItem.updates,
+                      text: "Updates",
+                      icon: Icons.update,
+                    ),
+                    SizedBox(height: 18.0),
 
-                      buildMenuItem(
-                        context,
-                        item: NavigationItem.bugreport,
-                        text: "Report a bug",
-                        icon: Icons.update,
-                      ),
-                      SizedBox(height: 24.0),
+                    buildMenuItem(
+                      context,
+                      item: NavigationItem.bugreport,
+                      text: "Report a bug",
+                      icon: Icons.update,
+                    ),
+                    SizedBox(height: 24.0),
 
-                      Divider(
-                        color: Colors.white70,
-                      ),
-                      SizedBox(height: 15.0),
-                      Material(
-                        color: Colors.transparent,
-                        child: ListTile(
-                          leading: Icon(Icons.logout, color: Colors.white),
-                          title: Text(
-                            'Logout',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                            ),
-                          ),
-                          onTap: () {
-                            final provider = Provider.of<GoogleSignInProvider>(
-                                context,
-                                listen: false);
-                            provider.logout();
-                          },
-                        ),
-                      ),
-
-                      // SizedBox(height: 18.0),
-                      Expanded(
-                          child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Text(
-                            "Version: $_currentVersion",
-                            style:
-                                TextStyle(color: Colors.grey, fontSize: 15.0),
-                          ),
-                        ),
-                      )),
-                    ],
-                  ),
+                    // SizedBox(height: 18.0),
+                  ],
                 ),
               ),
+              Column(
+                children: [
+                  Divider(
+                    color: Colors.white70,
+                  ),
+                  SizedBox(height: 15.0),
+                  Material(
+                    color: Colors.transparent,
+                    child: ListTile(
+                      leading: Icon(Icons.logout, color: Colors.white),
+                      title: Text(
+                        'Logout',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.0,
+                          fontFamily: "NEXA",
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onTap: () {
+                        final provider = Provider.of<GoogleSignInProvider>(
+                            context,
+                            listen: false);
+                        provider.logout();
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
+                  Container(
+                    height: 50.0,
+                    padding: EdgeInsets.only(bottom: 20.0),
+                    child: Column(
+                      children: [
+                        Expanded(
+                            child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Text(
+                            "Version: $_currentVersion",
+                            style: TextStyle(
+                                color: Colors.grey,
+                                fontFamily: "NEXA",
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15.0),
+                          ),
+                        )),
+                      ],
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -173,6 +183,8 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
           style: TextStyle(
             color: color,
             fontSize: 16.0,
+            fontFamily: "NEXA",
+            fontWeight: FontWeight.bold,
           ),
         ),
         onTap: () => selectedItem(context, item),
@@ -206,13 +218,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                   style: TextStyle(
                       fontSize: 16.0,
                       color: Colors.white70,
+                      fontFamily: "NEXA",
                       fontWeight: FontWeight.bold),
                 ),
                 SizedBox(
                   height: 10.0,
                 ),
                 Text(userEmail,
-                    style: TextStyle(fontSize: 14.0, color: Colors.white70))
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.white70,
+                      fontFamily: "NEXA",
+                      fontWeight: FontWeight.bold,
+                    ))
               ],
             ),
           ],

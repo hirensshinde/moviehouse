@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:moviehouse/provider/navigationProvider.dart';
@@ -11,12 +14,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await MobileAds.instance.initialize();
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
 
-  runApp(MyApp());
+  runZonedGuarded<Future<void>>(() async {
+    // Overriding all Flutter uncaught errors to Firebase Crashlytics Errors
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
+    runApp(MyApp());
+  }, FirebaseCrashlytics.instance.recordError);
 }
 
 class MyApp extends StatelessWidget {
-  
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {

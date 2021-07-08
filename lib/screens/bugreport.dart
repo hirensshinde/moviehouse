@@ -1,8 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moviehouse/screens/successScreen.dart';
 import 'package:moviehouse/widgets/sidebarWidget.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BugReport extends StatefulWidget {
+  final String apiKey;
+
+  BugReport({this.apiKey});
+
   @override
   _BugReportState createState() => _BugReportState();
 }
@@ -10,11 +19,30 @@ class BugReport extends StatefulWidget {
 class _BugReportState extends State<BugReport> {
   TextEditingController textController = TextEditingController();
 
+  String report;
+  BuildContext dialogContext;
+
+  Future reportBug() async {
+    print(report);
+    http.Response response = await http.get(Uri.parse(
+        'https://api.moviehouse.download/api/feedback?api_key=${widget.apiKey}&message=$report'));
+
+    if (response.statusCode == 200) {
+      print(jsonDecode(response.body)['message']);
+    }
+  }
+
+  // bool _keyboardIsVisible() {
+  //   var currentScreenSize = getSafeAreaSize(MediaQuery.of(context));
+  //   return widget.sizeOfParentWidget.height < currentScreenSize.height;
+  // }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
     final bool showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
+    print("===============>>>>${MediaQuery.of(context).viewInsets.bottom}");
 
     return Scaffold(
         drawer: NavigationDrawerWidget(),
@@ -37,18 +65,20 @@ class _BugReportState extends State<BugReport> {
                 onPressed: () => Scaffold.of(context).openDrawer()),
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: !showFab
-            ? FloatingActionButton.extended(
-                label: Text('Submit Request',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0,
-                      fontFamily: "NEXA",
-                    )),
-                onPressed: () {},
-              )
-            : null,
+        // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        // floatingActionButton: !showFab
+        //     ? FloatingActionButton.extended(
+        //         label: Text('Submit Request',
+        //             style: TextStyle(
+        //               color: Colors.white,
+        //               fontSize: 18.0,
+        //               fontFamily: "NEXA",
+        //             )),
+        //         onPressed: () {
+
+        //         },
+        //       )
+        //     : null,
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -106,10 +136,20 @@ class _BugReportState extends State<BugReport> {
                   ),
                   child: TextField(
                     controller: textController,
-                    onSubmitted: (String value) async {
+                    onChanged: (String value) async {
+                      print(MediaQuery.of(context).size.height);
                       if (value.isNotEmpty) {
                         setState(() {
-                          // textController.clear();
+                          report = value;
+                        });
+                      }
+                    },
+                    onSubmitted: (String value) async {
+                      print(MediaQuery.of(context).size.height);
+
+                      if (value.isNotEmpty) {
+                        setState(() {
+                          report = value;
                         });
                       }
                     },
@@ -131,9 +171,9 @@ class _BugReportState extends State<BugReport> {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 10.0,
-              ),
+              // SizedBox(
+              //   height: 80.0,
+              // ),
             ],
           ),
         ),
@@ -141,7 +181,48 @@ class _BugReportState extends State<BugReport> {
           padding: const EdgeInsets.all(16.0),
           child: InkWell(
             onTap: () {
-// checkCodeMethod();
+              print(MediaQuery.of(context).padding.top);
+              print(MediaQuery.of(context).padding.bottom);
+              if (textController.text.isNotEmpty) {
+                reportBug();
+                textController.clear();
+                showGeneralDialog(
+                  barrierColor: Colors.black.withOpacity(0.5),
+                  transitionBuilder: (context, a1, a2, widget) {
+                    dialogContext = context;
+                    return Transform.scale(
+                      scale: a1.value,
+                      child: Opacity(
+                          opacity: a1.value,
+                          child: AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 3,
+                            title: Center(child: CheckAnimation()),
+                            // contentPadding: EdgeInsets.only(top: 20.0),
+                            content: Text('Your request submitted successfully',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "NEXA",
+                                  fontWeight: FontWeight.bold,
+                                )),
+                            backgroundColor: Color.fromARGB(255, 25, 27, 45),
+                          )),
+                    );
+                  },
+                  transitionDuration: Duration(milliseconds: 300),
+                  barrierDismissible: true,
+                  barrierLabel: '',
+                  context: context,
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation) {},
+                );
+                Future.delayed(
+                    Duration(seconds: 3), () => Navigator.pop(dialogContext));
+              }
             },
             child: Container(
               height: 60,

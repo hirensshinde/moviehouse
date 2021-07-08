@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moviehouse/models/banners.dart';
+// import 'package:moviehouse/models/banners.dart';
 import 'package:moviehouse/models/categories.dart';
 import 'package:http/http.dart' as http;
 import 'package:moviehouse/models/homeCategories.dart';
@@ -17,6 +17,10 @@ import 'package:moviehouse/screens/seriesDetail.dart';
 import 'package:moviehouse/widgets/sidebarWidget.dart';
 
 class HomeScreen extends StatefulWidget {
+  final String apiKey;
+
+  const HomeScreen({this.apiKey});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -32,6 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List _categoryBanners;
   int _current;
   List<HomeCategories> _homeCategories;
+  // String imagePath = "https://moviehousebucket.s3.amazonaws.com/public/images/";
+  String imagePath = "https://ik.imagekit.io/vwvj9cugtq1/";
 
   @override
   void initState() {
@@ -61,17 +67,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<List<Banners>> getBanner() async {
-    final apikey = "45293422347apQ8ob9hR9ITXS6YikayOc5iA2";
-    final url = Uri.parse(
-        "https://api.moviehouse.download/api/banners?api_key=${apikey}");
+  Future<List> getBanner() async {
+    final url = Uri.parse("https://api.moviehouse.download/api/banners/home");
     final response = await http.get(url);
-    List banners;
+
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
-      if (result.length > 0) {
-        banners = result['data'];
-        return banners.map((banner) => Banners.fromJson(banner)).toList();
+      var data = result['data'];
+      if (data.length > 0) {
+        List modelList = await data
+            .map((banner) => (banner['type'] == 'movie')
+                ? Movie.fromJson(banner)
+                : WebSeries.fromJson(banner))
+            .toList();
+        // print("Received Model list ==> $modelList");
+        return modelList;
       }
     }
     return [];
@@ -85,7 +95,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       List data = result['data'];
-      print('Printed Result ===>>> $data');
       return data.map((category) => HomeCategories.fromJson(category)).toList();
     }
     return null;
@@ -184,27 +193,30 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _onScrollEvent() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _populateCategoryListing(selectedCategoryId);
+
+      print('==>Called Second time');
+
+      // print(_results);
+      print(page);
+    }
+  }
+
   // Pagination on Scroll Movie Series Listing on Categories
-  void _populateListings(int id) async {
+  void _populateListings(id) async {
     print('==>Called First time');
     _populateCategoryListing(id);
     // _categoryBanners = await getCategoryBanners(id);
+    _scrollController.addListener(_onScrollEvent);
+  }
 
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        // if (!isLoading) {
-        //   isLoading = !isLoading;
-        // // }
-        // setState(() {
-        //   isBottomReached = true;
-        // });
-        _populateCategoryListing(id);
-        print('==>Called Second time');
-        // print(_results);
-        print(page);
-      }
-    });
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
   }
 
   // Banners for All Category Function
@@ -218,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Color.fromARGB(255, 25, 27, 45),
         leading: Builder(
           builder: (context) => IconButton(
-              splashRadius: 30.0,
+              splashRadius: 25.0,
               padding: EdgeInsets.all(0.0),
               icon: SvgPicture.asset(
                 'assets/icons/Drawer2.svg',
@@ -241,8 +253,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
             child: ElevatedButton(
                 onPressed: () {
-                  return Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => RequestMovie()));
+                  return Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              RequestMovie(apiKey: widget.apiKey)));
                 },
                 style: ElevatedButton.styleFrom(
                   padding:
@@ -281,6 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             page = 1;
                             _results = [];
                             _categoryBanners = [];
+                            _scrollController.removeListener(_onScrollEvent);
                             setState(() {
                               selectedIndex = index;
                             });
@@ -288,8 +304,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               _populateAllCategories();
                               // _scrollController.dispose();
                             } else {
-                              _populateListings(_categories[index].id);
-                              selectedCategoryId = _categories[index].id;
+                              setState(() {
+                                selectedCategoryId = _categories[index].id;
+                              });
+                              _populateListings(selectedCategoryId);
                             }
                           },
                           child: Container(
@@ -368,160 +386,130 @@ class _HomeScreenState extends State<HomeScreen> {
       expandedHeight: 200.0,
       backgroundColor: Colors.black,
       flexibleSpace: FlexibleSpaceBar(
-        background: Column(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height * .30,
-              child: FutureBuilder(
-                  future: selectedIndex == 0
-                      ? getBanner()
-                      : getCategoryBanners(selectedCategoryId),
-                  initialData: [],
-                  builder: (context, AsyncSnapshot snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return Center(child: CircularProgressIndicator());
-                      default:
-                        return (snapshot.hasData)
-                            ? CarouselSlider.builder(
-                                itemCount: (snapshot.hasData == null)
-                                    ? 0
-                                    : snapshot.data.length,
-                                options: CarouselOptions(
-                                  autoPlay: true,
-                                  height:
-                                      MediaQuery.of(context).size.height * .35,
-                                  viewportFraction: 1.0,
-                                  disableCenter: true,
-                                  autoPlayInterval: Duration(seconds: 10),
-                                  autoPlayCurve: Curves.easeInOut,
-                                  initialPage: 0,
-                                  onPageChanged: (index, _) {
-                                    _current = index;
-                                  },
-                                  autoPlayAnimationDuration:
-                                      Duration(milliseconds: 800),
-                                  scrollDirection: Axis.horizontal,
+        background: Container(
+          height: 200.0,
+          width: MediaQuery.of(context).size.width,
+          child: FutureBuilder(
+            future: selectedIndex == 0
+                ? getBanner()
+                : getCategoryBanners(selectedCategoryId),
+            initialData: [],
+            builder: (context, AsyncSnapshot snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.done:
+                  return (snapshot.hasData)
+                      ? CarouselSlider.builder(
+                          itemCount: snapshot.data.length,
+                          options: CarouselOptions(
+                            autoPlay: true,
+                            // height:
+                            //     MediaQuery.of(context).size.height * .30,
+                            viewportFraction: 1.0,
+                            disableCenter: true,
+                            autoPlayInterval: Duration(seconds: 5),
+                            autoPlayCurve: Curves.easeInOut,
+                            initialPage: 0,
+                            onPageChanged: (index, _) {
+                              // setState(() {
+                              //   _cur`re`nt = index;
+                              // });
+                            },
+                            autoPlayAnimationDuration:
+                                Duration(milliseconds: 800),
+                            scrollDirection: Axis.horizontal,
+                          ),
+                          itemBuilder: (BuildContext context, int index,
+                                  int pageItemIndex) =>
+                              CachedNetworkImage(
+                            imageUrl: (!snapshot.hasData)
+                                ? 'https://via.placeholder.com/600x350.png?text=No+Preview+available'
+                                : imagePath + snapshot.data[index].banner,
+                            imageBuilder: (context, imageProvider) =>
+                                GestureDetector(
+                              onTap: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return (snapshot.data[index].type == 'movie')
+                                      ? MovieDetail(
+                                          movie: snapshot.data[index],
+                                          apiKey: widget.apiKey)
+                                      : SeriesDetail(
+                                          series: snapshot.data[index],
+                                          apiKey: widget.apiKey);
+                                }));
+                              },
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                // height: MediaQuery.of(context)
+                                //         .size
+                                //         .height *
+                                //     .35,
+                                margin: EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  image: DecorationImage(
+                                    image: imageProvider,
+
+                                    fit: BoxFit.fill,
+
+                                    // alignment: Alignment.topLeft,
+                                  ),
                                 ),
-                                itemBuilder: (BuildContext context, int index,
-                                        int pageItemIndex) =>
-                                    CachedNetworkImage(
-                                      imageUrl: (snapshot.hasData == null)
-                                          ? 'https://via.placeholder.com/600x350.png?text=No+Preview+available'
-                                          : 'https://api.moviehouse.download/admin/movie/image/' +
-                                              snapshot.data[index].banner,
-                                      imageBuilder: (context, imageProvider) =>
-                                          GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      (snapshot.data[index]
-                                                                  .type ==
-                                                              'movie')
-                                                          ? MovieDetail(
-                                                              movie: snapshot
-                                                                  .data[index])
-                                                          : SeriesDetail(
-                                                              series:
-                                                                  snapshot.data[
-                                                                      index])));
-                                        },
-                                        child: Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              .5,
-                                          margin: EdgeInsets.all(10.0),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            image: DecorationImage(
-                                              image: imageProvider,
+                              ),
+                            ),
+                            // placeholder: (context, url) => Center(
+                            //     child: CircularProgressIndicator()),
+                          ),
+                        )
+                      : CarouselSlider.builder(
+                          itemCount: 1,
+                          options: CarouselOptions(
+                            autoPlay: true,
+                            // height:
+                            //     MediaQuery.of(context).size.height * .35,
+                            viewportFraction: 1.0,
+                            disableCenter: true,
+                            autoPlayInterval: Duration(seconds: 10),
+                            autoPlayCurve: Curves.easeInOut,
+                            initialPage: 0,
+                            onPageChanged: (index, _) {
+                              _current = index;
+                            },
+                            autoPlayAnimationDuration:
+                                Duration(milliseconds: 800),
+                            scrollDirection: Axis.horizontal,
+                          ),
+                          itemBuilder: (BuildContext context, int index,
+                                  int pageItemIndex) =>
+                              CachedNetworkImage(
+                            imageUrl:
+                                'https://via.placeholder.com/600x350.png?text=No+Preview+available',
+                            imageBuilder: (context, imageProvider) => Container(
+                              width: MediaQuery.of(context).size.width,
+                              // height:
+                              //     MediaQuery.of(context).size.height *
+                              //         .5,
+                              margin: EdgeInsets.all(10.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                image: DecorationImage(
+                                  image: imageProvider,
 
-                                              fit: BoxFit.fill,
+                                  fit: BoxFit.fill,
 
-                                              // alignment: Alignment.topLeft,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      // placeholder: (context, url) => Center(
-                                      //     child: CircularProgressIndicator()),
-                                    ))
-                            : CarouselSlider.builder(
-                                itemCount: 3,
-                                options: CarouselOptions(
-                                  autoPlay: true,
-                                  height:
-                                      MediaQuery.of(context).size.height * .35,
-                                  viewportFraction: 1.0,
-                                  disableCenter: true,
-                                  autoPlayInterval: Duration(seconds: 10),
-                                  autoPlayCurve: Curves.easeInOut,
-                                  initialPage: 0,
-                                  onPageChanged: (index, _) {
-                                    _current = index;
-                                  },
-                                  autoPlayAnimationDuration:
-                                      Duration(milliseconds: 800),
-                                  scrollDirection: Axis.horizontal,
+                                  // alignment: Alignment.topLeft,
                                 ),
-                                itemBuilder: (BuildContext context, int index,
-                                        int pageItemIndex) =>
-                                    CachedNetworkImage(
-                                      imageUrl:
-                                          'https://via.placeholder.com/600x350.png?text=No+Preview+available',
-                                      imageBuilder: (context, imageProvider) =>
-                                          Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                .5,
-                                        margin: EdgeInsets.all(10.0),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                          image: DecorationImage(
-                                            image: imageProvider,
-
-                                            fit: BoxFit.fill,
-
-                                            // alignment: Alignment.topLeft,
-                                          ),
-                                        ),
-                                      ),
-                                      placeholder: (context, url) => Center(
-                                          child: CircularProgressIndicator()),
-                                    ));
-                    }
-                  }),
-            ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: (selectedCategoryId == 0 ) ? _categoryBanners.map(
-            //     (image) {
-            //       //these two lines
-            //       int index = _categoryBanners.indexOf(image); //are changed
-            //       return Container(
-            //         width: 5.0,
-            //         height: 5.0,
-            //         margin:
-            //             EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
-            //         decoration: BoxDecoration(
-            //             shape: BoxShape.circle,
-            //             color: _current == index
-            //                 ? Color.fromRGBO(255, 255, 255, 0.9)
-            //                 : Color.fromRGBO(255, 255, 255, 0.6)),
-            //       );
-            //     },
-            //   ).toList(),
-            // ),
-          ],
+                              ),
+                            ),
+                            placeholder: (context, url) =>
+                                Center(child: CircularProgressIndicator()),
+                          ),
+                        );
+                default:
+                  return Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
         ),
       ),
     );
@@ -552,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 10.0,
                 ),
                 Container(
-                  height: 150.0,
+                  height: 160.0,
                   child: ListView.builder(
                     itemCount: category.contents.length,
                     // shrinkWrap: true,
@@ -566,19 +554,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(builder: (context) {
                               return (category.contents[index].type == "movie")
-                                  ? MovieDetail(movie: result)
-                                  : SeriesDetail(series: result);
+                                  ? MovieDetail(
+                                      movie: result, apiKey: widget.apiKey)
+                                  : SeriesDetail(
+                                      series: result, apiKey: widget.apiKey);
                             }),
                           );
                         },
                         child: CachedNetworkImage(
                           placeholderFadeInDuration:
                               Duration(milliseconds: 500),
-                          imageUrl:
-                              'https://api.moviehouse.download/admin/movie/image/' +
-                                  result.poster,
+                          imageUrl: imagePath + result.poster,
                           imageBuilder: (context, imageProvider) => Container(
-                            width: 110.0,
+                            width: MediaQuery.of(context).size.width * 0.29,
                             // height: 130.0,
                             margin: EdgeInsets.only(
                                 left: (index == 0) ? 10.0 : 8.0),
@@ -621,7 +609,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   bottom: 0,
                                   child: Container(
                                     width: MediaQuery.of(context).size.width *
-                                        0.33,
+                                        0.29,
                                     color: Colors.black87,
                                     child: Text(result.title,
                                         style: TextStyle(
@@ -638,7 +626,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           placeholder: (context, url) => Container(
-                            width: 110,
+                            width: MediaQuery.of(context).size.width * 0.29,
                             // height: 140,
                             margin: EdgeInsets.only(
                                 left: (index == 0) ? 10.0 : 8.0),
@@ -657,7 +645,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   bottom: 0,
                                   child: Container(
                                     width: MediaQuery.of(context).size.width *
-                                        0.33,
+                                        0.29,
                                     color: Colors.black87,
                                     child: Text(result.title,
                                         style: TextStyle(
@@ -674,7 +662,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           errorWidget: (context, url, error) => Container(
-                            width: 110,
+                            width: MediaQuery.of(context).size.width * 0.29,
                             // height: 140,
                             margin: EdgeInsets.only(
                                 left: (index == 0) ? 10.0 : 8.0),
@@ -713,7 +701,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   bottom: 0,
                                   child: Container(
                                     width: MediaQuery.of(context).size.width *
-                                        0.30,
+                                        0.29,
                                     color: Colors.black87,
                                     child: Text(result.title,
                                         style: TextStyle(
@@ -749,177 +737,187 @@ class _HomeScreenState extends State<HomeScreen> {
     var size = MediaQuery.of(context).size;
 
     if ((_results != null)) {
-      return SliverGrid.count(
-          crossAxisCount: 3,
-          mainAxisSpacing: 10.0,
-          crossAxisSpacing: 5.0,
-          // mainAxisExtent: 150.0,
-          childAspectRatio: size.width / (size.height / 1.5),
-          children: _results
-              .map<Widget>(
-                (result) => Container(
-                  child: GestureDetector(
-                    onTap: () {
-                      return Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => (result.type == 'movie')
-                              ? MovieDetail(movie: result)
-                              : SeriesDetail(series: result),
-                        ),
-                      );
-                    },
-                    child: CachedNetworkImage(
-                      placeholderFadeInDuration: Duration(milliseconds: 500),
-                      imageUrl:
-                          'https://api.moviehouse.download/admin/movie/image/' +
-                              result.poster,
-                      imageBuilder: (context, imageProvider) => Container(
-                        width: MediaQuery.of(context).size.width * 0.30,
-                        height: 150,
-                        alignment: Alignment.topRight,
-                        decoration: BoxDecoration(
-                          // shape: BoxShape.circle,
-                          borderRadius: BorderRadius.circular(10.0),
-                          image: DecorationImage(
-                              image: imageProvider, fit: BoxFit.fill),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              top: 2.0,
-                              right: 0.0,
-                              child: (result.ratings != null)
-                                  ? Container(
-                                      margin: EdgeInsets.only(top: 10.0),
-                                      color: Colors.yellow,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.star, size: 12.0),
-                                          Text(
-                                            result.ratings.toString(),
-                                            style: TextStyle(
-                                              fontSize: 10.0,
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 2.0, vertical: 1.0),
-                                    )
-                                  : Container(),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              child: Container(
-                                width: MediaQuery.of(context).size.width * 0.33,
-                                color: Colors.black87,
-                                child: Text(result.title,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12.0,
-                                      fontFamily: 'NEXA',
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center),
-                                padding: EdgeInsets.all(5.0),
+      return SliverPadding(
+        padding: EdgeInsets.all(10.0),
+        sliver: SliverGrid.count(
+            crossAxisCount: 3,
+            mainAxisSpacing: 10.0,
+            crossAxisSpacing: 5.0,
+            // mainAxisExtent: 150.0,
+            childAspectRatio: size.width / (size.height / 1.5),
+            children: _results
+                .map<Widget>(
+                  (result) => Container(
+                    child: GestureDetector(
+                      onTap: () {
+                        return Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => (result.type == 'movie')
+                                ? MovieDetail(
+                                    movie: result, apiKey: widget.apiKey)
+                                : SeriesDetail(
+                                    series: result, apiKey: widget.apiKey),
+                          ),
+                        );
+                      },
+                      child: CachedNetworkImage(
+                        filterQuality: FilterQuality.low,
+                        placeholderFadeInDuration: Duration(milliseconds: 500),
+                        imageUrl: imagePath + result.poster,
+                        imageBuilder: (context, imageProvider) => Container(
+                          width: MediaQuery.of(context).size.width * 0.30,
+                          height: 150,
+                          alignment: Alignment.topRight,
+                          decoration: BoxDecoration(
+                            // shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(10.0),
+                            image: DecorationImage(
+                                image: imageProvider, fit: BoxFit.fill),
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                top: 2.0,
+                                right: 0.0,
+                                child: (result.ratings != null)
+                                    ? Container(
+                                        margin: EdgeInsets.only(top: 10.0),
+                                        color: Colors.yellow,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.star, size: 12.0),
+                                            Text(
+                                              result.ratings.toString(),
+                                              style: TextStyle(
+                                                fontSize: 10.0,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 2.0, vertical: 1.0),
+                                      )
+                                    : Container(),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      placeholder: (context, url) => Container(
-                        width: MediaQuery.of(context).size.width * 0.30,
-                        height: 150,
-                        alignment: Alignment.topRight,
-                        decoration: BoxDecoration(
-                          // shape: BoxShape.circle,
-                          borderRadius: BorderRadius.circular(10.0),
-                          image: DecorationImage(
-                              image: AssetImage(
-                                  'assets/images/poster_placeholder.png'),
-                              fit: BoxFit.fill),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              bottom: 0,
-                              child: Container(
-                                width: MediaQuery.of(context).size.width * 0.33,
-                                color: Colors.black87,
-                                child: Text(result.title,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12.0,
-                                      fontFamily: 'NEXA',
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center),
-                                padding: EdgeInsets.all(5.0),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        width: MediaQuery.of(context).size.width * 0.30,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          // shape: BoxShape.circle,
-                          borderRadius: BorderRadius.circular(10.0),
-                          image: DecorationImage(
-                              image: AssetImage('assets/images/nopreview.jpg'),
-                              fit: BoxFit.fill),
-                        ),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              top: 2.0,
-                              right: 0.0,
-                              child: Container(
-                                margin: EdgeInsets.only(top: 10.0),
-                                color: Colors.yellow,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.star, size: 14.0),
-                                    Text(
-                                      '7.8 ',
-                                      style: TextStyle(
-                                        fontSize: 10.0,
-                                        fontFamily: 'NEXA',
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              child: Row(children: [
-                                Container(
-                                  // width: MediaQuery.of(context).size.width * 0.33,
-                                  color: Colors.lightBlue,
+                              Positioned(
+                                bottom: 0,
+                                child: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.33,
+                                  color: Colors.black87,
                                   child: Text(result.title,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 12.0,
+                                        fontFamily: 'NEXA',
+                                        fontWeight: FontWeight.bold,
                                       ),
                                       textAlign: TextAlign.center),
                                   padding: EdgeInsets.all(5.0),
                                 ),
-                              ]),
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        placeholder: (context, url) => Container(
+                          width: MediaQuery.of(context).size.width * 0.30,
+                          height: 150,
+                          alignment: Alignment.topRight,
+                          decoration: BoxDecoration(
+                            // shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(10.0),
+                            image: DecorationImage(
+                                image: AssetImage(
+                                    'assets/images/poster_placeholder.png'),
+                                fit: BoxFit.fill),
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                bottom: 0,
+                                child: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.33,
+                                  color: Colors.black87,
+                                  child: Text(result.title,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.0,
+                                        fontFamily: 'NEXA',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center),
+                                  padding: EdgeInsets.all(5.0),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          width: MediaQuery.of(context).size.width * 0.30,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            // shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(10.0),
+                            image: DecorationImage(
+                                image:
+                                    AssetImage('assets/images/nopreview.jpg'),
+                                fit: BoxFit.fill),
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                top: 2.0,
+                                right: 0.0,
+                                child: (result.ratings != null)
+                                    ? Container(
+                                        margin: EdgeInsets.only(top: 10.0),
+                                        color: Colors.yellow,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.star, size: 12.0),
+                                            Text(
+                                              result.ratings.toString(),
+                                              style: TextStyle(
+                                                fontSize: 10.0,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 2.0, vertical: 1.0),
+                                      )
+                                    : Container(),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                child: Row(children: [
+                                  Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.33,
+                                    color: Colors.white,
+                                    child: Text(result.title,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12.0,
+                                        ),
+                                        textAlign: TextAlign.center),
+                                    padding: EdgeInsets.all(5.0),
+                                  ),
+                                ]),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              )
-              .toList());
+                )
+                .toList()),
+      );
     } else {
       return SliverToBoxAdapter(
           child: Center(child: CircularProgressIndicator()));

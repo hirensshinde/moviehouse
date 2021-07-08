@@ -118,7 +118,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
         backgroundColor: Color.fromARGB(255, 25, 27, 45),
         leading: Builder(
           builder: (context) => IconButton(
-              splashRadius: 30.0,
+              splashRadius: 25.0,
               padding: EdgeInsets.all(0.0),
               icon: SvgPicture.asset(
                 'assets/icons/Drawer2.svg',

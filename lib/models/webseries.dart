@@ -6,6 +6,7 @@ class WebSeries {
   String poster;
   String banner;
   String type;
+  String size;
   dynamic ratings;
   int featured;
   int year;
@@ -20,6 +21,7 @@ class WebSeries {
       this.categoryId,
       this.genreId,
       this.poster,
+      this.size,
       this.banner,
       this.type,
       this.ratings,
@@ -45,12 +47,15 @@ class WebSeries {
       // downloadCount: json['download'],
       featured: json['featured'],
       ratings: json['rating'],
+      size: json['size'] ?? '',
       year: json['year'],
       type: json['type'],
       categoryId: json['category_id'],
       genreId: json['genere_id'],
       season: json['season'],
-      genres: json['genere_name'],
+      genres: (json['genere_name'].runtimeType == String)
+          ? []
+          : json['genere_name'],
       language: (json['language_name'].runtimeType == String)
           ? []
           : json['language_name'],

@@ -1,23 +1,48 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:moviehouse/models/navigation_item.dart';
 import 'package:moviehouse/provider/google_sign_in.dart';
 import 'package:moviehouse/provider/navigationProvider.dart';
 import 'package:moviehouse/screens/bugreport.dart';
-import 'package:moviehouse/screens/categoryScreen.dart';
-// import 'package:moviehouse/screens/category_copy.dart';
-import 'package:moviehouse/screens/homescreen.dart';
+import 'package:moviehouse/screens/homeScreen.dart';
 import 'package:moviehouse/screens/savedContentScreen.dart';
 import 'package:moviehouse/screens/searchScreen.dart';
 import 'package:moviehouse/screens/subscriptionScreen.dart';
-// import 'package:moviehouse/screens/subscriptionScreen.dart';
 import 'package:moviehouse/screens/updateScreen.dart';
 import 'package:moviehouse/widgets/signUpWidget.dart';
 import 'package:moviehouse/widgets/updateWidget.dart';
 
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  String apiKey;
+
+  Future<void> generateApiKey() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user.uid;
+
+    http.Response response = await http.get(Uri.parse(
+        'https://api.moviehouse.download/api/key/genrate?uid=$userId'));
+
+    if (response.statusCode == 200) {
+      var results = jsonDecode(response.body);
+
+      apiKey = results['api_key'];
+
+      print("APIKEY Generated Succesfully: $apiKey");
+    } else {
+      throw Exception('Failed with exception');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,6 +54,7 @@ class LoginScreen extends StatelessWidget {
             builder: (context, snapshot) {
               final provider = Provider.of<GoogleSignInProvider>(context);
               if (provider.isSigningIn) {
+                generateApiKey();
                 return buildLoading();
               } else if (snapshot.hasData) {
                 return buildPages(context);
@@ -46,9 +72,11 @@ class LoginScreen extends StatelessWidget {
     final provider = Provider.of<NavigationProvider>(context);
     final navigationItem = provider.navigationItem;
 
+    print(apiKey);
+
     switch (navigationItem) {
       case NavigationItem.home:
-        return UpdateApp(child: HomeScreen());
+        return UpdateApp(child: HomeScreen(apiKey: apiKey));
 
       case NavigationItem.subscription:
         return SubscriptionScreen();
@@ -57,7 +85,7 @@ class LoginScreen extends StatelessWidget {
       case NavigationItem.updates:
         return UpdateScreen();
       case NavigationItem.bugreport:
-        return BugReport();
+        return BugReport(apiKey: apiKey);
       default:
         return SearchScreen();
     }

@@ -7,8 +7,8 @@ import 'package:moviehouse/screens/seriesDetail.dart';
 
 class HomeWidget extends StatefulWidget {
   final List results;
-  ScrollController controller;
-  bool bottomReached;
+  final ScrollController controller;
+  final bool bottomReached;
   HomeWidget({this.results, this.controller, this.bottomReached});
 
   @override

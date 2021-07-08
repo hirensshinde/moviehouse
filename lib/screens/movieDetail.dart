@@ -15,8 +15,9 @@ const int maxFailedLoadAttempts = 3;
 
 class MovieDetail extends StatefulWidget {
   final Movie movie;
+  final String apiKey;
 
-  MovieDetail({this.movie});
+  MovieDetail({this.movie, this.apiKey});
 
   @override
   _MovieDetailState createState() => _MovieDetailState();
@@ -37,12 +38,41 @@ class _MovieDetailState extends State<MovieDetail> {
     'vzfcb0fc4cffec44f78d',
   ];
   bool buttonClicked = false;
-  int countdown = 5;
 
   @override
   initState() {
     super.initState();
     AdColony.init(AdColonyOptions('appdbb93c3885d94a2697', '0', this.zones));
+    print("=====#####################>>>>>>> ${widget.movie}");
+  }
+
+  Timer _timer;
+  int _start = 5;
+
+  void startTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_start == 0) {
+          setState(() {
+            timer.cancel();
+            buttonClicked = false;
+            _start = 5;
+          });
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    if (_timer != null) _timer.cancel();
+    super.dispose();
   }
 
   // void _createInterstitialAd() {
@@ -107,11 +137,14 @@ class _MovieDetailState extends State<MovieDetail> {
 
   void _downloadCount() async {
     var url =
-        "http://api.moviehouse.download/api/downloads/add?type=movie&id=${widget.movie.id}";
+        "https://api.moviehouse.download/api/downloads/add?type=movie&id=${widget.movie.id}&api_key=${widget.apiKey}";
     var response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
-      print(jsonDecode(response.body));
+      Map result = jsonDecode(response.body);
+      print("Download Count Status: ${result['message']}");
+    } else {
+      throw Exception('Failed to Request Download Count API');
     }
   }
 
@@ -140,6 +173,7 @@ class _MovieDetailState extends State<MovieDetail> {
             backgroundColor: Colors.blue[800],
             heroTag: 'btn1',
             onPressed: () async {
+              startTimer();
               setState(() {
                 buttonClicked = true;
               });
@@ -167,23 +201,7 @@ class _MovieDetailState extends State<MovieDetail> {
               return AdColony.request(this.zones[0], listener);
             },
             child: (buttonClicked)
-                ? Builder(
-                    builder: (context) {
-                      Timer.periodic(Duration(seconds: 1), (value) {
-                        if (value.tick == 5) {
-                          setState(() {
-                            buttonClicked = false;
-                            value.cancel();
-                          });
-                        }
-
-                        setState(() {
-                          countdown = 5 - value.tick;
-                        });
-                      });
-                      return Text('$countdown');
-                    },
-                  )
+                ? Text("$_start")
                 : SvgPicture.asset(
                     'assets/icons/Download.svg',
                     height: 20.0,
@@ -202,95 +220,87 @@ class _MovieDetailState extends State<MovieDetail> {
           },
         ),
       ),
-      body: (widget.movie != null)
-          ? SingleChildScrollView(
-              child: Stack(
-                // alignment: Alignment.bottomCenter,
-                // fit: StackFit.expand,
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    // color: Colors.transparent,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: (widget.movie.poster != null)
-                            ? NetworkImage(
-                                'https://api.moviehouse.download/admin/movie/image/' +
-                                    widget.movie.poster,
-                              )
-                            : AssetImage(
-                                'assets/images/poster_placeholder.png'),
-                        fit: BoxFit.cover,
-                      ),
-                      // backgroundBlendMode: BlendMode.
+      body: Stack(
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height * 0.55,
+            width: MediaQuery.of(context).size.width,
+            // color: Colors.transparent,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(
+                  'https://api.moviehouse.download/admin/movie/image/' +
+                      widget.movie.poster,
+                ),
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),
+          SizedBox.expand(
+            child: DraggableScrollableSheet(
+              initialChildSize: 0.5,
+              minChildSize: 0.5,
+              maxChildSize: 0.75,
+              expand: false,
+              builder: (_, controller) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(25.0),
+                      topRight: const Radius.circular(25.0),
                     ),
                   ),
-                  Positioned(
-                    bottom: 0.0,
-                    left: 0.0,
-                    right: 0.0,
-                    child: Container(
-                      color: Colors.transparent,
-                      child: Container(
-                        height: MediaQuery.of(context).size.height / 2,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40.0),
-                            topRight: Radius.circular(40.0),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 40.0),
-                            Text(
-                              widget.movie.title,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 26.0,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "NEXA",
-                              ),
+                  child: Column(
+                    children: [
+                      Column(
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 5,
+                            margin: EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.grey,
                             ),
-                            SizedBox(height: 10.0),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  widget.movie.year.toString(),
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 151, 169, 170),
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: "NEXA",
-                                  ),
-                                  textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 15.0),
+                          Text(
+                            widget.movie.title,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 28.0,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "NEXA",
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 8.0),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                widget.movie.year.toString(),
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 151, 169, 170),
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "NEXA",
                                 ),
-                                SizedBox(width: 5.0),
-                                Row(
-                                  children: (widget.movie.genreList.length > 0)
-                                      ? widget.movie.genreList
-                                          .map((genre) => Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 5.0),
-                                                child: Text(genre,
-                                                    style: TextStyle(
-                                                      color: Color.fromARGB(
-                                                          255, 151, 169, 170),
-                                                      fontSize: 14.0,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontFamily: "NEXA",
-                                                    )),
-                                              ))
-                                          .toList()
-                                      : Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 5.0),
-                                          child: Text('No Genres',
+                                textAlign: TextAlign.center,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5.0),
+                                child: Icon(Icons.brightness_1,
+                                    size: 6.0, color: Colors.white),
+                              ),
+                              Row(
+                                children: widget.movie.genreList
+                                    .map((genre) => Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 5.0),
+                                          child: Text(genre,
                                               style: TextStyle(
                                                 color: Color.fromARGB(
                                                     255, 151, 169, 170),
@@ -298,65 +308,239 @@ class _MovieDetailState extends State<MovieDetail> {
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: "NEXA",
                                               )),
-                                        ),
-                                ),
-                                Row(
-                                    children: (widget.movie.language.length > 0)
-                                        ? widget.movie.language
-                                            .map((language) => Padding(
-                                                  padding: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 5.0),
-                                                  child: Text(language,
-                                                      style: TextStyle(
-                                                        color: Color.fromARGB(
-                                                            255, 151, 169, 170),
-                                                        fontSize: 14.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontFamily: "NEXA",
-                                                      )),
-                                                ))
-                                            .toList()
-                                        : [
-                                            Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 5.0),
-                                              child: Text('No Language',
-                                                  style: TextStyle(
-                                                    color: Color.fromARGB(
-                                                        255, 151, 169, 170),
-                                                    fontSize: 14.0,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontFamily: "NEXA",
-                                                  )),
-                                            ),
-                                          ]),
-                              ],
-                            ),
-                            SizedBox(height: 10.0),
-                            Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Text(
-                                widget.movie.description,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: "NEXA",
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
-                                maxLines: 7,
+                                        ))
+                                    .toList(),
                               ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 5.0),
+                                child: Icon(Icons.brightness_1,
+                                    size: 6.0, color: Colors.white),
+                              ),
+                              Row(
+                                children: (widget.movie.language.length > 0)
+                                    ? widget.movie.language
+                                        .map((language) => Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 5.0),
+                                              child: Text(
+                                                language,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 151, 169, 170),
+                                                  fontSize: 14.0,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: "NEXA",
+                                                ),
+                                              ),
+                                            ))
+                                        .toList()
+                                    : [
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 5.0),
+                                          child: Text(
+                                            'No Language',
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 151, 169, 170),
+                                              fontSize: 14.0,
+                                              fontFamily: "NEXA",
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20.0),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Text(
+                              widget.movie.description,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "NEXA",
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 7,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            )
-          : Center(child: Container(child: Text('Something went wrong'))),
+
+                  // SingleChildScrollView(
+                  //         child: Stack(
+                  //           // alignment: Alignment.bottomCenter,
+                  //           // fit: StackFit.expand,
+                  //           children: [
+                  //             Container(
+                  //               height: MediaQuery.of(context).size.height,
+                  //               width: MediaQuery.of(context).size.width,
+                  //               // color: Colors.transparent,
+                  //               decoration: BoxDecoration(
+                  //                 image: DecorationImage(
+                  //                   image: (widget.movie.poster != null)
+                  //                       ? NetworkImage(
+                  //                           'https://api.moviehouse.download/admin/movie/image/' +
+                  //                               widget.movie.poster,
+                  //                         )
+                  //                       : AssetImage(
+                  //                           'assets/images/poster_placeholder.png'),
+                  //                   fit: BoxFit.cover,
+                  //                 ),
+                  //                 // backgroundBlendMode: BlendMode.
+                  //               ),
+                  //             ),
+                  //             Positioned(
+                  //               bottom: 0.0,
+                  //               left: 0.0,
+                  //               right: 0.0,
+                  //               child: Container(
+                  //                 color: Colors.transparent,
+                  //                 child: Container(
+                  //                   height: MediaQuery.of(context).size.height / 2,
+                  //                   decoration: BoxDecoration(
+                  //                     color: Colors.black,
+                  //                     borderRadius: BorderRadius.only(
+                  //                       topLeft: Radius.circular(40.0),
+                  //                       topRight: Radius.circular(40.0),
+                  //                     ),
+                  //                   ),
+                  //                   child: Column(
+                  //                     children: [
+                  //                       SizedBox(height: 40.0),
+                  //                       Text(
+                  //                         widget.movie.title,
+                  //                         textAlign: TextAlign.center,
+                  //                         style: TextStyle(
+                  //                           color: Colors.white,
+                  //                           fontSize: 26.0,
+                  //                           fontWeight: FontWeight.bold,
+                  //                           fontFamily: "NEXA",
+                  //                         ),
+                  //                       ),
+                  //                       SizedBox(height: 10.0),
+                  //                       Row(
+                  //                         mainAxisSize: MainAxisSize.min,
+                  //                         children: [
+                  //                           Text(
+                  //                             widget.movie.year.toString(),
+                  //                             style: TextStyle(
+                  //                               color: Color.fromARGB(255, 151, 169, 170),
+                  //                               fontSize: 14.0,
+                  //                               fontWeight: FontWeight.bold,
+                  //                               fontFamily: "NEXA",
+                  //                             ),
+                  //                             textAlign: TextAlign.center,
+                  //                           ),
+                  //                           Padding(
+                  //                             padding: const EdgeInsets.symmetric(
+                  //                                 horizontal: 5.0),
+                  //                             child: Icon(Icons.brightness_1,
+                  //                                 size: 6.0, color: Colors.white),
+                  //                           ),
+                  //                           Row(
+                  //                             children: (widget.movie.genreList.length > 0)
+                  //                                 ? widget.movie.genreList
+                  //                                     .map((genre) => Padding(
+                  //                                           padding: const EdgeInsets.only(
+                  //                                               right: 5.0),
+                  //                                           child: Text(genre,
+                  //                                               style: TextStyle(
+                  //                                                 color: Color.fromARGB(
+                  //                                                     255, 151, 169, 170),
+                  //                                                 fontSize: 14.0,
+                  //                                                 fontWeight:
+                  //                                                     FontWeight.bold,
+                  //                                                 fontFamily: "NEXA",
+                  //                                               )),
+                  //                                         ))
+                  //                                     .toList()
+                  //                                 : Padding(
+                  //                                     padding: EdgeInsets.symmetric(
+                  //                                         horizontal: 5.0),
+                  //                                     child: Text('No Genres',
+                  //                                         style: TextStyle(
+                  //                                           color: Color.fromARGB(
+                  //                                               255, 151, 169, 170),
+                  //                                           fontSize: 14.0,
+                  //                                           fontWeight: FontWeight.bold,
+                  //                                           fontFamily: "NEXA",
+                  //                                         )),
+                  //                                   ),
+                  //                           ),
+                  //                           Padding(
+                  //                             padding: const EdgeInsets.only(right: 5.0),
+                  //                             child: Icon(Icons.brightness_1,
+                  //                                 size: 6.0, color: Colors.white),
+                  //                           ),
+                  //                           Row(
+                  //                               children: (widget.movie.language.length > 0)
+                  //                                   ? widget.movie.language
+                  //                                       .map((language) => Padding(
+                  //                                             padding:
+                  //                                                 const EdgeInsets.only(
+                  //                                                     right: 5.0),
+                  //                                             child: Text(language,
+                  //                                                 style: TextStyle(
+                  //                                                   color: Color.fromARGB(
+                  //                                                       255, 151, 169, 170),
+                  //                                                   fontSize: 14.0,
+                  //                                                   fontWeight:
+                  //                                                       FontWeight.bold,
+                  //                                                   fontFamily: "NEXA",
+                  //                                                 )),
+                  //                                           ))
+                  //                                       .toList()
+                  //                                   : [
+                  //                                       Padding(
+                  //                                         padding: EdgeInsets.symmetric(
+                  //                                             horizontal: 5.0),
+                  //                                         child: Text('No Language',
+                  //                                             style: TextStyle(
+                  //                                               color: Color.fromARGB(
+                  //                                                   255, 151, 169, 170),
+                  //                                               fontSize: 14.0,
+                  //                                               fontWeight: FontWeight.bold,
+                  //                                               fontFamily: "NEXA",
+                  //                                             )),
+                  //                                       ),
+                  //                                     ]),
+                  //                         ],
+                  //                       ),
+                  //                       SizedBox(height: 10.0),
+                  //                       Padding(
+                  //                         padding: const EdgeInsets.all(20.0),
+                  //                         child: Text(
+                  //                           widget.movie.description,
+                  //                           style: TextStyle(
+                  //                             fontWeight: FontWeight.bold,
+                  //                             fontFamily: "NEXA",
+                  //                             color: Colors.white,
+                  //                           ),
+                  //                           textAlign: TextAlign.center,
+                  //                           maxLines: 7,
+                  //                         ),
+                  //                       ),
+                  //                     ],
+                  //                   ),
+                  //                 ),
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       )
+                );
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 }

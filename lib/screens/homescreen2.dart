@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moviehouse/models/categories.dart';
 import 'package:moviehouse/models/movies.dart';
 import 'package:moviehouse/models/webseries.dart';
 import 'package:moviehouse/screens/searchScreen.dart';

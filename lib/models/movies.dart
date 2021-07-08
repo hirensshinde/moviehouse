@@ -4,6 +4,7 @@ class Movie {
   final String description;
   final String poster;
   final int year;
+  final String size;
   final dynamic ratings;
   final String type;
   final String downloadLink;
@@ -23,6 +24,7 @@ class Movie {
       this.downloadLink,
       this.downloadCount,
       this.language,
+      this.size,
       this.year,
       this.ratings,
       this.banner,
@@ -38,6 +40,7 @@ class Movie {
       title: json['name'],
       description: json['description'],
       poster: json['image'],
+      size: json['size'] ?? '',
       downloadLink: json['url'],
       downloadCount: json['download'],
       banner: json['banner_image'] ??
@@ -51,7 +54,9 @@ class Movie {
       featured: json['featured'],
       categoryId: json['category_id'],
       genreId: json['generes_id'],
-      genreList: json['genere_name'] ?? ['No Genre'],
+      genreList: (json['genere_name'].runtimeType == String)
+          ? []
+          : json['genere_name'],
     );
   }
 

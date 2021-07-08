@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:moviehouse/provider/google_sign_in.dart';
 import 'package:provider/provider.dart';

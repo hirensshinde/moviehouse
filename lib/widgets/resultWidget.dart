@@ -6,7 +6,7 @@ import 'package:moviehouse/screens/seriesDetail.dart';
 
 class ResultWidget extends StatelessWidget {
   final List results;
-  ScrollController controller;
+  final ScrollController controller;
 
   ResultWidget({this.results, this.controller});
 
@@ -144,6 +144,27 @@ class ResultWidget extends StatelessWidget {
                                         image: AssetImage(
                                             'assets/images/poster_placeholder.png'),
                                         fit: BoxFit.fill),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      Positioned(
+                                        bottom: 0,
+                                        child: Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.30,
+                                          color: Colors.black87,
+                                          child: Text(result.title,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12.0,
+                                              ),
+                                              textAlign: TextAlign.center),
+                                          padding: EdgeInsets.all(5.0),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 errorWidget: (context, url, error) => Container(

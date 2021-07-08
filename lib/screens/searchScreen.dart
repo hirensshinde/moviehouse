@@ -263,7 +263,9 @@ class _SearchScreenState extends State<SearchScreen> {
                           },
                         ))
                     : Container(
-                        height: size.height,
+                        height: size.height -
+                            MediaQuery.of(context).padding.top +
+                            kToolbarHeight,
                         child: Center(
                           child: CircularProgressIndicator(),
                         ),

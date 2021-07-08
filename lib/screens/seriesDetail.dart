@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:expandable_card/expandable_card.dart';
@@ -13,8 +14,9 @@ const int maxFailedLoadAttempts = 3;
 
 class SeriesDetail extends StatefulWidget {
   final WebSeries series;
+  final String apiKey;
 
-  SeriesDetail({this.series});
+  SeriesDetail({this.series, this.apiKey});
 
   @override
   _SeriesDetailState createState() => _SeriesDetailState();
@@ -31,6 +33,37 @@ class _SeriesDetailState extends State<SeriesDetail> {
   final zones = [
     'vzfcb0fc4cffec44f78d',
   ];
+
+  int selectedEpisode;
+  bool buttonClicked = false;
+  Timer _timer;
+  int _start = 5;
+
+  void startTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_start == 0) {
+          setState(() {
+            timer.cancel();
+            buttonClicked = false;
+            _start = 5;
+          });
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (_timer != null) _timer.cancel();
+  }
 
   // void _createInterstitialAd() {
   //   InterstitialAd.load(
@@ -129,17 +162,20 @@ class _SeriesDetailState extends State<SeriesDetail> {
         });
       }
     } on Exception catch (_) {
-      print('Data Not arrived yet');
+      print('Waiting Time');
       throw Exception('Data not arrived yet');
     }
   }
 
   Future _downloadCount() async {
     var url =
-        "http://api.moviehouse.download/api/downloads/add?type=web_series&id=${widget.series.id}";
+        "https://api.moviehouse.download/api/downloads/add?type=web_series&id=${widget.series.id}&api_key=${widget.apiKey}";
     var response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
-      print(jsonDecode(response.body));
+      var result = jsonDecode(response.body);
+      print("Download count status: ${result['message']}");
+    } else {
+      throw Exception('Failed API request to Download count');
     }
   }
 
@@ -166,7 +202,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
               backgroundColor: Colors.black,
               onPressed: () async {
                 Share.share(
-                    "Watch or download ${widget.series.title} on MovieHouse app for completely FREE. Get this app from this link \n" +
+                    "Watch or download ${widget.series.title} on MovieHouse app for Absolutely FREE. Get this app from this link \n" +
                         "http://moviehouse.download/Moviehouse-v1.0.apk");
               },
               child: SvgPicture.asset(
@@ -185,246 +221,337 @@ class _SeriesDetailState extends State<SeriesDetail> {
                 },
               ),
             ),
-            body: ExpandableCardPage(
-              page: Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                // color: Colors.transparent,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      'https://api.moviehouse.download/admin/movie/image/' +
-                          widget.series.poster,
+            body: SizedBox.expand(
+              child: Stack(children: [
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  width: MediaQuery.of(context).size.width,
+                  // color: Colors.transparent,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        'https://api.moviehouse.download/admin/movie/image/' +
+                            widget.series.poster,
+                      ),
+                      fit: BoxFit.fill,
                     ),
-                    fit: BoxFit.fitHeight,
                   ),
                 ),
-              ),
-              expandableCard: ExpandableCard(
-                // hasHandle: false,
-                hasHandle: true,
-
-                backgroundColor: Colors.black,
-                padding: EdgeInsets.only(
-                  top: 5,
-                ),
-                // maxHeight: MediaQuery.of(context).size.height - 100,
-                minHeight: MediaQuery.of(context).size.height * 0.55,
-                maxHeight: MediaQuery.of(context).size.height * 0.90,
-                hasRoundedCorners: true,
-                hasShadow: true,
-                children: <Widget>[
-                  // SizedBox(height: 25.0),
-                  Text(
-                    widget.series.title,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 28.0,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "NEXA",
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 8.0),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.series.year.toString(),
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 151, 169, 170),
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "NEXA",
+                SizedBox.expand(
+                  child: DraggableScrollableSheet(
+                    initialChildSize: 0.5,
+                    minChildSize: 0.5,
+                    maxChildSize: 0.75,
+                    expand: false,
+                    builder: (_, controller) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(25.0),
+                            topRight: const Radius.circular(25.0),
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(
-                        width: 5.0,
-                      ),
-                      Row(
-                        children: widget.series.genres
-                            .map((genre) => Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
-                                  child: Text(genre,
+                        child: Column(
+                          children: [
+                            Column(
+                              children: [
+                                Container(
+                                  width: 50,
+                                  height: 5,
+                                  margin: EdgeInsets.symmetric(vertical: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                SizedBox(height: 15.0),
+                                Text(
+                                  widget.series.title,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 28.0,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: "NEXA",
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 8.0),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      widget.series.year.toString(),
                                       style: TextStyle(
                                         color:
                                             Color.fromARGB(255, 151, 169, 170),
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.bold,
                                         fontFamily: "NEXA",
-                                      )),
-                                ))
-                            .toList(),
-                      ),
-                      SizedBox(width: 5.0),
-                      Row(
-                        children: (widget.series.language.length > 0)
-                            ? widget.series.language
-                                .map((language) => Padding(
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 5.0),
-                                      child: Text(
-                                        language,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Color.fromARGB(
-                                              255, 151, 169, 170),
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: "NEXA",
-                                        ),
-                                      ),
-                                    ))
-                                .toList()
-                            : [
-                                Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 5.0),
-                                  child: Text(
-                                    'No Language',
-                                    style: TextStyle(
-                                      color: Color.fromARGB(255, 151, 169, 170),
-                                      fontSize: 14.0,
-                                      fontFamily: "NEXA",
-                                      fontWeight: FontWeight.bold,
+                                      child: Icon(Icons.brightness_1,
+                                          size: 6.0, color: Colors.white),
                                     ),
-                                  ),
+                                    Row(
+                                      children: widget.series.genres
+                                          .map((genre) => Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 5.0),
+                                                child: Text(genre,
+                                                    style: TextStyle(
+                                                      color: Color.fromARGB(
+                                                          255, 151, 169, 170),
+                                                      fontSize: 14.0,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: "NEXA",
+                                                    )),
+                                              ))
+                                          .toList(),
+                                    ),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 5.0),
+                                      child: Icon(Icons.brightness_1,
+                                          size: 6.0, color: Colors.white),
+                                    ),
+                                    Row(
+                                      children: (widget.series.language.length >
+                                              0)
+                                          ? widget.series.language
+                                              .map((language) => Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            right: 5.0),
+                                                    child: Text(
+                                                      language,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        color: Color.fromARGB(
+                                                            255, 151, 169, 170),
+                                                        fontSize: 14.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontFamily: "NEXA",
+                                                      ),
+                                                    ),
+                                                  ))
+                                              .toList()
+                                          : [
+                                              Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 5.0),
+                                                child: Text(
+                                                  'No Language',
+                                                  style: TextStyle(
+                                                    color: Color.fromARGB(
+                                                        255, 151, 169, 170),
+                                                    fontSize: 14.0,
+                                                    fontFamily: "NEXA",
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                    ),
+                                  ],
                                 ),
+                                SizedBox(height: 20.0),
+                                (_seasons != null)
+                                    ? Container(
+                                        width: double.infinity,
+                                        height: 55.0,
+                                        margin: EdgeInsets.only(bottom: 10.0),
+                                        child: ListView.builder(
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: _seasons.length,
+                                          controller: controller,
+                                          itemBuilder: (context, index) {
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.0),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  final parts =
+                                                      _seasons[index].parts;
+
+                                                  setState(() {
+                                                    selectedIndex = index;
+                                                    _fetchAllParts(parts);
+                                                  });
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30.0),
+                                                    color: selectedIndex ==
+                                                            index
+                                                        ? Colors.blue[800]
+                                                        : Color.fromARGB(
+                                                            255, 25, 27, 45),
+                                                  ),
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 10.0,
+                                                      vertical: 10.0),
+                                                  height: 55.0,
+                                                  width: 90.0,
+                                                  child: Center(
+                                                    child: Text(
+                                                      "Season " +
+                                                          _seasons[index]
+                                                              .seasonName,
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontFamily: "NEXA",
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      )
+                                    : Center(
+                                        child: Text('No Seasons',
+                                            style:
+                                                TextStyle(color: Colors.white)),
+                                      ),
                               ],
-                      ),
-                    ],
+                            ),
+                            (_allEpisodes != null)
+                                ? Expanded(
+                                    child: ListView.builder(
+                                        padding: EdgeInsets.only(
+                                            bottom: 50.0,
+                                            left: 10.0,
+                                            right: 10.0),
+                                        itemCount: _allEpisodes.length,
+                                        shrinkWrap: true,
+                                        physics: ScrollPhysics(),
+                                        controller: controller,
+                                        scrollDirection: Axis.vertical,
+                                        itemBuilder: (context, index) {
+                                          // print("UI rendering");
+                                          return Container(
+                                            color:
+                                                Color.fromARGB(255, 25, 27, 45),
+                                            margin:
+                                                EdgeInsets.only(bottom: 8.0),
+                                            child: GestureDetector(
+                                              child: ListTile(
+                                                visualDensity:
+                                                    VisualDensity.standard,
+                                                tileColor: Color.fromARGB(
+                                                    255, 25, 27, 45),
+                                                contentPadding:
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 15.0),
+                                                title: Text(
+                                                  _allEpisodes[index].partName,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14.0,
+                                                    fontFamily: "NEXA",
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                trailing: (buttonClicked &&
+                                                        selectedEpisode ==
+                                                            index)
+                                                    ? Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                right: 5.0),
+                                                        child: Text("$_start",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontFamily:
+                                                                    "NEXA",
+                                                                fontSize: 16.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold)),
+                                                      )
+                                                    : SvgPicture.asset(
+                                                        'assets/icons/Download.svg',
+                                                        height: 20.0,
+                                                      ),
+                                              ),
+                                              onTap: () {
+                                                startTimer();
+                                                setState(() {
+                                                  buttonClicked = true;
+                                                  selectedEpisode = index;
+                                                  _start = 5;
+                                                });
+                                                _downloadCount();
+                                                listener(
+                                                    AdColonyAdListener event,
+                                                    int reward) async {
+                                                  print(event);
+                                                  if (event ==
+                                                      AdColonyAdListener
+                                                          .onRequestFilled) {
+                                                    if (await AdColony
+                                                        .isLoaded()) {
+                                                      AdColony.show();
+                                                    }
+                                                  }
+                                                  if (event ==
+                                                      AdColonyAdListener
+                                                          .onReward) {
+                                                    print('ADCOLONY: $reward');
+                                                  }
+                                                  if (event ==
+                                                      AdColonyAdListener
+                                                          .onClosed) {
+                                                    print('closed ad');
+                                                    return _downloadLink(index);
+                                                  }
+                                                  if (event ==
+                                                      AdColonyAdListener
+                                                          .onRequestNotFilled) {
+                                                    print('ad failed');
+                                                    return _downloadLink(index);
+                                                  }
+                                                }
+
+                                                return AdColony.request(
+                                                    this.zones[0], listener);
+                                              },
+                                            ),
+                                          );
+                                        }),
+                                  )
+                                : Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Text('No Episodes',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: "NEXA",
+                                              fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                  SizedBox(height: 20.0),
-                  (_seasons != null)
-                      ? Container(
-                          width: double.infinity,
-                          height: 55.0,
-                          margin: EdgeInsets.only(bottom: 10.0),
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _seasons.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    final parts = _seasons[index].parts;
-
-                                    setState(() {
-                                      selectedIndex = index;
-                                      _fetchAllParts(parts);
-                                    });
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30.0),
-                                      color: selectedIndex == index
-                                          ? Colors.blue[800]
-                                          : Color.fromARGB(255, 25, 27, 45),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 10.0, vertical: 10.0),
-                                    height: 55.0,
-                                    width: 90.0,
-                                    child: Center(
-                                      child: Text(
-                                        "Season " + _seasons[index].seasonName,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      : Center(
-                          child: Text('No Seasons',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                  (_allEpisodes != null)
-                      ? Expanded(
-                          child: ListView.builder(
-                              padding: EdgeInsets.only(
-                                  bottom: 50.0, left: 5.0, right: 5.0),
-                              itemCount: _allEpisodes.length,
-                              shrinkWrap: true,
-                              physics: ScrollPhysics(),
-                              scrollDirection: Axis.vertical,
-                              itemBuilder: (context, index) {
-                                // print("UI rendering");
-                                return Container(
-                                  color: Color.fromARGB(255, 25, 27, 45),
-                                  margin: EdgeInsets.only(bottom: 5.0),
-                                  child: ListTile(
-                                    visualDensity: VisualDensity.standard,
-                                    tileColor: Color.fromARGB(255, 25, 27, 45),
-                                    contentPadding:
-                                        EdgeInsets.symmetric(horizontal: 15.0),
-                                    title: Text(
-                                      _allEpisodes[index].partName,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16.0,
-                                        fontFamily: "NEXA",
-                                        // fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    trailing: IconButton(
-                                      icon: SvgPicture.asset(
-                                        'assets/icons/Download.svg',
-                                        height: 25.0,
-                                      ),
-                                      onPressed: () {
-                                        _downloadCount();
-                                        listener(AdColonyAdListener event,
-                                            int reward) async {
-                                          print(event);
-                                          if (event ==
-                                              AdColonyAdListener
-                                                  .onRequestFilled) {
-                                            if (await AdColony.isLoaded()) {
-                                              AdColony.show();
-                                            }
-                                          }
-                                          if (event ==
-                                              AdColonyAdListener.onReward) {
-                                            print('ADCOLONY: $reward');
-                                          }
-                                          if (event ==
-                                              AdColonyAdListener.onClosed) {
-                                            print('closed ad');
-                                            return _downloadLink(index);
-                                          }
-                                          if (event ==
-                                              AdColonyAdListener
-                                                  .onRequestNotFilled) {
-                                            print('ad failed');
-                                            return _downloadLink(index);
-                                          }
-                                        }
-
-                                        return AdColony.request(
-                                            this.zones[0], listener);
-                                      },
-                                    ),
-                                  ),
-                                );
-                              }),
-                        )
-                      : Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Text('No Episodes',
-                                style: TextStyle(color: Colors.white)),
-                          ),
-                        ),
-                ],
-              ),
+                ),
+              ]),
             ),
           )
         : Center(child: Text('Something Went Wrong!'));

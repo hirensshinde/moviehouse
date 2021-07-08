@@ -44,7 +44,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   Future<List<Banners>> getBanner() async {
     final apikey = "45293422347apQ8ob9hR9ITXS6YikayOc5iA2";
     final url = Uri.parse(
-        "https://api.moviehouse.download/api/banners?api_key=${apikey}");
+        "https://api.moviehouse.download/api/banners?api_key=$apikey");
     final response = await http.get(url);
     List banners;
     if (response.statusCode == 200) {

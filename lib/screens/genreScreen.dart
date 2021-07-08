@@ -91,12 +91,15 @@ class _GenreScreenState extends State<GenreScreen> {
             movies.map((movie) => Movie.fromJson(movie)).toList();
         List seriesResult =
             webseries.map((series) => WebSeries.fromJson(series)).toList();
+        page++;
         return List.from(moviesResult)..addAll(seriesResult);
       } else if (result['movie'].length > 0) {
         final data = result['movie'];
+        page++;
         return data.map((series) => Movie.fromJson(series)).toList();
       } else if (result['web_series'].length > 0) {
         final data = result['web_series'];
+        page++;
         return data.map((series) => WebSeries.fromJson(series)).toList();
       } else {
         return [];
@@ -125,7 +128,10 @@ class _GenreScreenState extends State<GenreScreen> {
             return Navigator.pop(context);
           },
         ),
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: TextStyle(fontFamily: "NEXA", fontWeight: FontWeight.bold),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: SvgPicture.asset(
