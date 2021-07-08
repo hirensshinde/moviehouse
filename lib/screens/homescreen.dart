@@ -1,16 +1,16 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:moviehouse/models/categories.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moviehouse/models/categories.dart';
 import 'package:http/http.dart' as http;
 import 'package:moviehouse/models/homeCategories.dart';
 import 'package:moviehouse/models/movies.dart';
 import 'package:moviehouse/models/webseries.dart';
-import 'package:moviehouse/screens/movieDetail.dart';
 import 'package:moviehouse/screens/requestmovie.dart';
+import 'package:moviehouse/screens/movieDetail.dart';
 import 'package:moviehouse/screens/searchScreen.dart';
 import 'package:moviehouse/screens/seriesDetail.dart';
 import 'package:moviehouse/widgets/sidebarWidget.dart';
