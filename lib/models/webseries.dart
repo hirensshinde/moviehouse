@@ -4,6 +4,7 @@ class WebSeries {
   int categoryId;
   String genreId;
   String poster;
+  String smallPoster;
   String banner;
   String type;
   String size;
@@ -21,6 +22,7 @@ class WebSeries {
       this.categoryId,
       this.genreId,
       this.poster,
+      this.smallPoster,
       this.size,
       this.banner,
       this.type,
@@ -41,13 +43,14 @@ class WebSeries {
       title: json['name'],
       description: json['description'],
       poster: json['image'],
+      smallPoster: json['thumb_image'],
       banner: json['banner_image'] ??
           'https://via.placeholder.com/600x350.png?text=No+Preview+available',
       // downloadLink: json['url'],
       // downloadCount: json['download'],
       featured: json['featured'],
       ratings: json['rating'],
-      size: json['size'] ?? '',
+
       year: json['year'],
       type: json['type'],
       categoryId: json['category_id'],
@@ -103,8 +106,9 @@ class Part {
   int seasonId;
   String partName;
   String downloadLink;
+  String size;
 
-  Part({this.id, this.seasonId, this.partName, this.downloadLink});
+  Part({this.id, this.seasonId, this.size, this.partName, this.downloadLink});
 
   factory Part.fromJson(Map<String, dynamic> json) {
     return Part(
@@ -112,6 +116,7 @@ class Part {
       seasonId: json['web_series_season_id'],
       partName: json['name'],
       downloadLink: json['link'],
+      size: json['size'] ?? '',
     );
   }
 }

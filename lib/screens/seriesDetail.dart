@@ -4,7 +4,11 @@ import 'dart:convert';
 import 'package:expandable_card/expandable_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moviehouse/models/update.dart';
 import 'package:moviehouse/models/webseries.dart';
+import 'package:moviehouse/screens/howToScreen.dart';
+import 'package:package_info/package_info.dart';
+import 'package:pub_semver/pub_semver.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:adcolony_flutter/adcolony_flutter.dart';
@@ -29,6 +33,8 @@ class _SeriesDetailState extends State<SeriesDetail> {
 
   List<Season> _seasons;
   List<Part> _allEpisodes;
+  Version latestAppVersion;
+  String imagePath = "https://d1wj9w86uhhpjg.cloudfront.net/";
 
   final zones = [
     'vzfcb0fc4cffec44f78d',
@@ -179,12 +185,28 @@ class _SeriesDetailState extends State<SeriesDetail> {
     }
   }
 
+  checkLatestVersion(context) async {
+    var response = await http
+        .get(Uri.parse('https://api.moviehouse.download/api/app/latest'));
+
+    if (response.statusCode == 200) {
+      //Change
+      var result = jsonDecode(response.body);
+      AppVersion appVersion = AppVersion.fromJson(result['data']);
+
+      setState(() {
+        latestAppVersion = Version.parse(appVersion.version);
+      });
+    }
+  }
+
   @override
   initState() {
     super.initState();
     _populateAllResults();
     AdColony.init(AdColonyOptions('appdbb93c3885d94a2697', '0', this.zones));
     Future.delayed(Duration(seconds: 2), () => setState(() {}));
+    checkLatestVersion(context);
   }
 
   int selectedIndex = 0;
@@ -198,17 +220,36 @@ class _SeriesDetailState extends State<SeriesDetail> {
             // floatingActionButtonAnimator: ,
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.miniEndTop,
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: Colors.black,
-              onPressed: () async {
-                Share.share(
-                    "Watch or download ${widget.series.title} on MovieHouse app for Absolutely FREE. Get this app from this link \n" +
-                        "http://moviehouse.download/Moviehouse-v1.0.apk");
-              },
-              child: SvgPicture.asset(
-                'assets/icons/Share.svg',
-                height: 25.0,
-              ),
+            floatingActionButton: Wrap(
+              children: [
+                Column(
+                  children: [
+                    SizedBox(height: 100.0),
+                    FloatingActionButton(
+                      backgroundColor: Colors.black,
+                      heroTag: "btn1",
+                      onPressed: () async {
+                        Share.share(
+                            "Watch or download ${widget.series.title} on MovieHouse app for Absolutely FREE. Get this app from this link \n" +
+                                "http://moviehouse.download/Moviehouse-v${latestAppVersion}.apk");
+                      },
+                      child: SvgPicture.asset(
+                        'assets/icons/Share.svg',
+                        height: 25.0,
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    FloatingActionButton(
+                        child: Icon(Icons.help),
+                        heroTag: "btn2",
+                        backgroundColor: Colors.black,
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HowToScreen()))),
+                  ],
+                ),
+              ],
             ),
             appBar: AppBar(
               backgroundColor: Colors.transparent,
@@ -230,8 +271,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage(
-                        'https://api.moviehouse.download/admin/movie/image/' +
-                            widget.series.poster,
+                        imagePath + widget.series.poster,
                       ),
                       fit: BoxFit.fill,
                     ),
@@ -443,6 +483,7 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                         itemBuilder: (context, index) {
                                           // print("UI rendering");
                                           return Container(
+                                            width: double.infinity,
                                             color:
                                                 Color.fromARGB(255, 25, 27, 45),
                                             margin:
@@ -465,72 +506,94 @@ class _SeriesDetailState extends State<SeriesDetail> {
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
-                                                trailing: (buttonClicked &&
-                                                        selectedEpisode ==
-                                                            index)
-                                                    ? Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                right: 5.0),
-                                                        child: Text("$_start",
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontFamily:
-                                                                    "NEXA",
-                                                                fontSize: 16.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold)),
-                                                      )
-                                                    : SvgPicture.asset(
-                                                        'assets/icons/Download.svg',
-                                                        height: 20.0,
+                                                trailing: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      _allEpisodes[index].size,
+                                                      style: TextStyle(
+                                                        color: Colors.white54,
+                                                        fontSize: 14.0,
+                                                        fontFamily: "NEXA",
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
-                                              ),
-                                              onTap: () {
-                                                startTimer();
-                                                setState(() {
-                                                  buttonClicked = true;
-                                                  selectedEpisode = index;
-                                                  _start = 5;
-                                                });
-                                                _downloadCount();
-                                                listener(
-                                                    AdColonyAdListener event,
-                                                    int reward) async {
-                                                  print(event);
-                                                  if (event ==
-                                                      AdColonyAdListener
-                                                          .onRequestFilled) {
-                                                    if (await AdColony
-                                                        .isLoaded()) {
-                                                      AdColony.show();
+                                                    ),
+                                                    SizedBox(width: 10.0),
+                                                    (buttonClicked &&
+                                                            selectedEpisode ==
+                                                                index)
+                                                        ? Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    right: 5.0),
+                                                            child: Text(
+                                                                "$_start",
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontFamily:
+                                                                        "NEXA",
+                                                                    fontSize:
+                                                                        16.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold)),
+                                                          )
+                                                        : SvgPicture.asset(
+                                                            'assets/icons/Download.svg',
+                                                            height: 20.0,
+                                                          ),
+                                                  ],
+                                                ),
+                                                onTap: () {
+                                                  startTimer();
+                                                  setState(() {
+                                                    buttonClicked = true;
+                                                    selectedEpisode = index;
+                                                    _start = 5;
+                                                  });
+                                                  _downloadCount();
+                                                  listener(
+                                                      AdColonyAdListener event,
+                                                      int reward) async {
+                                                    print(event);
+                                                    if (event ==
+                                                        AdColonyAdListener
+                                                            .onRequestFilled) {
+                                                      if (await AdColony
+                                                          .isLoaded()) {
+                                                        AdColony.show();
+                                                      }
+                                                    }
+                                                    if (event ==
+                                                        AdColonyAdListener
+                                                            .onReward) {
+                                                      print(
+                                                          'ADCOLONY: $reward');
+                                                    }
+                                                    if (event ==
+                                                        AdColonyAdListener
+                                                            .onClosed) {
+                                                      print('closed ad');
+                                                      return _downloadLink(
+                                                          index);
+                                                    }
+                                                    if (event ==
+                                                        AdColonyAdListener
+                                                            .onRequestNotFilled) {
+                                                      print('ad failed');
+                                                      return _downloadLink(
+                                                          index);
                                                     }
                                                   }
-                                                  if (event ==
-                                                      AdColonyAdListener
-                                                          .onReward) {
-                                                    print('ADCOLONY: $reward');
-                                                  }
-                                                  if (event ==
-                                                      AdColonyAdListener
-                                                          .onClosed) {
-                                                    print('closed ad');
-                                                    return _downloadLink(index);
-                                                  }
-                                                  if (event ==
-                                                      AdColonyAdListener
-                                                          .onRequestNotFilled) {
-                                                    print('ad failed');
-                                                    return _downloadLink(index);
-                                                  }
-                                                }
 
-                                                return AdColony.request(
-                                                    this.zones[0], listener);
-                                              },
+                                                  return AdColony.request(
+                                                      this.zones[0], listener);
+                                                },
+                                              ),
                                             ),
                                           );
                                         }),

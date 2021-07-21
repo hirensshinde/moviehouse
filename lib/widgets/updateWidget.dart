@@ -23,6 +23,10 @@ class UpdateApp extends StatefulWidget {
 
 class _UpdateAppState extends State<UpdateApp> {
   String _url;
+  String _siteLink;
+  bool upToDate;
+  Version latestAppVersion;
+  String imagePath;
 
   @override
   void initState() {
@@ -48,19 +52,23 @@ class _UpdateAppState extends State<UpdateApp> {
       //Change
       var result = jsonDecode(response.body);
       AppVersion appVersion = AppVersion.fromJson(result['data']);
+      imagePath = result['image_path'];
 
-      Version latestAppVersion = Version.parse(appVersion.version);
+      latestAppVersion = Version.parse(appVersion.version);
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       Version currentVersion = Version.parse(packageInfo.version);
 
       _url = "http://moviehouse.download/" + appVersion.link;
-      setState(() {});
+      _siteLink = appVersion.siteLink;
+      if (mounted) setState(() {});
       if (latestAppVersion > currentVersion) {
+        upToDate = false;
         _showCompulsoryUpdateDialog(
           context,
-          "Please update the app to continue\n${appVersion.about ?? ""}",
+          "${appVersion.about ?? ""}\nPlease update the app to continue\n\nIf you face any issues installing please Uninstall previous version then install this new update.",
         );
       } else {
+        upToDate = true;
         print('App is up to date');
       }
     }
@@ -71,43 +79,41 @@ class _UpdateAppState extends State<UpdateApp> {
     print(_url);
   }
 
+  _onWebsiteClicked() async {
+    await canLaunch(_siteLink)
+        ? await launch(_siteLink)
+        : throw 'Could not launch $_url';
+    print(_siteLink);
+  }
+
   _showCompulsoryUpdateDialog(context, String message) async {
     await showDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        String title = "App Update Available";
+        String title = "App Update Available v$latestAppVersion";
         String btnLabel = "Update Now";
-        return Platform.isIOS
-            ? new CupertinoAlertDialog(
-                title: Text(title),
-                content: Text(message),
-                actions: <Widget>[
-                  CupertinoDialogAction(
-                    child: Text(
-                      btnLabel,
-                    ),
-                    isDefaultAction: true,
-                    onPressed: _onUpdateNowClicked,
-                  ),
-                ],
-              )
-            : WillPopScope(
-                onWillPop: () async => false,
-                child: new AlertDialog(
-                  title: Text(
-                    title,
-                    style: TextStyle(fontSize: 22),
-                  ),
-                  content: Text(message),
-                  actions: <Widget>[
-                    ElevatedButton(
-                      child: Text(btnLabel),
-                      onPressed: _onUpdateNowClicked,
-                    ),
-                  ],
-                ),
-              );
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: new AlertDialog(
+            title: Text(
+              title,
+              style: TextStyle(fontSize: 22),
+            ),
+            content: Text(message),
+            actions: <Widget>[
+              ElevatedButton(
+                child: Text('Website'),
+                onPressed: _onWebsiteClicked,
+              ),
+              SizedBox(width: 5.0),
+              ElevatedButton(
+                child: Text(btnLabel),
+                onPressed: _onUpdateNowClicked,
+              ),
+            ],
+          ),
+        );
       },
     );
   }

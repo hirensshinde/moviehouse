@@ -6,8 +6,11 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:moviehouse/provider/navigationProvider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:moviehouse/screens/bugreport.dart';
-import 'package:moviehouse/screens/categoryScreen.dart';
+// import 'package:moviehouse/screens/categoryScreen.dart';
+import 'package:moviehouse/screens/homescreen.dart';
 import 'package:moviehouse/screens/loginScreen.dart';
+import 'package:moviehouse/screens/updateScreen.dart';
+import 'package:moviehouse/widgets/updateWidget.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -35,14 +38,15 @@ class MyApp extends StatelessWidget {
         initialRoute: '/login',
         routes: {
           '/login': (context) => LoginScreen(),
-          '/home': (context) => CategoryScreen(),
+          '/home': (context) => UpdateApp(child: HomeScreen()),
           '/bugreport': (context) => BugReport(),
+          '/update': (context) => UpdateScreen(),
         },
         title: 'Movie House',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: LoginScreen(),
+        // home: LoginScreen(),
       ),
     );
   }

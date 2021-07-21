@@ -18,11 +18,10 @@ class _RequestMovieState extends State<RequestMovie> {
   TextEditingController textController = TextEditingController();
   List<String> contents = [];
   ScrollController controller;
-  // bool fabIsVisible = true;
 
   Future<void> submitRequest() async {
-    String apiKey = widget.apiKey;
     String values;
+
     if (contents.isNotEmpty) {
       values = contents.join(',');
     }
@@ -31,9 +30,11 @@ class _RequestMovieState extends State<RequestMovie> {
     });
 
     print(body);
+    print("APIKEY =====>>>> ${widget.apiKey}");
 
     http.Response response = await http.post(
-      Uri.parse('https://api.moviehouse.download/api/request?api_key=$apiKey'),
+      Uri.parse(
+          'https://api.moviehouse.download/api/request?api_key=${widget.apiKey}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -54,7 +55,7 @@ class _RequestMovieState extends State<RequestMovie> {
     var size = MediaQuery.of(context).size;
 
     // bool showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
-
+    print("API KEY ========>>>>>>>  ${widget.apiKey}");
     return Scaffold(
         // drawer: NavigationDrawerWidget(),
         // resizeToAvoidBottomInset: false,
@@ -120,6 +121,8 @@ class _RequestMovieState extends State<RequestMovie> {
                     color: Color.fromARGB(255, 25, 27, 45),
                   ),
                   child: TextField(
+                    textAlignVertical: TextAlignVertical.center,
+                    // cursorHeight: 15.0,
                     controller: textController,
                     onSubmitted: (String value) async {
                       if (value.isNotEmpty) {
@@ -135,16 +138,36 @@ class _RequestMovieState extends State<RequestMovie> {
                       fontSize: 18.0,
                     ),
                     decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
-                      focusedBorder: InputBorder.none,
-                      hintText: "Enter Movie or Series name",
-                      hintStyle: TextStyle(
-                          color: Colors.white24,
-                          fontFamily: "NEXA",
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.0),
-                    ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.only(
+                            top: 20.0, bottom: 20.0, left: 20.0),
+                        // focusedBorder: InputBorder.none,
+                        hintText: "Enter Movie or Series name",
+                        hintStyle: TextStyle(
+                            color: Colors.white24,
+                            fontFamily: "NEXA",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0),
+                        // suffixStyle: TextStyle(height: 20),
+                        suffixIcon: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (textController.text.isNotEmpty) {
+                                setState(() {
+                                  contents.add(textController.text);
+                                  textController.clear();
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: CircleBorder(),
+                              primary: Colors.blue,
+                              onPrimary: Colors.white,
+                            ),
+                            child: Icon(Icons.add),
+                          ),
+                        )),
                   ),
                 ),
               ),

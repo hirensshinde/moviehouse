@@ -3,10 +3,15 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moviehouse/models/navigation_item.dart';
 import 'package:moviehouse/models/update.dart';
+import 'package:moviehouse/provider/navigationProvider.dart';
+import 'package:moviehouse/screens/homescreen.dart';
 import 'package:moviehouse/widgets/sidebarWidget.dart';
 import 'package:package_info/package_info.dart';
+import 'package:provider/provider.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -19,6 +24,7 @@ class UpdateScreen extends StatefulWidget {
 class _UpdateScreenState extends State<UpdateScreen> {
   String _url;
   String text;
+  GlobalKey<NavigatorState> _key = GlobalKey();
 
   @override
   void initState() {
@@ -111,30 +117,41 @@ class _UpdateScreenState extends State<UpdateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: NavigationDrawerWidget(),
-      appBar: AppBar(
-        title: Text('Check Update'),
-        backgroundColor: Color.fromARGB(255, 25, 27, 45),
-        leading: Builder(
-          builder: (context) => IconButton(
-              splashRadius: 25.0,
-              padding: EdgeInsets.all(0.0),
-              icon: SvgPicture.asset(
-                'assets/icons/Drawer2.svg',
-                height: 35.0,
-              ),
-              onPressed: () => Scaffold.of(context).openDrawer()),
+    // setState(() {
+    //   context = widget.pageContext;
+    // });
+    return WillPopScope(
+      onWillPop: () async => true,
+      child: Scaffold(
+        // drawer: NavigationDrawerWidget(),
+        appBar: AppBar(
+          title: Text('Check Update'),
+          backgroundColor: Color.fromARGB(255, 25, 27, 45),
+
+          leading: IconButton(
+            splashRadius: 25.0,
+            padding: EdgeInsets.all(0.0),
+            icon: SvgPicture.asset(
+              'assets/icons/Back.svg',
+              height: 35.0,
+            ),
+            onPressed: () {
+              final provider =
+                  Provider.of<NavigationProvider>(context, listen: false);
+              provider.setNavigationItem(NavigationItem.home);
+              return Navigator.of(context).pop();
+            },
+          ),
+          // centerTitle: true,
         ),
-        // centerTitle: true,
-      ),
-      body: Container(
-        color: Colors.black,
-        child: Center(
-          child: (text != null)
-              ? Text(text,
-                  style: TextStyle(fontSize: 22.0, color: Colors.white))
-              : CircularProgressIndicator(),
+        body: Container(
+          color: Colors.black,
+          child: Center(
+            child: (text != null)
+                ? Text(text,
+                    style: TextStyle(fontSize: 22.0, color: Colors.white))
+                : CircularProgressIndicator(),
+          ),
         ),
       ),
     );

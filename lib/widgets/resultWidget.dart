@@ -8,6 +8,9 @@ class ResultWidget extends StatelessWidget {
   final List results;
   final ScrollController controller;
 
+  // String imagePath = "https://ik.imagekit.io/vwvj9cugtq1/";
+  final String imagePath = "https://d1wj9w86uhhpjg.cloudfront.net/";
+
   ResultWidget({this.results, this.controller});
 
   @override
@@ -62,9 +65,7 @@ class ResultWidget extends StatelessWidget {
                               child: CachedNetworkImage(
                                 placeholderFadeInDuration:
                                     Duration(milliseconds: 500),
-                                imageUrl:
-                                    'https://api.moviehouse.download/admin/movie/image/' +
-                                        result.poster,
+                                imageUrl: imagePath + result.smallPoster,
                                 imageBuilder: (context, imageProvider) =>
                                     Container(
                                   width:
@@ -140,10 +141,11 @@ class ResultWidget extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     // shape: BoxShape.circle,
                                     borderRadius: BorderRadius.circular(10.0),
-                                    image: DecorationImage(
-                                        image: AssetImage(
-                                            'assets/images/poster_placeholder.png'),
-                                        fit: BoxFit.fill),
+                                    color: Color.fromRGBO(74, 74, 74, 1),
+                                    // image: DecorationImage(
+                                    //     image: AssetImage(
+                                    //         'assets/images/poster_placeholder.png'),
+                                    //     fit: BoxFit.fill),
                                   ),
                                   child: Stack(
                                     children: [

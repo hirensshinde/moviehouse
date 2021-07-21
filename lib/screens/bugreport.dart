@@ -9,8 +9,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class BugReport extends StatefulWidget {
   final String apiKey;
+  BuildContext pageContext;
 
-  BugReport({this.apiKey});
+  BugReport({this.apiKey, this.pageContext});
 
   @override
   _BugReportState createState() => _BugReportState();
@@ -41,11 +42,8 @@ class _BugReportState extends State<BugReport> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
-    final bool showFab = MediaQuery.of(context).viewInsets.bottom == 0.0;
-    print("===============>>>>${MediaQuery.of(context).viewInsets.bottom}");
-
     return Scaffold(
-        drawer: NavigationDrawerWidget(),
+        // drawer: NavigationDrawerWidget(),
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
@@ -55,15 +53,15 @@ class _BugReportState extends State<BugReport> {
                   fontFamily: "NEXA",
                   fontWeight: FontWeight.bold)),
           leading: Builder(
-            builder: (context) => IconButton(
-                splashRadius: 30.0,
-                padding: EdgeInsets.all(0.0),
-                icon: SvgPicture.asset(
-                  'assets/icons/Drawer2.svg',
-                  height: 35.0,
-                ),
-                onPressed: () => Scaffold.of(context).openDrawer()),
-          ),
+              builder: (context) => IconButton(
+                    splashRadius: 30.0,
+                    padding: EdgeInsets.all(0.0),
+                    icon: SvgPicture.asset(
+                      'assets/icons/Back.svg',
+                      height: 35.0,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  )),
         ),
         // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         // floatingActionButton: !showFab

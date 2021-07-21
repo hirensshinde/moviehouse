@@ -3,6 +3,7 @@ class Movie {
   final String title;
   final String description;
   final String poster;
+  final String smallPoster;
   final int year;
   final String size;
   final dynamic ratings;
@@ -21,6 +22,7 @@ class Movie {
       this.title,
       this.description,
       this.poster,
+      this.smallPoster,
       this.downloadLink,
       this.downloadCount,
       this.language,
@@ -40,6 +42,7 @@ class Movie {
       title: json['name'],
       description: json['description'],
       poster: json['image'],
+      smallPoster: json['thumb_image'],
       size: json['size'] ?? '',
       downloadLink: json['url'],
       downloadCount: json['download'],

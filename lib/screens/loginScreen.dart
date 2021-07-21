@@ -6,9 +6,8 @@ import 'package:moviehouse/models/navigation_item.dart';
 import 'package:moviehouse/provider/google_sign_in.dart';
 import 'package:moviehouse/provider/navigationProvider.dart';
 import 'package:moviehouse/screens/bugreport.dart';
-import 'package:moviehouse/screens/homeScreen.dart';
+import 'package:moviehouse/screens/homescreen.dart';
 import 'package:moviehouse/screens/savedContentScreen.dart';
-import 'package:moviehouse/screens/searchScreen.dart';
 import 'package:moviehouse/screens/subscriptionScreen.dart';
 import 'package:moviehouse/screens/updateScreen.dart';
 import 'package:moviehouse/widgets/signUpWidget.dart';
@@ -55,8 +54,10 @@ class _LoginScreenState extends State<LoginScreen> {
               final provider = Provider.of<GoogleSignInProvider>(context);
               if (provider.isSigningIn) {
                 generateApiKey();
+                print("Called from Streambuilder::: ===> $apiKey");
                 return buildLoading();
               } else if (snapshot.hasData) {
+                // Future.delayed(Duration(seconds: 1));
                 return buildPages(context);
               } else {
                 return SignUpWidget();
@@ -72,10 +73,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final provider = Provider.of<NavigationProvider>(context);
     final navigationItem = provider.navigationItem;
 
-    print(apiKey);
+    print("Called from here::: ===> $apiKey");
 
     switch (navigationItem) {
       case NavigationItem.home:
+        generateApiKey();
+        print("Called from Swtich::: ===> $apiKey");
         return UpdateApp(child: HomeScreen(apiKey: apiKey));
 
       case NavigationItem.subscription:
@@ -85,9 +88,9 @@ class _LoginScreenState extends State<LoginScreen> {
       case NavigationItem.updates:
         return UpdateScreen();
       case NavigationItem.bugreport:
-        return BugReport(apiKey: apiKey);
+        return BugReport();
       default:
-        return SearchScreen();
+        return HomeScreen();
     }
   }
 }

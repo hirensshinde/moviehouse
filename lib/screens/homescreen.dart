@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -34,18 +36,19 @@ class _HomeScreenState extends State<HomeScreen> {
   int selectedCategoryId;
   List _categoryBanners;
   int _current;
+  ScrollController categoryController = ScrollController();
   List<HomeCategories> _homeCategories;
-  // String imagePath = "https://moviehousebucket.s3.amazonaws.com/public/images/";
-  String imagePath = "https://ik.imagekit.io/vwvj9cugtq1/";
+  String imagePath = "https://d1wj9w86uhhpjg.cloudfront.net/";
 
   @override
   void initState() {
     super.initState();
     // _results = null;
-    // selectedCategoryId = 2;
+// selectedCategoryId = 2;
     _populateAllCategories();
     // setState(() {});
     // getBanner();
+    generateApiKey();
   }
 
   Future<List<Category>> _fetchAllCategories() async {
@@ -159,12 +162,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final newCategoryList = [Category(id: 1, category: 'All')];
       categories.forEach((category) => newCategoryList.add(category));
-
-      setState(() {
-        _categories = newCategoryList;
-        // _banners = banners;
-        _homeCategories = homeCategories;
-      });
+      if (mounted) {
+        setState(() {
+          _categories = newCategoryList;
+          // _banners = banners;
+          _homeCategories = homeCategories;
+        });
+      }
     } on Exception catch (_) {
       print('Data Not arrived yet');
       // throw Exception('Data not arrived yet');
@@ -212,169 +216,249 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController.addListener(_onScrollEvent);
   }
 
+  void _scrollBackToAll() {
+    setState(() {
+      categoryController.animateTo(0,
+          duration: Duration(seconds: 1), curve: Curves.linear);
+    });
+  }
+
+  String apiKey;
+
+  Future<void> generateApiKey() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user.uid;
+
+    http.Response response = await http.get(Uri.parse(
+        'https://api.moviehouse.download/api/key/genrate?uid=$userId'));
+
+    if (response.statusCode == 200) {
+      var results = jsonDecode(response.body);
+
+      apiKey = results['api_key'];
+
+      print("APIKEY Generated Succesfully: $apiKey");
+    } else {
+      throw Exception('Failed with exception');
+    }
+  }
+
+  // void categoryScrollListener() {
+  //   categoryController.addListener(() {
+  // setState(() {
+  //   if (categoryController.offset >= 400) {
+  //     _scrollBackToAll(); // show the back-to-top button
+  //   }
+  // });
+  //   });
+  // }
+
+  Future<bool> _onWillPop() {
+    return showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Are you sure?'),
+            content: Text('Do you want to exit an App'),
+            actions: <Widget>[
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text('No'),
+              ),
+              ElevatedButton(
+                onPressed: () => exit(0),
+                /*Navigator.of(context).pop(true)*/
+                child: Text('Yes'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   @override
   void dispose() {
     super.dispose();
     _scrollController.dispose();
+    categoryController.dispose();
   }
 
   // Banners for All Category Function
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: NavigationDrawerWidget(),
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 25, 27, 45),
-        leading: Builder(
-          builder: (context) => IconButton(
-              splashRadius: 25.0,
-              padding: EdgeInsets.all(0.0),
-              icon: SvgPicture.asset(
-                'assets/icons/Drawer2.svg',
-                height: 40.0,
-              ),
-              onPressed: () => Scaffold.of(context).openDrawer()),
-        ),
-
-        // fit: BoxFit.fitHeight,
-
-        title: Text('Movie House',
-            style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              fontFamily: "NEXA",
-            )),
-        actions: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-            child: ElevatedButton(
-                onPressed: () {
-                  return Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              RequestMovie(apiKey: widget.apiKey)));
-                },
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0)),
-                  primary: Color.fromARGB(255, 235, 170, 73),
+    return WillPopScope(
+      onWillPop: (selectedIndex == 0) ? _onWillPop : null,
+      child: Scaffold(
+        drawer: NavigationDrawerWidget(apiKey: apiKey),
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Color.fromARGB(255, 25, 27, 45),
+          leading: Builder(
+            builder: (context) => IconButton(
+                splashRadius: 25.0,
+                padding: EdgeInsets.all(0.0),
+                icon: SvgPicture.asset(
+                  'assets/icons/Drawer2.svg',
+                  height: 40.0,
                 ),
-                child: Text(
-                  'Request Movie',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: "NEXA",
+                onPressed: () => Scaffold.of(context).openDrawer()),
+          ),
+
+          // fit: BoxFit.fitHeight,
+
+          title: Text('Movie House',
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+                fontFamily: "NEXA",
+              )),
+          actions: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+              child: ElevatedButton(
+                  onPressed: () {
+                    return Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                RequestMovie(apiKey: apiKey)));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0)),
+                    primary: Color.fromARGB(255, 235, 170, 73),
                   ),
-                )),
-          )
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(55.0),
-          child: Container(
-            color: Color.fromARGB(255, 25, 27, 45),
-            width: double.infinity,
-            height: 55.0,
-            padding: EdgeInsets.only(bottom: 5.0),
-            child: (_categories != null)
-                ? ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _categories.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 5.0,
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            page = 1;
-                            _results = [];
-                            _categoryBanners = [];
-                            _scrollController.removeListener(_onScrollEvent);
-                            setState(() {
-                              selectedIndex = index;
-                            });
-                            if (selectedIndex == 0) {
-                              _populateAllCategories();
-                              // _scrollController.dispose();
-                            } else {
-                              setState(() {
-                                selectedCategoryId = _categories[index].id;
-                              });
-                              _populateListings(selectedCategoryId);
-                            }
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30.0),
-                              color: selectedIndex == index
-                                  ? Colors.blue[800]
-                                  : Colors.transparent,
+                  child: Text(
+                    'Request Movie',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "NEXA",
+                    ),
+                  )),
+            )
+          ],
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(55.0),
+            child: Container(
+              color: Color.fromARGB(255, 25, 27, 45),
+              width: double.infinity,
+              height: 55.0,
+              padding: EdgeInsets.only(bottom: 5.0),
+              child: (_categories != null)
+                  ? WillPopScope(
+                      onWillPop: () {
+                        if (selectedIndex != 0) {
+                          setState(() {
+                            selectedIndex = 0;
+                            _scrollBackToAll();
+                          });
+                        }
+                        return null;
+                      },
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _categories.length,
+                        controller: categoryController,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 5.0,
                             ),
-                            margin: EdgeInsets.only(
-                                left: (index == 0) ? 10 : 0,
-                                right:
-                                    index == (_categories.length - 1) ? 10 : 0),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20.0, vertical: 5.0),
-                            height: 55.0,
-                            // width: 90.0,
-                            child: Center(
-                              child: Text(
-                                '${_categories[index].category}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: "NEXA",
+                            child: GestureDetector(
+                              onTap: () {
+                                // _scrollBackToAll();
+                                if (mounted) {
+                                  setState(() {
+                                    page = 1;
+                                    _results = [];
+                                    _scrollController
+                                        .removeListener(_onScrollEvent);
+                                    _categoryBanners = [];
+                                    selectedIndex = index;
+                                  });
+                                }
+                                if (selectedIndex == 0) {
+                                  _populateAllCategories();
+                                  // _scrollController.dispose();
+                                } else {
+                                  setState(() {
+                                    selectedCategoryId = _categories[index].id;
+                                  });
+                                  _populateListings(selectedCategoryId);
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  color: selectedIndex == index
+                                      ? Colors.blue[800]
+                                      : Colors.transparent,
+                                ),
+                                margin: EdgeInsets.only(
+                                    left: (index == 0) ? 10 : 0,
+                                    right: index == (_categories.length - 1)
+                                        ? 10
+                                        : 0),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20.0, vertical: 5.0),
+                                height: 55.0,
+                                // width: 90.0,
+                                child: Center(
+                                  child: Text(
+                                    '${_categories[index].category}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "NEXA",
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
+                          );
+                        },
+                      ),
+                    )
+                  : Center(
+                      child: Container(
+                        child: Text(
+                          'Loading Categories...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: "NEXA",
+                            fontWeight: FontWeight.bold,
                           ),
-                        ),
-                      );
-                    },
-                  )
-                : Center(
-                    child: Container(
-                      child: Text(
-                        'Loading Categories...',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: "NEXA",
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ),
+            ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: SvgPicture.asset(
-          'assets/icons/Search.svg',
+        floatingActionButton: FloatingActionButton(
+          child: SvgPicture.asset(
+            'assets/icons/Search.svg',
+          ),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => SearchScreen()));
+          },
+          backgroundColor: Colors.blue,
         ),
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SearchScreen()));
-        },
-        backgroundColor: Colors.blue,
+        body: (_homeCategories != null)
+            ? CustomScrollView(
+                controller: _scrollController,
+                slivers: [
+                  _bannerView(),
+                  (selectedIndex == 0)
+                      ? _popularLatestCategory()
+                      : _categoryGrid(),
+                ],
+              )
+            : Center(child: CircularProgressIndicator()),
       ),
-      body: (_homeCategories != null)
-          ? CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                _bannerView(),
-                (selectedIndex == 0)
-                    ? _popularLatestCategory()
-                    : _categoryGrid(),
-              ],
-            )
-          : Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -420,6 +504,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemBuilder: (BuildContext context, int index,
                                   int pageItemIndex) =>
                               CachedNetworkImage(
+                            placeholder: (context, url) => Container(
+                              width: MediaQuery.of(context).size.width,
+                              margin: EdgeInsets.all(10.0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                image: DecorationImage(
+                                  image:
+                                      AssetImage('assets/images/600x350.webp'),
+                                  fit: BoxFit.fill,
+                                  // alignment: Alignment.topLeft,
+                                ),
+                              ),
+                            ),
                             imageUrl: (!snapshot.hasData)
                                 ? 'https://via.placeholder.com/600x350.png?text=No+Preview+available'
                                 : imagePath + snapshot.data[index].banner,
@@ -431,10 +528,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   return (snapshot.data[index].type == 'movie')
                                       ? MovieDetail(
                                           movie: snapshot.data[index],
-                                          apiKey: widget.apiKey)
+                                          apiKey: apiKey)
                                       : SeriesDetail(
                                           series: snapshot.data[index],
-                                          apiKey: widget.apiKey);
+                                          apiKey: apiKey);
                                 }));
                               },
                               child: Container(
@@ -553,17 +650,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(builder: (context) {
                               return (category.contents[index].type == "movie")
-                                  ? MovieDetail(
-                                      movie: result, apiKey: widget.apiKey)
+                                  ? MovieDetail(movie: result, apiKey: apiKey)
                                   : SeriesDetail(
-                                      series: result, apiKey: widget.apiKey);
+                                      series: result, apiKey: apiKey);
                             }),
                           );
                         },
                         child: CachedNetworkImage(
                           placeholderFadeInDuration:
                               Duration(milliseconds: 500),
-                          imageUrl: imagePath + result.poster,
+                          imageUrl: imagePath + result.smallPoster,
                           imageBuilder: (context, imageProvider) => Container(
                             width: MediaQuery.of(context).size.width * 0.29,
                             // height: 130.0,
@@ -633,10 +729,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             decoration: BoxDecoration(
                               // shape: BoxShape.circle,
                               borderRadius: BorderRadius.circular(10.0),
-                              image: DecorationImage(
-                                  image: AssetImage(
-                                      'assets/images/poster_placeholder.png'),
-                                  fit: BoxFit.fill),
+                              // image: DecorationImage(                              color: Color.fromRGBO(74, 74, 74, 1),
+
+                              //     image: AssetImage(
+                              //         'assets/images/poster_placeholder.png'),
+                              //     fit: BoxFit.fill),
                             ),
                             child: Stack(
                               children: [
@@ -686,9 +783,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       children: [
                                         Icon(Icons.star, size: 13.0),
                                         Text(
-                                          '7.8 ',
+                                          result.ratings.toString(),
                                           style: TextStyle(
                                             fontSize: 10.0,
+
                                             // fontFamily: 'NEXA',
                                           ),
                                         )
@@ -704,7 +802,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.black87,
                                     child: Text(result.title,
                                         style: TextStyle(
-                                          color: Colors.white,
+                                          color: Colors.black,
                                           fontSize: 12.0,
                                           fontFamily: 'NEXA',
                                           fontWeight: FontWeight.bold,
@@ -753,17 +851,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => (result.type == 'movie')
-                                ? MovieDetail(
-                                    movie: result, apiKey: widget.apiKey)
-                                : SeriesDetail(
-                                    series: result, apiKey: widget.apiKey),
+                                ? MovieDetail(movie: result, apiKey: apiKey)
+                                : SeriesDetail(series: result, apiKey: apiKey),
                           ),
                         );
                       },
                       child: CachedNetworkImage(
                         filterQuality: FilterQuality.low,
                         placeholderFadeInDuration: Duration(milliseconds: 500),
-                        imageUrl: imagePath + result.poster,
+                        imageUrl: imagePath + result.smallPoster,
                         imageBuilder: (context, imageProvider) => Container(
                           width: MediaQuery.of(context).size.width * 0.30,
                           height: 150,
@@ -827,10 +923,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             // shape: BoxShape.circle,
                             borderRadius: BorderRadius.circular(10.0),
-                            image: DecorationImage(
-                                image: AssetImage(
-                                    'assets/images/poster_placeholder.png'),
-                                fit: BoxFit.fill),
+                            color: Color.fromRGBO(74, 74, 74, 1),
+                            // image: DecorationImage(
+                            //     image: AssetImage(
+                            //         'assets/images/poster_placeholder.png'),
+                            //     fit: BoxFit.fill),
                           ),
                           child: Stack(
                             children: [
