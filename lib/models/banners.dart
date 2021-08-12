@@ -5,6 +5,9 @@ class Banners {
   Banners({this.id, this.banner});
 
   factory Banners.fromJson(Map<String, dynamic> json) {
-    return Banners(id: json['id'], banner: json['image']);
+    return Banners(
+      id: json['id'],
+      banner: json['image'],
+    );
   }
 }

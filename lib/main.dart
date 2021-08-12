@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:moviehouse/provider/navigationProvider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,6 +16,8 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+
   await Firebase.initializeApp();
   await MobileAds.instance.initialize();
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);

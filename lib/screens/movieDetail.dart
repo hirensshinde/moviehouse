@@ -9,6 +9,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:moviehouse/models/movies.dart';
 import 'package:moviehouse/models/update.dart';
 import 'package:moviehouse/screens/howToScreen.dart';
+import 'package:moviehouse/screens/videoAdScreen.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -46,10 +47,14 @@ class _MovieDetailState extends State<MovieDetail> {
   ];
   bool buttonClicked = false;
 
+  String link;
+  String videoFile;
+
   @override
   initState() {
     super.initState();
     checkLatestVersion();
+    getAds();
     AdColony.init(AdColonyOptions('appdbb93c3885d94a2697', '0', this.zones));
   }
 
@@ -76,7 +81,7 @@ class _MovieDetailState extends State<MovieDetail> {
     );
   }
 
-  checkLatestVersion() async {
+  Future checkLatestVersion() async {
     //Add query here to get the minimum and latest app version
 
     //Change
@@ -96,6 +101,19 @@ class _MovieDetailState extends State<MovieDetail> {
         latestAppVersion = Version.parse(appVersion.version);
       });
       print(latestAppVersion);
+    }
+  }
+
+  Future getAds() async {
+    var response = await http.get(
+        Uri.parse('https://api.moviehouse.download/api/advertise/full-screen'));
+    if (response.statusCode == 200) {
+      var result = jsonDecode(response.body);
+      var data = result['data'];
+
+      link = data[0]['link'];
+      videoFile = data[0]['file'];
+      print("==============>> Video file :: $videoFile");
     }
   }
 
@@ -238,27 +256,38 @@ class _MovieDetailState extends State<MovieDetail> {
                           buttonClicked = true;
                         });
                         _downloadCount();
-                        listener(AdColonyAdListener event, int reward) async {
-                          print(event);
-                          if (event == AdColonyAdListener.onRequestFilled) {
-                            if (await AdColony.isLoaded()) {
-                              AdColony.show();
-                            }
-                          }
-                          if (event == AdColonyAdListener.onReward) {
-                            print('ADCOLONY: $reward');
-                          }
-                          if (event == AdColonyAdListener.onClosed) {
-                            print('closed ad');
-                            return _downloadLink();
-                          }
-                          if (event == AdColonyAdListener.onRequestNotFilled) {
-                            print('ad failed');
-                            return _downloadLink();
-                          }
-                        }
 
-                        return AdColony.request(this.zones[0], listener);
+                        final result = await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                FullScreenVideoAd(
+                                    link: link, videoFile: videoFile),
+                          ),
+                        );
+
+                        _downloadLink();
+
+                        // listener(AdColonyAdListener event, int reward) async {
+                        //   print(event);
+                        //   if (event == AdColonyAdListener.onRequestFilled) {
+                        //     if (await AdColony.isLoaded()) {
+                        //       AdColony.show();
+                        //     }
+                        //   }
+                        //   if (event == AdColonyAdListener.onReward) {
+                        //     print('ADCOLONY: $reward');
+                        //   }
+                        //   if (event == AdColonyAdListener.onClosed) {
+                        //     print('closed ad');
+                        //     return _downloadLink();
+                        //   }
+                        //   if (event == AdColonyAdListener.onRequestNotFilled) {
+                        //     print('ad failed');
+                        //     return _downloadLink();
+                        //   }
+                        // }
+
+                        // return AdColony.request(this.zones[0], listener);
                       },
                       label: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moviehouse/models/adBanner.dart';
 import 'package:moviehouse/models/categories.dart';
 import 'package:http/http.dart' as http;
 import 'package:moviehouse/models/homeCategories.dart';
@@ -16,6 +17,7 @@ import 'package:moviehouse/screens/movieDetail.dart';
 import 'package:moviehouse/screens/searchScreen.dart';
 import 'package:moviehouse/screens/seriesDetail.dart';
 import 'package:moviehouse/widgets/sidebarWidget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   final String apiKey;
@@ -82,6 +84,41 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? Movie.fromJson(banner)
                 : WebSeries.fromJson(banner))
             .toList();
+        // print("Received Model list ==> $modelList");
+        return modelList;
+      }
+    }
+    return [];
+  }
+
+  Future<List> getAdBanner() async {
+    final url = Uri.parse("https://api.moviehouse.download/api/advertise");
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      var data = result['data'];
+      if (data.length > 0) {
+        List modelList =
+            await data.map((banner) => AdBanner.fromJson(banner)).toList();
+        // print("Received Model list ==> $modelList");
+        return modelList;
+      }
+    }
+    return [];
+  }
+
+  Future<List> getCategoryAdBanner(id) async {
+    final url = Uri.parse(
+        "https://api.moviehouse.download/api/advertise?category_id=$id");
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      var data = result['data'];
+      if (data.length > 0) {
+        List modelList =
+            await data.map((banner) => AdBanner.fromJson(banner)).toList();
         // print("Received Model list ==> $modelList");
         return modelList;
       }
@@ -462,150 +499,293 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _adView() {
+    return Container(
+      height: 180.0,
+      width: MediaQuery.of(context).size.width,
+      child: FutureBuilder(
+        future: selectedIndex == 0
+            ? getAdBanner()
+            : getCategoryAdBanner(selectedCategoryId),
+        initialData: [],
+        builder: (context, AsyncSnapshot snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              return (snapshot.hasData)
+                  ? CarouselSlider.builder(
+                      itemCount: snapshot.data.length,
+                      options: CarouselOptions(
+                        autoPlay: true,
+                        // height:
+                        //     MediaQuery.of(context).size.height * .30,
+                        viewportFraction: 1.0,
+                        disableCenter: true,
+                        autoPlayInterval: Duration(seconds: 15),
+                        autoPlayCurve: Curves.easeInOut,
+                        initialPage: 0,
+                        onPageChanged: (index, _) {
+                          // setState(() {
+                          //   _cur`re`nt = index;
+                          // });
+                        },
+                        autoPlayAnimationDuration: Duration(milliseconds: 500),
+                        scrollDirection: Axis.horizontal,
+                      ),
+                      itemBuilder: (BuildContext context, int index,
+                              int pageItemIndex) =>
+                          CachedNetworkImage(
+                        placeholder: (context, url) => Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.only(
+                              top: 15.0, right: 10.0, left: 10.0, bottom: 5.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/600x350.webp'),
+                              fit: BoxFit.fill,
+                              // alignment: Alignment.topLeft,
+                            ),
+                          ),
+                        ),
+                        imageUrl: imagePath + snapshot.data[index].image,
+                        imageBuilder: (context, imageProvider) =>
+                            GestureDetector(
+                          onTap: () async {
+                            final _url = snapshot.data[index].link;
+                            await canLaunch(_url)
+                                ? await launch(_url)
+                                : throw 'Could not launch $_url';
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            // height: MediaQuery.of(context)
+                            //         .size
+                            //         .height *
+                            //     .35,
+                            margin: EdgeInsets.only(
+                                top: 15.0,
+                                right: 10.0,
+                                left: 10.0,
+                                bottom: 5.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5.0),
+                              image: DecorationImage(
+                                image: imageProvider,
+
+                                fit: BoxFit.fill,
+
+                                // alignment: Alignment.topLeft,
+                              ),
+                            ),
+                          ),
+                        ),
+                        // placeholder: (context, url) => Center(
+                        //     child: CircularProgressIndicator()),
+                      ),
+                    )
+                  : CarouselSlider.builder(
+                      itemCount: 1,
+                      options: CarouselOptions(
+                        autoPlay: true,
+                        // height:
+                        //     MediaQuery.of(context).size.height * .35,
+                        viewportFraction: 1.0,
+                        disableCenter: true,
+                        autoPlayInterval: Duration(seconds: 15),
+                        autoPlayCurve: Curves.easeInOut,
+                        initialPage: 0,
+                        onPageChanged: (index, _) {
+                          _current = index;
+                        },
+                        autoPlayAnimationDuration: Duration(milliseconds: 500),
+                        scrollDirection: Axis.horizontal,
+                      ),
+                      itemBuilder: (BuildContext context, int index,
+                              int pageItemIndex) =>
+                          CachedNetworkImage(
+                        imageUrl:
+                            'https://via.placeholder.com/600x350.png?text=Advertisement+Loading',
+                        imageBuilder: (context, imageProvider) => Container(
+                          width: MediaQuery.of(context).size.width,
+                          // height:
+                          //     MediaQuery.of(context).size.height *
+                          //         .5,
+                          margin: EdgeInsets.only(
+                              top: 15.0, right: 10.0, left: 10.0, bottom: 5.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            image: DecorationImage(
+                              image: imageProvider,
+
+                              fit: BoxFit.fill,
+
+                              // alignment: Alignment.topLeft,
+                            ),
+                          ),
+                        ),
+                        placeholder: (context, url) =>
+                            Center(child: CircularProgressIndicator()),
+                      ),
+                    );
+            default:
+              return Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
+    );
+  }
+
   Widget _bannerView() {
     return SliverAppBar(
       automaticallyImplyLeading: false,
       // snap: ,
-      expandedHeight: 200.0,
+      expandedHeight: 380.0,
       backgroundColor: Colors.black,
       flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          height: 200.0,
-          width: MediaQuery.of(context).size.width,
-          child: FutureBuilder(
-            future: selectedIndex == 0
-                ? getBanner()
-                : getCategoryBanners(selectedCategoryId),
-            initialData: [],
-            builder: (context, AsyncSnapshot snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.done:
-                  return (snapshot.hasData)
-                      ? CarouselSlider.builder(
-                          itemCount: snapshot.data.length,
-                          options: CarouselOptions(
-                            autoPlay: true,
-                            // height:
-                            //     MediaQuery.of(context).size.height * .30,
-                            viewportFraction: 1.0,
-                            disableCenter: true,
-                            autoPlayInterval: Duration(seconds: 5),
-                            autoPlayCurve: Curves.easeInOut,
-                            initialPage: 0,
-                            onPageChanged: (index, _) {
-                              // setState(() {
-                              //   _cur`re`nt = index;
-                              // });
-                            },
-                            autoPlayAnimationDuration:
-                                Duration(milliseconds: 800),
-                            scrollDirection: Axis.horizontal,
-                          ),
-                          itemBuilder: (BuildContext context, int index,
-                                  int pageItemIndex) =>
-                              CachedNetworkImage(
-                            placeholder: (context, url) => Container(
-                              width: MediaQuery.of(context).size.width,
-                              margin: EdgeInsets.all(10.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
-                                image: DecorationImage(
-                                  image:
-                                      AssetImage('assets/images/600x350.webp'),
-                                  fit: BoxFit.fill,
-                                  // alignment: Alignment.topLeft,
-                                ),
+        background: Column(
+          children: [
+            _adView(),
+            Container(
+              height: 200.0,
+              width: MediaQuery.of(context).size.width,
+              child: FutureBuilder(
+                future: selectedIndex == 0
+                    ? getBanner()
+                    : getCategoryBanners(selectedCategoryId),
+                initialData: [],
+                builder: (context, AsyncSnapshot snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.done:
+                      return (snapshot.hasData)
+                          ? CarouselSlider.builder(
+                              itemCount: snapshot.data.length,
+                              options: CarouselOptions(
+                                autoPlay: true,
+                                // height:
+                                //     MediaQuery.of(context).size.height * .30,
+                                viewportFraction: 1.0,
+                                disableCenter: true,
+                                autoPlayInterval: Duration(seconds: 5),
+                                autoPlayCurve: Curves.easeInOut,
+                                initialPage: 0,
+                                onPageChanged: (index, _) {
+                                  // setState(() {
+                                  //   _cur`re`nt = index;
+                                  // });
+                                },
+                                autoPlayAnimationDuration:
+                                    Duration(milliseconds: 800),
+                                scrollDirection: Axis.horizontal,
                               ),
-                            ),
-                            imageUrl: (!snapshot.hasData)
-                                ? 'https://via.placeholder.com/600x350.png?text=No+Preview+available'
-                                : imagePath + snapshot.data[index].banner,
-                            imageBuilder: (context, imageProvider) =>
-                                GestureDetector(
-                              onTap: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return (snapshot.data[index].type == 'movie')
-                                      ? MovieDetail(
-                                          movie: snapshot.data[index],
-                                          apiKey: apiKey)
-                                      : SeriesDetail(
-                                          series: snapshot.data[index],
-                                          apiKey: apiKey);
-                                }));
-                              },
-                              child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                // height: MediaQuery.of(context)
-                                //         .size
-                                //         .height *
-                                //     .35,
-                                margin: EdgeInsets.all(10.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  image: DecorationImage(
-                                    image: imageProvider,
-
-                                    fit: BoxFit.fill,
-
-                                    // alignment: Alignment.topLeft,
+                              itemBuilder: (BuildContext context, int index,
+                                      int pageItemIndex) =>
+                                  CachedNetworkImage(
+                                placeholder: (context, url) => Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  margin: EdgeInsets.all(10.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                          'assets/images/600x350.webp'),
+                                      fit: BoxFit.fill,
+                                      // alignment: Alignment.topLeft,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            // placeholder: (context, url) => Center(
-                            //     child: CircularProgressIndicator()),
-                          ),
-                        )
-                      : CarouselSlider.builder(
-                          itemCount: 1,
-                          options: CarouselOptions(
-                            autoPlay: true,
-                            // height:
-                            //     MediaQuery.of(context).size.height * .35,
-                            viewportFraction: 1.0,
-                            disableCenter: true,
-                            autoPlayInterval: Duration(seconds: 10),
-                            autoPlayCurve: Curves.easeInOut,
-                            initialPage: 0,
-                            onPageChanged: (index, _) {
-                              _current = index;
-                            },
-                            autoPlayAnimationDuration:
-                                Duration(milliseconds: 800),
-                            scrollDirection: Axis.horizontal,
-                          ),
-                          itemBuilder: (BuildContext context, int index,
-                                  int pageItemIndex) =>
-                              CachedNetworkImage(
-                            imageUrl:
-                                'https://via.placeholder.com/600x350.png?text=No+Preview+available',
-                            imageBuilder: (context, imageProvider) => Container(
-                              width: MediaQuery.of(context).size.width,
-                              // height:
-                              //     MediaQuery.of(context).size.height *
-                              //         .5,
-                              margin: EdgeInsets.all(10.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.0),
-                                image: DecorationImage(
-                                  image: imageProvider,
+                                imageUrl: (!snapshot.hasData)
+                                    ? 'https://via.placeholder.com/600x350.png?text=No+Preview+available'
+                                    : imagePath + snapshot.data[index].banner,
+                                imageBuilder: (context, imageProvider) =>
+                                    GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
+                                      return (snapshot.data[index].type ==
+                                              'movie')
+                                          ? MovieDetail(
+                                              movie: snapshot.data[index],
+                                              apiKey: apiKey)
+                                          : SeriesDetail(
+                                              series: snapshot.data[index],
+                                              apiKey: apiKey);
+                                    }));
+                                  },
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    // height: MediaQuery.of(context)
+                                    //         .size
+                                    //         .height *
+                                    //     .35,
+                                    margin: EdgeInsets.all(10.0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      image: DecorationImage(
+                                        image: imageProvider,
 
-                                  fit: BoxFit.fill,
+                                        fit: BoxFit.fill,
 
-                                  // alignment: Alignment.topLeft,
+                                        // alignment: Alignment.topLeft,
+                                      ),
+                                    ),
+                                  ),
                                 ),
+                                // placeholder: (context, url) => Center(
+                                //     child: CircularProgressIndicator()),
                               ),
-                            ),
-                            placeholder: (context, url) =>
-                                Center(child: CircularProgressIndicator()),
-                          ),
-                        );
-                default:
-                  return Center(child: CircularProgressIndicator());
-              }
-            },
-          ),
+                            )
+                          : CarouselSlider.builder(
+                              itemCount: 1,
+                              options: CarouselOptions(
+                                autoPlay: true,
+                                // height:
+                                //     MediaQuery.of(context).size.height * .35,
+                                viewportFraction: 1.0,
+                                disableCenter: true,
+                                autoPlayInterval: Duration(seconds: 10),
+                                autoPlayCurve: Curves.easeInOut,
+                                initialPage: 0,
+                                onPageChanged: (index, _) {
+                                  _current = index;
+                                },
+                                autoPlayAnimationDuration:
+                                    Duration(milliseconds: 800),
+                                scrollDirection: Axis.horizontal,
+                              ),
+                              itemBuilder: (BuildContext context, int index,
+                                      int pageItemIndex) =>
+                                  CachedNetworkImage(
+                                imageUrl:
+                                    'https://via.placeholder.com/600x350.png?text=No+Preview+available',
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  // height:
+                                  //     MediaQuery.of(context).size.height *
+                                  //         .5,
+                                  margin: EdgeInsets.all(10.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    image: DecorationImage(
+                                      image: imageProvider,
+
+                                      fit: BoxFit.fill,
+
+                                      // alignment: Alignment.topLeft,
+                                    ),
+                                  ),
+                                ),
+                                placeholder: (context, url) =>
+                                    Center(child: CircularProgressIndicator()),
+                              ),
+                            );
+                    default:
+                      return Center(child: CircularProgressIndicator());
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
